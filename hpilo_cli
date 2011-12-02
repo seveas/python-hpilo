@@ -1,0 +1,97 @@
+#!/usr/bin/python
+#
+# (c) 2011 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
+
+import ConfigParser
+import hpilo
+import optparse
+import os
+from pprint import pprint
+import sys
+
+ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.islower()])
+
+def main():
+    usage = """%%prog [options] hostname method [args...]
+    
+Supported methods:
+- %s"""
+
+    usage %= "\n- ".join(ilo_methods)
+    
+    p = optparse.OptionParser(usage=usage, add_help_option=False)
+    p.add_option("-l", "--login", dest="login", default=None,
+                 help="Username to access the iLO")
+    p.add_option("-p", "--password", dest="password", default=None,
+                 help="Password to access the iLO")
+    p.add_option("-a", "--auth", dest="auth", default="~/.ilo.conf",
+                 help="File containing authentication details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+    p.add_option("-j", "--json", dest="json", action="store_true", default=False,
+                 help="Output a json document instead of a python dict")
+    p.add_option("-d", "--debug", dest="debug", action="count", default=0,
+                 help="Output debug information, repeat to see all XML data")
+    p.add_option("-h", "--help", action="callback", callback=hpilo_help,
+                 help="show this help message or help for a method")
+
+    opts, args = p.parse_args()
+
+    if opts.json:
+        import json
+
+    # Did we get correct arguments?
+    if len(args) < 2 or args[1] not in ilo_methods:
+        p.print_help()
+        p.exit()
+
+    hostname, method = args[:2]
+    args = args[2:]
+
+    # Do we have login information
+    login = None
+    password = None
+    if os.path.exists(os.path.expanduser(opts.auth)):
+        cp = ConfigParser.ConfigParser()
+        cp.read(os.path.expanduser(opts.auth))
+        if cp.has_option('ilo', 'login'):
+            login = cp.get('ilo', 'login')
+        if cp.has_option('ilo', 'password'):
+            password = cp.get('ilo', 'password')
+    if opts.login:
+        login = opts.login
+    if opts.password:
+        password = opts.password
+    if not login or not password:
+        p.print_help()
+        p.exit()
+
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout)
+    ilo.debug = opts.debug
+    result = getattr(ilo, method)()
+    if opts.json:
+        json.dump(result, sys.stdout)
+    else:
+        print ">>> pprint(my_ilo.%s())" % method
+        pprint(result)
+
+
+def hpilo_help(option, opt_str, value, parser):
+    assert value is None
+    if parser.rargs and parser.rargs[0][0] != '-':
+        value = parser.rargs[0]
+        del parser.rargs[0]
+
+    if not value:
+        parser.print_help()
+    else:
+        if value in ilo_methods:
+            print "Ilo.%s:" % value
+            print getattr(hpilo.Ilo, value).__doc__
+        else:
+            print "No such method: %s" % value
+    parser.exit()
+
+if __name__ == '__main__':
+    main()

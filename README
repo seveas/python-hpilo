@@ -1,0 +1,28 @@
+Accessing HP iLO interfaces from python
+=======================================
+
+This module will make it easy for you to access the Integrated Lights Out
+management interface of your HP hardware. It supports iLO, iLO 2 and iLO 3 and
+It uses the XML interface to access and change the iLO.
+
+HP, Integrated Lights out and iLO are trademarks of HP, with whom the author of
+this software is not affiliated in any way other than using some of their
+hardware.
+
+Installing
+----------
+
+The software is easy to install from github:
+
+$ git clone git://github.com/seveas/python-hpilo
+$ cd python-hpilo
+$ python setup.py install
+
+The minimum python version supported is 2.5 as this software uses the
+ElementTree XML library. It is probably possible to use older versions and an
+external ElementTree library, but this is left as an exercise to the reader.
+
+Usage
+-----
+See docs/index.rst or the documentation on
+http://packages.python.org/python-hpilo/ for API documentation and examples.
