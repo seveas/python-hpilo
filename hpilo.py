@@ -5,12 +5,21 @@ import socket
 import cStringIO as StringIO
 import sys
 import xml.etree.cElementTree as etree
+import warnings
 
 # Which protocol to use
 ILO_RAW  = 1
 ILO_HTTP = 2
 
 class IloError(Exception):
+    pass
+
+class IloLoginFailed(IloError):
+    possible_messages = ['User login name was not found', 'Login failed', 'Login credentials rejected']
+    possible_codes = [0x005f, 0x000a]
+    pass
+
+class IloWarning(Warning):
     pass
 
 class Ilo(object):
@@ -174,13 +183,17 @@ class Ilo(object):
                     pass
                 # RESPONE with status 0 also adds no value
                 elif child.tag == 'RESPONSE' and int(child.get('STATUS'), 16) == 0:
-                    pass
+                    if child.get('MESSAGE') != 'No error':
+                        warnings.warn(child.get('MESSAGE'), IloWarning)
                 # These are interesting, something went wrong
                 elif child.tag == 'RESPONSE':
                     if 'syntax error' in child.get('MESSAGE') and not self.protocol:
                         # This is triggered when doing protocol detection, ignore
                         pass
                     else:
+                        if int(child.get('STATUS'), 16) in IloLoginFailed.possible_codes or \
+                                child.get('MESSAGE') in IloLoginFailed.possible_messages:
+                            raise IloLoginFailed
                         raise IloError("Error communicating with iLO: %s" % child.get('MESSAGE'))
                 # And this type of message is the actual payload.
                 else:
