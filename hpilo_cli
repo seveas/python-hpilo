@@ -25,8 +25,8 @@ Supported methods:
                  help="Username to access the iLO")
     p.add_option("-p", "--password", dest="password", default=None,
                  help="Password to access the iLO")
-    p.add_option("-a", "--auth", dest="auth", default="~/.ilo.conf",
-                 help="File containing authentication details", metavar="FILE")
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
     p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
                  help="Timeout for iLO connections")
     p.add_option("-j", "--json", dest="json", action="store_true", default=False,
@@ -48,6 +48,10 @@ Supported methods:
         p.print_help()
         p.exit()
 
+    config = ConfigParser.ConfigParser()
+    if os.path.exists(os.path.expanduser(opts.config)):
+        config.read(os.path.expanduser(opts.config))
+
     hostname, method = args[:2]
     args = args[2:]
 
@@ -62,12 +66,20 @@ Supported methods:
         param, val = arg.split('=', 1)
         if param not in argnames:
             hpilo_help(None, None, method, None)
+
+        # Optionally extract values from the config
+        if val.startswith('$') and '.' in val:
+            section, option = val[1:].split('.', 1)
+            if config.has_option(section, option):
+                val = config.get(section, option)
+
         # Do some type coercion for shell goodness
         if val.isdigit():
             val = int(val)
         else:
             val = {'true': True, 'false': False}.get(val.lower(), val)
         params[param] = val
+
     for name in argnames:
         if name not in params and name not in args_with_defaults:
             hpilo_help(None, None, method, sys)
@@ -75,13 +87,10 @@ Supported methods:
     # Do we have login information
     login = None
     password = None
-    if os.path.exists(os.path.expanduser(opts.auth)):
-        cp = ConfigParser.ConfigParser()
-        cp.read(os.path.expanduser(opts.auth))
-        if cp.has_option('ilo', 'login'):
-            login = cp.get('ilo', 'login')
-        if cp.has_option('ilo', 'password'):
-            password = cp.get('ilo', 'password')
+    if config.has_option('ilo', 'login'):
+        login = config.get('ilo', 'login')
+    if config.has_option('ilo', 'password'):
+        password = config.get('ilo', 'password')
     if opts.login:
         login = opts.login
     if opts.password:
@@ -126,6 +135,7 @@ def hpilo_help(option, opt_str, value, parser):
         parser.print_help()
     else:
         if value in ilo_methods:
+            import re, textwrap
             func = getattr(hpilo.Ilo, value).im_func
             code = func.func_code
             args = ''
@@ -137,7 +147,9 @@ def hpilo_help(option, opt_str, value, parser):
                 args = ' ' + ' '.join(args[1:])
 
             print "Ilo.%s%s:" % (value, args)
-            print getattr(hpilo.Ilo, value).__doc__ or "No documentation"
+            doc = getattr(hpilo.Ilo, value).__doc__ or "No documentation"
+            doc = re.sub(r':[a-z]+:`(.*?)`', r'\1', doc)
+            print textwrap.fill(doc, 80)
         else:
             print "No such method: %s" % value
     if parser:
