@@ -80,10 +80,12 @@ class Ilo(object):
             if message is not None:
                 messages.append(message)
 
-        if len(messages) == 1:
+        if not messages:
+            return header, None
+        elif len(messages) == 1:
             return header, messages[0]
-
-        return header, messages
+        else:
+            return header, messages
 
     def _communicate(self, xml, protocol):
         """Set up an https connection and do an HTTP/raw socket request"""
@@ -282,6 +284,54 @@ class Ilo(object):
                 retval.append(elt)
         return retval
 
+    def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[]):
+        root, inner = self._root_element(controltype, MODE='write')
+        inner = etree.SubElement(inner, tagname, **attrib)
+        for element in elements:
+            inner.append(element)
+        header, message = self._request(root)
+        if message is None:
+            return None
+        # Code path below is untested. Error out for now.
+        raise IloError("You've reached unknown territories, please report a bug")
+        message = message.find(returntag or tagname)
+        if list(message):
+            return self._element_children_to_dict(message)
+        else:
+            return self._element_to_dict(message)
+
+    def activate_license(self, key):
+        """Activate an iLO advanced license"""
+        license = etree.Element('ACTIVATE', KEY=key)
+        return self._control_tag('RIB_INFO', 'LICENSE', elements=[license])
+
+    def add_user(self, user_login, user_name, password, admin_priv=False,
+            remote_cons_prive=True, reset_server_priv=False,
+            virtual_media_priv=False, config_ilo_priv=True):
+        """Add a new user to the iLO interface with the specified name,
+           password and permissions. Permission attributes should be boolean
+           values."""
+        attrs = locals()
+        elements = []
+        for attribute in [x for x in attrs.keys() if x.endswith('_priv')]:
+            val = ['No', 'Yes'][bool(attrs[attribute])]
+            elements.append(etree.Element(attribute.upper(), VALUE=val))
+
+        return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
+                attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
+
+    def clear_ilo_event_log(self):
+        """Clears the iLO event log"""
+        return self._control_tag('RIB_INFO', 'CLEAR_EVENTLOG')
+
+    def clear_server_event_log(self):
+        """Clears the server event log"""
+        return self._control_tag('SERVER_INFO', 'CLEAR_IML')
+
+    def delete_user(self, user_login):
+        """Delete the specified user from the ilo"""
+        return self._control_tag('USER_INFO', 'DELETE_USER', attrib={'USER_LOGIN': user_login})
+
     def get_all_users(self):
         """Get a list of all loginnames"""
         data = self._info_tag2('USER_INFO', 'GET_ALL_USERS', key='value')
@@ -450,6 +500,36 @@ class Ilo(object):
         """Get the status of virtual media devices. Valid devices are FLOPPY and CDROM"""
         return self._info_tag('RIB_INFO', 'GET_VM_STATUS', attrib={'DEVICE': device})
 
+    def mod_user(self, user_login, user_name=None, password=None,
+            admin_priv=None, remote_cons_prive=None, reset_server_priv=None,
+            virtual_media_priv=None, config_ilo_priv=None):
+        """Set attributes for a user, only specified arguments will be changed.
+           All arguments except user_name and password should be boolean"""
+
+        attrs = locals()
+        elements = []
+        for attribute in ('user_name', 'password'):
+            if attrs[attribute] is not None:
+                elements.append(etree.Element(attribute.upper(), VALUE=attrs[attribute]))
+        for attribute in [x for x in attrs.keys() if x.endswith('_priv')]:
+            if attrs[attribute] is not None:
+                val = ['No', 'Yes'][bool(attrs[attribute])]
+                elements.append(etree.Element(attribute.upper(), VALUE=val))
+
+        return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=elements)
+
+    def set_server_name(self, name):
+        """Set the name of the server"""
+        return self._control_tag('SERVER_INFO', 'SERVER_NAME', attrib={"VALUE": name})
+
+    def uid_control(self, uid="No"):
+        """Turn the UID light on ("Yes") or off ("No")"""
+        if uid.lower() not in ('yes', 'no'):
+            raise ValueError("uid should be Yes or No")
+        return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
+
+
+##############################################################################################
 #### All functions below require hardware I don't have access to
 
     def get_all_cables_status(self):

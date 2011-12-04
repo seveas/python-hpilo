@@ -1,15 +1,13 @@
 Example output of API calls
 ===========================
 
-This document describes the return value of the :class:`hpilo.Ilo` API calls.
+This document describes the return value of :class:`hpilo.Ilo` API calls that
+return something.
 
 .. note::
 
   As not all devices support all hardware, the sample output does not all
   originate from the save server. The data has also been anonymised.
-
-Getting information
--------------------
 
 .. function:: get_all_users()
   :noindex:

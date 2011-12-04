@@ -10,6 +10,13 @@ There are quite a few functions to get information about your server, its
 enclosing chassis or the iLO board itself. To see what they return, please
 refer to the :doc:`example output </output>`.
 
+Functions that manipulate the iLO, such as setting the servers name, or
+changing a users password, do not have a return value. 
+
+The exception :class:`IloError` is raised in case of errors that occur when
+communicating with the IlO. The subclass :class:`IloLoginFailed` is raised for
+login failures.
+
 .. py:currentmodule:: hpilo
 
 .. autoclass:: Ilo

@@ -110,6 +110,8 @@ Supported methods:
         if isinstance(result, basestring):
             print ">>> print(my_ilo.%s(%s))" % (method, param_str)
             print(result)
+        elif result is None:
+            print ">>> my_ilo.%s(%s)" % (method, param_str)
         else:
             print ">>> pprint(my_ilo.%s(%s))" % (method, param_str)
             pprint(result)
