@@ -14,12 +14,12 @@ ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.i
 
 def main():
     usage = """%%prog [options] hostname method [args...]
-    
+
 Supported methods:
 - %s"""
 
     usage %= "\n- ".join(ilo_methods)
-    
+
     p = optparse.OptionParser(usage=usage, add_help_option=False)
     p.add_option("-l", "--login", dest="login", default=None,
                  help="Username to access the iLO")
@@ -31,6 +31,8 @@ Supported methods:
                  help="Timeout for iLO connections")
     p.add_option("-j", "--json", dest="json", action="store_true", default=False,
                  help="Output a json document instead of a python dict")
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw"), default=None,
+                 help="Use the specified protocol instead of autodetecting")
     p.add_option("-d", "--debug", dest="debug", action="count", default=0,
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
@@ -48,6 +50,27 @@ Supported methods:
 
     hostname, method = args[:2]
     args = args[2:]
+
+    # Arguments must be passed as param=value pairs that are valid arguments to the methods
+    func = getattr(hpilo.Ilo, method).im_func
+    argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
+    args_with_defaults = argnames[-len(func.func_defaults):] if func.func_defaults else []
+    params = {}
+    for arg in args:
+        if '=' not in arg:
+            hpilo_help(None, None, None, None)
+        param, val = arg.split('=', 1)
+        if param not in argnames:
+            hpilo_help(None, None, method, None)
+        # Do some type coercion for shell goodness
+        if val.isdigit():
+            val = int(val)
+        else:
+            val = {'true': True, 'false': False}.get(val.lower(), val)
+        params[param] = val
+    for name in argnames:
+        if name not in params and name not in args_with_defaults:
+            hpilo_help(None, None, method, sys)
 
     # Do we have login information
     login = None
@@ -69,29 +92,56 @@ Supported methods:
 
     ilo = hpilo.Ilo(hostname, login, password, opts.timeout)
     ilo.debug = opts.debug
-    result = getattr(ilo, method)()
+    if opts.protocol == 'http':
+        ilo.protocol = hpilo.ILO_HTTP
+    elif opts.protocol == 'raw':
+       ilo.protocol = hpilo.ILO_RAW
+
+    def _q(val):
+        if isinstance(val, basestring):
+            return '"%s"' % val.replace("\\","\\\\").replace('"','\\"')
+        else:
+            return str(val)
+    param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
+    result = getattr(ilo, method)(**params)
     if opts.json:
         json.dump(result, sys.stdout)
     else:
-        print ">>> pprint(my_ilo.%s())" % method
-        pprint(result)
-
+        if isinstance(result, basestring):
+            print ">>> print(my_ilo.%s(%s))" % (method, param_str)
+            print(result)
+        else:
+            print ">>> pprint(my_ilo.%s(%s))" % (method, param_str)
+            pprint(result)
 
 def hpilo_help(option, opt_str, value, parser):
-    assert value is None
-    if parser.rargs and parser.rargs[0][0] != '-':
-        value = parser.rargs[0]
-        del parser.rargs[0]
+    if not value:
+        if parser and parser.rargs and parser.rargs[0][0] != '-':
+            value = parser.rargs[0]
+            del parser.rargs[0]
 
     if not value:
         parser.print_help()
     else:
         if value in ilo_methods:
-            print "Ilo.%s:" % value
-            print getattr(hpilo.Ilo, value).__doc__
+            func = getattr(hpilo.Ilo, value).im_func
+            code = func.func_code
+            args = ''
+            if code.co_argcount > 1:
+                args = code.co_varnames[:code.co_argcount]
+                defaults = func.func_defaults or []
+                args = ["%s=%s" % (x, x.upper()) for x in args[:len(args)-len(defaults)]] + \
+                       ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults)]
+                args = ' ' + ' '.join(args[1:])
+
+            print "Ilo.%s%s:" % (value, args)
+            print getattr(hpilo.Ilo, value).__doc__ or "No documentation"
         else:
             print "No such method: %s" % value
-    parser.exit()
+    if parser:
+        parser.exit()
+    else:
+        sys.exit()
 
 if __name__ == '__main__':
     main()
