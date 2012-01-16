@@ -444,6 +444,14 @@ class Ilo(object):
         """Get the full iLO event log"""
         return self._info_tag2('RIB_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
 
+    def get_language(self):
+        """Get the default language set"""
+        return self._info_tag('RIB_INFO', 'GET_LANGUAGE')
+
+    def get_all_languages(self):
+        """Get the list of installed languages - broken because iLO returns invalid XML"""
+        return self._info_tag('RIB_INFO', 'GET_ALL_LANGUAGES')
+
     def get_network_settings(self):
         """Get the iLO network settings"""
         return self._info_tag('RIB_INFO', 'GET_NETWORK_SETTINGS')
