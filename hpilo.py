@@ -1,4 +1,4 @@
-# (c) 2011 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2012 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import socket
