@@ -293,9 +293,11 @@ class Ilo(object):
                 retval.append(elt)
         return retval
 
-    def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[]):
+    def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[], text=None):
         root, inner = self._root_element(controltype, MODE='write')
         inner = etree.SubElement(inner, tagname, **attrib)
+        if text:
+            inner.text = text
         for element in elements:
             inner.append(element)
         header, message = self._request(root)
@@ -337,9 +339,22 @@ class Ilo(object):
         """Clears the server event log"""
         return self._control_tag('SERVER_INFO', 'CLEAR_IML')
 
+    @untested
+    def clear_server_power_on_time(self):
+        """Clears the server power on time"""
+        return self._control_tag('SERVER_INFO', 'CLEAR_SERVER_POWER_ON_TIME')
+
     def delete_user(self, user_login):
         """Delete the specified user from the ilo"""
         return self._control_tag('USER_INFO', 'DELETE_USER', attrib={'USER_LOGIN': user_login})
+
+    def eject_virtual_floppy(self):
+        """Eject the virtual floppy"""
+        return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_FLOPPY')
+
+    def eject_virtual_media(self, device="cdrom"):
+        """Eject the virtual media attached to the specified device"""
+        return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA', attrib={"DEVICE": device.upper()})
 
     def get_all_users(self):
         """Get a list of all loginnames"""
@@ -509,6 +524,70 @@ class Ilo(object):
         """Get the status of virtual media devices. Valid devices are FLOPPY and CDROM"""
         return self._info_tag('RIB_INFO', 'GET_VM_STATUS', attrib={'DEVICE': device})
 
+    # Not sure how this would work, and I have no relevant hardware
+    #def insert_virtual_floppy(self, device, image_location):
+    #    """Insert a virtual floppy"""
+    #    return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_FLOPPY', attrib={'IMAGE_LOCATION': image_location})
+
+    @untested
+    def import_ssh_key(self, user_login, ssh_key):
+        """Imports an SSH key for the specified user. The value of ssh_key
+           should be the content of an id_dsa.pub file"""
+        # Basic sanity checking
+        if ' ' not in ssh_key:
+            raise ValueError("Invalid SSH key")
+        algo, key = ssh_key.split(' ',2)[:2]
+        if algo not in ('ssh-dss', 'ssh-rsa'):
+            raise ValueError("Invalid SSH key")
+        try:
+            key.decode('base64')
+        except Exception:
+            raise ValueError("Invalid SSH key")
+        key = "-----BEGIN SSH KEY-----\r\n%s %s %s\r\n----END SSH KEY-----" % (algo, key, user_login)
+        return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key)
+
+    @untested
+    def delete_ssh_key(self, user_login):
+        """Delete a users SSH key"""
+        return self._control_tag('USER_INFO', 'MOD_USER', elements=[etree.Element('DEL_USERS_SSH_KEY')])
+
+    def insert_virtual_media(self, device, image_url):
+        """Insert a virtual floppy or CDROM. Note that you will also need to
+           use :func:`set_vm_status` to connect the media"""
+        return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
+
+    def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
+            f8_login_required=None, http_port=None, https_port=None,
+            ssh_port=None, ssh_status=None, virtual_media_port=None,
+            min_password=None, enfoce_aes=None,
+            authentication_failure_logging=None, rbsu_post_ip=None):
+        """Modify iLO global settings, only values that are specified will be
+           changed. Remote console settings can be changed with
+   :func:`mod_remote_console_settings` as the function signature for
+           this function is ridiculoius enough already"""
+        vars = dict(locals())
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
+
+    def mod_remote_console_settings(self, remote_console_port=None,
+            remote_console_encryption=None, remote_keyboard_model=None,
+            terminal_services_port=None, high_performance_mouse=None,
+            shared_console_enable=None, shared_console_port=None,
+            remote_console_acquire=None):
+        """Modify remote console settings, only values that are specified will be changed"""
+        vars = dict(locals())
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
+        vars = dict(locals())
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
+
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_prive=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
@@ -527,9 +606,46 @@ class Ilo(object):
 
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=elements)
 
+    @untested
+    def set_power_cap(self, power_cap):
+        """Set the power cap feature to a specific value"""
+        return self._control_taf('SERVER_INFO', 'SET_POWER_CAP', attrib={'POWER_CAP': int(power_cap)})
+
+    @untested
+    def set_server_auto_pwr(self, setting):
+        """Set the automatic power on delay setting. Valid settings are False,
+           True (for minumum delay), 15, 30, 45 60 (for that amount of delay or
+           random (for a random delay op to 60 seconds. """
+        setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
+        return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
+
     def set_server_name(self, name):
         """Set the name of the server"""
         return self._control_tag('SERVER_INFO', 'SERVER_NAME', attrib={"VALUE": name})
+
+    def set_vf_status(self, boot_option="boot_once", write_protect=True):
+        """Set the parameters of the RILOE virtual floppy specified virtual
+        media. Valid boot options are boot_once, boot_always, no_boot, connect
+        and disconnect."""
+        write_protect = ['NO', 'YES'][bool(write_protect)]
+        elements = [
+            etree.Element('VF_BOOT_OPTION', value=boot_option.upper()),
+            etree.Element('VF_WRITE_PROTECT', value=write_protect),
+        ]
+        return self._control_tag('RIB_INFO', 'SET_VF_STATUS', elements=elements)
+
+    def set_vm_status(self, device="cdrom", boot_option="boot_once", write_protect=True):
+        """Set the parameters of the specified virtual media. Valid boot
+           options are boot_once, boot_always, no_boot, connect and disconnect.
+           Valid devices are floppy and cdrom"""
+
+        write_protect = ['NO', 'YES'][bool(write_protect)]
+        elements = [
+            etree.Element('VM_BOOT_OPTION', value=boot_option.upper()),
+            etree.Element('VM_WRITE_PROTECT', value=write_protect),
+        ]
+        return self._control_tag('RIB_INFO', 'SET_VM_STATUS', attrib={'DEVICE': device.upper()},
+                                 elements=elements)
 
     def uid_control(self, uid="No"):
         """Turn the UID light on ("Yes") or off ("No")"""
