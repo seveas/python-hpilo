@@ -3,6 +3,7 @@
 
 import socket
 import cStringIO as StringIO
+import re
 import sys
 import xml.etree.cElementTree as etree
 import warnings
@@ -44,7 +45,7 @@ class Ilo(object):
 
     def _debug(self, level, message):
         if self.debug >= level:
-            print >>sys.stderr, message
+            print >>sys.stderr, re.sub(r'PASSWORD=".*"','PASSWORD="********"', message)
 
     def _request(self, xml):
         """Given an ElementTree.Element, serialize it and do the request.
