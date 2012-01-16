@@ -35,6 +35,8 @@ Supported methods:
                  help="Use the specified protocol instead of autodetecting")
     p.add_option("-d", "--debug", dest="debug", action="count", default=0,
                  help="Output debug information, repeat to see all XML data")
+    p.add_option("--untested", dest="untested", action="store_true", default=False,
+                 help="Allow untested methods")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
                  help="show this help message or help for a method")
 
@@ -54,6 +56,11 @@ Supported methods:
 
     hostname, method = args[:2]
     args = args[2:]
+
+    # Can we run untested methods
+    if method in hpilo._untested and not opts.untested:
+        print "Method %s has not been tested, pass --untested to execute" % method
+        p.exit()
 
     # Arguments must be passed as param=value pairs that are valid arguments to the methods
     func = getattr(hpilo.Ilo, method).im_func

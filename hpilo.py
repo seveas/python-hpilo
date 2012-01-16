@@ -12,6 +12,14 @@ import warnings
 ILO_RAW  = 1
 ILO_HTTP = 2
 
+_untested = []
+
+def untested(meth):
+    """Decorator to mark a method as untested"""
+    meth.untested = True
+    _untested.append(meth.func_name)
+    return meth
+
 class IloError(Exception):
     pass
 
@@ -533,34 +541,42 @@ class Ilo(object):
 ##############################################################################################
 #### All functions below require hardware I don't have access to
 
+    @untested
     def get_all_cables_status(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_ALL_CABLES_STATUS', {}))
 
+    @untested
     def get_diagport(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_DIAGPORT_SETTINGS', {}))
 
+    @untested
     def get_enclosure_ip_settings(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_ENCLOSURE_IP_SETTINGS', {}))
 
+    @untested
     def get_host_power_reg_info(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_HOST_POWER_REG_INFO', {}))
 
+    @untested
     def get_host_power_saver_status(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_HOST_POWER_SAVER_STATUS', {}))
 
+    @untested
     def get_topology(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_TOPOLOGY', {}))
 
+    @untested
     def get_vpb_capable_status(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_VPB_CAPABLE_STATUS', {}))
 
+    @untested
     def get_vf_status(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._info_tag('RIB_INFO', 'GET_VF_STATUS')
