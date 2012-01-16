@@ -39,14 +39,14 @@ class Ilo(object):
     XML_HEADER = '<?xml version="1.0"?>\r\n'
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-length: %d\r\nConnection: Close\r\n\r\n"
 
-    def __init__(self, hostname, login, password, timeout=60):
+    def __init__(self, hostname, login, password, timeout=60, port=443):
         self.hostname = hostname
         self.login = login
         self.password = password
         self.timeout  = timeout
         self.debug    = 0
         self.protocol = None
-        self.port     = 443
+        self.port     = port
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname

@@ -35,6 +35,8 @@ Supported methods:
                  help="Use the specified protocol instead of autodetecting")
     p.add_option("-d", "--debug", dest="debug", action="count", default=0,
                  help="Output debug information, repeat to see all XML data")
+    p.add_option("-o", "--port", dest="port", type="int", default=443,
+                 help="SSL port to connect to")
     p.add_option("--untested", dest="untested", action="store_true", default=False,
                  help="Allow untested methods")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
@@ -106,7 +108,7 @@ Supported methods:
         p.print_help()
         p.exit()
 
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout)
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
     ilo.debug = opts.debug
     if opts.protocol == 'http':
         ilo.protocol = hpilo.ILO_HTTP
