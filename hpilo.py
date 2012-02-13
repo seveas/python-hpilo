@@ -6,6 +6,7 @@ import cStringIO as StringIO
 import re
 import sys
 import xml.etree.cElementTree as etree
+import uuid
 import warnings
 
 # Which protocol to use
@@ -37,7 +38,9 @@ class Ilo(object):
         and timeout will be made for each API call."""
 
     XML_HEADER = '<?xml version="1.0"?>\r\n'
-    HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-length: %d\r\nConnection: Close\r\n\r\n"
+    HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
+    HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
+    BLOCK_SIZE = 4096
 
     def __init__(self, hostname, login, password, timeout=60, port=443):
         self.hostname = hostname
@@ -60,14 +63,7 @@ class Ilo(object):
            Returns an ElementTree.Element containing the response"""
 
         if not self.protocol:
-            # Do a bogus request, using the HTTP protocol. If there is no
-            # header (see special case in communicate(), we should be using the
-            # raw protocol
-            header, data = self._communicate('<RIBCL VERSION="2.0"></RIBCL>', ILO_HTTP)
-            if header:
-                self.protocol = ILO_HTTP
-            else:
-                self.protocol = ILO_RAW
+            self._detect_protocol()
 
         # Serialize the XML
         xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
@@ -96,7 +92,21 @@ class Ilo(object):
         else:
             return header, messages
 
-    def _communicate(self, xml, protocol):
+    def _detect_protocol(self):
+        # Do a bogus request, using the HTTP protocol. If there is no
+        # header (see special case in communicate(), we should be using the
+        # raw protocol
+        header, data = self._communicate('<RIBCL VERSION="2.0"></RIBCL>', ILO_HTTP)
+        if header:
+            self.protocol = ILO_HTTP
+        else:
+            self.protocol = ILO_RAW
+
+    def _upload_file(self, filename):
+        boundary = 'hpilo-firmware-upload-%s' % uuid.uuid4()
+
+
+    def _communicate(self, xml, protocol, extra_header=''):
         """Set up an https connection and do an HTTP/raw socket request"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(self.timeout)
@@ -114,7 +124,7 @@ class Ilo(object):
 
         msglen = msglen_ = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
-            http_header = self.HTTP_HEADER % msglen
+            http_header = self.HTTP_HEADER % (msglen, extra_header)
             msglen += len(http_header)
         self._debug(1, "Sending XML request, %d bytes" % msglen)
 
@@ -660,6 +670,19 @@ class Ilo(object):
         if uid.lower() not in ('yes', 'no'):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
+
+    def update_rib_firmware(self, filename):
+        """Upload new RIB firmware"""
+        size = os.path.getsize(filename)
+        if not self.protocol:
+            self._detect_protocol()
+
+        if self.protocol == ILO_RAW:
+            # We need to violate XML here. Dirty.
+
+        else:
+            cookie = self._upload_file(filename)
+
 
 
 ##############################################################################################
