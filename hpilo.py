@@ -293,7 +293,7 @@ class Ilo(object):
                 retval.append(elt)
         return retval
 
-    def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[]):
+    def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[], text=None):
         root, inner = self._root_element(controltype, MODE='write')
         inner = etree.SubElement(inner, tagname, **attrib)
         if text:
