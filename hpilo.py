@@ -5,7 +5,10 @@ import socket
 import cStringIO as StringIO
 import re
 import sys
-import xml.etree.cElementTree as etree
+try:
+    import xml.etree.cElementTree as etree
+except ImportError:
+    import cElementTree as etree
 import uuid
 import warnings
 
@@ -66,7 +69,10 @@ class Ilo(object):
             self._detect_protocol()
 
         # Serialize the XML
-        xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+        if hasattr(etree, 'tostringlist'):
+            xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+        else:
+            xml = etree.tostring(xml)
 
         header, data =  self._communicate(xml, self.protocol)
 
@@ -294,7 +300,10 @@ class Ilo(object):
         header, message = self._request(root)
         message = message.find(returntag or tagname)
 
-        retval = {} if key else []
+        if key:
+            retval = {}
+        else:
+            retval = []
         for elt in message:
             elt = self._element_to_dict(elt)
             if key:
