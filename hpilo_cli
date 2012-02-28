@@ -71,7 +71,7 @@ Supported methods:
     params = {}
     for arg in args:
         if '=' not in arg:
-            hpilo_help(None, None, None, None)
+            hpilo_help(None, None, method, None)
         param, val = arg.split('=', 1)
         if param not in argnames:
             hpilo_help(None, None, method, None)
