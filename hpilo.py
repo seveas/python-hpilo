@@ -349,7 +349,6 @@ class Ilo(object):
         """Clears the server event log"""
         return self._control_tag('SERVER_INFO', 'CLEAR_IML')
 
-    @untested
     def clear_server_power_on_time(self):
         """Clears the server power on time"""
         return self._control_tag('SERVER_INFO', 'CLEAR_SERVER_POWER_ON_TIME')
@@ -470,6 +469,16 @@ class Ilo(object):
         """Get information about the OA of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
+    @untested
+    def get_one_time_boot(self):
+        """Get the one time boot state of the host"""
+        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT')
+
+    @untested
+    def get_persistent_boot(self):
+        """Get the boot order of the host"""
+        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT')
+
     def get_power_cap(self):
         """Get the power cap setting"""
         data = self._info_tag('SERVER_INFO', 'GET_POWER_CAP')
@@ -575,14 +584,15 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
-            f8_login_required=None, http_port=None, https_port=None,
+            f8_login_required=None, lock_configuration=None,
+            http_port=None, https_port=None,
             ssh_port=None, ssh_status=None, virtual_media_port=None,
             min_password=None, enfoce_aes=None,
             authentication_failure_logging=None, rbsu_post_ip=None):
         """Modify iLO global settings, only values that are specified will be
            changed. Remote console settings can be changed with
    :func:`mod_remote_console_settings` as the function signature for
-           this function is ridiculoius enough already"""
+           this function is ridiculous enough already"""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
@@ -623,6 +633,19 @@ class Ilo(object):
                 elements.append(etree.Element(attribute.upper(), VALUE=val))
 
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=elements)
+
+    def reset_rib(self):
+        """Reset the iLO/RILOE board"""
+        return self._control_tag('RIB_INFO', 'RESET_RIB')
+
+    def reset_server(self):
+        """Power cycle the server"""
+        return self._control_tag('SERVER_INFO', 'RESET_SERVER')
+
+    def set_host_power(self, host_power=True):
+        """Turn host power on or off"""
+        power = ['No', 'Yes'][bool(host_power)]
+        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER', attrib={'HOST_POWER': power})
 
     @untested
     def set_power_cap(self, power_cap):
@@ -679,7 +702,7 @@ class Ilo(object):
 
         if self.protocol == ILO_RAW:
             # We need to violate XML here. Dirty.
-
+            pass
         else:
             cookie = self._upload_file(filename)
 
