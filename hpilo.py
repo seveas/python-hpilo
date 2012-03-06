@@ -704,7 +704,6 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
-<<<<<<< HEAD
     #Additional support for setting ilo network params (WILL CAUSE ILO REBOOT) 
     def set_network(self, dns_name, dhcp_enable=None, ip_address=None, subnet_mask=None,
         gateway_ip_addres=None, prim_dns_server=None, sec_dns_server=None, ter_dns_server=None, vlan_enabled=None):
@@ -761,7 +760,7 @@ class Ilo(object):
     def set_server_auto_pwr(selc, server_auto_power='Yes' ):
        """Set Auto Power On with Power"""
        return self._control_tag('SERVER_INFO', 'SET_AUTO_PWR', attrib={"VALUE": server_auto_power.upper()})
-=======
+
     def update_rib_firmware(self, filename):
         """Upload new RIB firmware"""
         size = os.path.getsize(filename)
@@ -775,7 +774,6 @@ class Ilo(object):
             cookie = self._upload_file(filename)
 
 
->>>>>>> upstream/master
 
 ##############################################################################################
 #### All functions below require hardware I don't have access to
