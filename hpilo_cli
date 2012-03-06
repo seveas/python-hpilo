@@ -67,11 +67,13 @@ Supported methods:
     # Arguments must be passed as param=value pairs that are valid arguments to the methods
     func = getattr(hpilo.Ilo, method).im_func
     argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
-    args_with_defaults = argnames[-len(func.func_defaults):] if func.func_defaults else []
+    args_with_defaults = []
+    if func.func_defaults:
+        args_with_defaults = argnames[-len(func.func_defaults):] 
     params = {}
     for arg in args:
         if '=' not in arg:
-            hpilo_help(None, None, None, None)
+            hpilo_help(None, None, method, None)
         param, val = arg.split('=', 1)
         if param not in argnames:
             hpilo_help(None, None, method, None)

@@ -5,7 +5,11 @@ import socket
 import cStringIO as StringIO
 import re
 import sys
-import xml.etree.cElementTree as etree
+try:
+    import xml.etree.cElementTree as etree
+except ImportError:
+    import cElementTree as etree
+import uuid
 import warnings
 
 # Which protocol to use
@@ -37,7 +41,9 @@ class Ilo(object):
         and timeout will be made for each API call."""
 
     XML_HEADER = '<?xml version="1.0"?>\r\n'
-    HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-length: %d\r\nConnection: Close\r\n\r\n"
+    HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
+    HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
+    BLOCK_SIZE = 4096
 
     def __init__(self, hostname, login, password, timeout=60, port=443):
         self.hostname = hostname
@@ -60,17 +66,13 @@ class Ilo(object):
            Returns an ElementTree.Element containing the response"""
 
         if not self.protocol:
-            # Do a bogus request, using the HTTP protocol. If there is no
-            # header (see special case in communicate(), we should be using the
-            # raw protocol
-            header, data = self._communicate('<RIBCL VERSION="2.0"></RIBCL>', ILO_HTTP)
-            if header:
-                self.protocol = ILO_HTTP
-            else:
-                self.protocol = ILO_RAW
+            self._detect_protocol()
 
         # Serialize the XML
-        xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+        if hasattr(etree, 'tostringlist'):
+            xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+        else:
+            xml = etree.tostring(xml)
 
         header, data =  self._communicate(xml, self.protocol)
 
@@ -96,7 +98,21 @@ class Ilo(object):
         else:
             return header, messages
 
-    def _communicate(self, xml, protocol):
+    def _detect_protocol(self):
+        # Do a bogus request, using the HTTP protocol. If there is no
+        # header (see special case in communicate(), we should be using the
+        # raw protocol
+        header, data = self._communicate('<RIBCL VERSION="2.0"></RIBCL>', ILO_HTTP)
+        if header:
+            self.protocol = ILO_HTTP
+        else:
+            self.protocol = ILO_RAW
+
+    def _upload_file(self, filename):
+        boundary = 'hpilo-firmware-upload-%s' % uuid.uuid4()
+
+
+    def _communicate(self, xml, protocol, extra_header=''):
         """Set up an https connection and do an HTTP/raw socket request"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(self.timeout)
@@ -114,7 +130,7 @@ class Ilo(object):
 
         msglen = msglen_ = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
-            http_header = self.HTTP_HEADER % msglen
+            http_header = self.HTTP_HEADER % (msglen, extra_header)
             msglen += len(http_header)
         self._debug(1, "Sending XML request, %d bytes" % msglen)
 
@@ -284,7 +300,10 @@ class Ilo(object):
         header, message = self._request(root)
         message = message.find(returntag or tagname)
 
-        retval = {} if key else []
+        if key:
+            retval = {}
+        else:
+            retval = []
         for elt in message:
             elt = self._element_to_dict(elt)
             if key:
@@ -338,7 +357,7 @@ class Ilo(object):
     def clear_server_event_log(self):
         """Clears the server event log"""
         return self._control_tag('SERVER_INFO', 'CLEAR_IML')
-
+   
     @untested
     def clear_server_power_on_time(self):
         """Clears the server power on time"""
@@ -460,6 +479,16 @@ class Ilo(object):
         """Get information about the OA of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
+    @untested
+    def get_one_time_boot(self):
+        """Get the one time boot state of the host"""
+        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT')
+
+    @untested
+    def get_persistent_boot(self):
+        """Get the boot order of the host"""
+        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT')
+
     def get_power_cap(self):
         """Get the power cap setting"""
         data = self._info_tag('SERVER_INFO', 'GET_POWER_CAP')
@@ -565,14 +594,15 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
-            f8_login_required=None, http_port=None, https_port=None,
+            f8_login_required=None, lock_configuration=None,
+            http_port=None, https_port=None,
             ssh_port=None, ssh_status=None, virtual_media_port=None,
             min_password=None, enfoce_aes=None,
             authentication_failure_logging=None, rbsu_post_ip=None):
         """Modify iLO global settings, only values that are specified will be
            changed. Remote console settings can be changed with
    :func:`mod_remote_console_settings` as the function signature for
-           this function is ridiculoius enough already"""
+           this function is ridiculous enough already"""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
@@ -613,6 +643,19 @@ class Ilo(object):
                 elements.append(etree.Element(attribute.upper(), VALUE=val))
 
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=elements)
+
+    def reset_rib(self):
+        """Reset the iLO/RILOE board"""
+        return self._control_tag('RIB_INFO', 'RESET_RIB')
+
+    def reset_server(self):
+        """Power cycle the server"""
+        return self._control_tag('SERVER_INFO', 'RESET_SERVER')
+
+    def set_host_power(self, host_power=True):
+        """Turn host power on or off"""
+        power = ['No', 'Yes'][bool(host_power)]
+        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER', attrib={'HOST_POWER': power})
 
     @untested
     def set_power_cap(self, power_cap):
@@ -661,6 +704,7 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
+<<<<<<< HEAD
     #Additional support for setting ilo network params (WILL CAUSE ILO REBOOT) 
     def set_network(self, dns_name, dhcp_enable=None, ip_address=None, subnet_mask=None,
         gateway_ip_addres=None, prim_dns_server=None, sec_dns_server=None, ter_dns_server=None, vlan_enabled=None):
@@ -717,6 +761,21 @@ class Ilo(object):
     def set_server_auto_pwr(selc, server_auto_power='Yes' ):
        """Set Auto Power On with Power"""
        return self._control_tag('SERVER_INFO', 'SET_AUTO_PWR', attrib={"VALUE": server_auto_power.upper()})
+=======
+    def update_rib_firmware(self, filename):
+        """Upload new RIB firmware"""
+        size = os.path.getsize(filename)
+        if not self.protocol:
+            self._detect_protocol()
+
+        if self.protocol == ILO_RAW:
+            # We need to violate XML here. Dirty.
+            pass
+        else:
+            cookie = self._upload_file(filename)
+
+
+>>>>>>> upstream/master
 
 ##############################################################################################
 #### All functions below require hardware I don't have access to
