@@ -1,4 +1,4 @@
-# (c) 2011-2012 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import socket
@@ -336,7 +336,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'LICENSE', elements=[license])
 
     def add_user(self, user_login, user_name, password, admin_priv=False,
-            remote_cons_prive=True, reset_server_priv=False,
+            remote_cons_priv=True, reset_server_priv=False,
             virtual_media_priv=False, config_ilo_priv=True):
         """Add a new user to the iLO interface with the specified name,
            password and permissions. Permission attributes should be boolean
@@ -357,7 +357,8 @@ class Ilo(object):
     def clear_server_event_log(self):
         """Clears the server event log"""
         return self._control_tag('SERVER_INFO', 'CLEAR_IML')
-
+   
+    @untested
     def clear_server_power_on_time(self):
         """Clears the server power on time"""
         return self._control_tag('SERVER_INFO', 'CLEAR_SERVER_POWER_ON_TIME')
@@ -478,15 +479,14 @@ class Ilo(object):
         """Get information about the OA of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
-    @untested
     def get_one_time_boot(self):
         """Get the one time boot state of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT')
+        return = self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', 'ONE_TIME_BOOT')
 
     @untested
     def get_persistent_boot(self):
         """Get the boot order of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT')
+        return self._info_tag2('SERVER_INFO', 'GET_PERSISTENT_BOOT', 'PERSISTENT_BOOT')
 
     def get_power_cap(self):
         """Get the power cap setting"""
@@ -626,7 +626,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_user(self, user_login, user_name=None, password=None,
-            admin_priv=None, remote_cons_prive=None, reset_server_priv=None,
+            admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
         """Set attributes for a user, only specified arguments will be changed.
            All arguments except user_name and password should be boolean"""
@@ -703,6 +703,63 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
+    #Additional support for setting ilo network params (WILL CAUSE ILO REBOOT) 
+    def set_network(self, dns_name, dhcp_enable=None, ip_address=None, subnet_mask=None,
+        gateway_ip_addres=None, prim_dns_server=None, sec_dns_server=None, ter_dns_server=None, vlan_enabled=None):
+        """Setup the network on the iLO"""
+        attrs = locals()
+        elements = []
+        #don't use allow boolean values for these
+        for attribute in attrs:
+            if (attrs[attribute] is not None) and (type(attrs[attribute]) is not bool and attrs[attribute] is not self):
+                print >>sys.stderr, attrs[attribute]
+                elements.append(etree.Element(attribute.upper(), VALUE=attrs[attribute]))
+        for attribute in ('dhcp_enable', 'vlan_enabled'):
+            if attrs[attribute] is not None:
+                val = ['No', 'Yes'][bool(attrs[attribute])]
+                elements.append(etree.Element(attribute.upper(), VALUE=val))
+    
+        return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
+
+    #set virtual media up, specify url and device (floppy or cdrom)
+    def set_virtual_media(self, image_url, device='CDROM'):
+        """Setup Virtual Media Redirection on iLO"""
+        attrs=locals()
+        elements = []
+        if device.lower() not in ('cdrom', 'floppy'):
+            raise ValueError("device should be CDROM or FLOPPY")
+
+        return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'IMAGE_URL': image_url, 'DEVICE': device})
+
+    def set_vm_boot(self, vm_boot_option="BOOT_ONCE", device="CDROM"):
+        """Set the virtual media devices as bootable. Valid devices are FLOPPY and CDROM"""
+        elements = []
+        elements.append(etree.Element("VM_BOOT_OPTION", VALUE=vm_boot_option))
+        return self._control_tag('RIB_INFO', 'SET_VM_STATUS', attrib={'DEVICE': device}, elements=elements)
+
+    def set_eject_virtual_media(self, device="CDROM"):
+        """Eject Virtual. Valid devices are FLOPPY and CDROM"""
+        return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA', attrib={'DEVICE': device})
+    #see the ilo scripting guide for the diffrence between the two but
+    # press_pwr_button simulates pressing the power button
+    # and set_host_power simulates toggling the power button,
+    # i have had issue using it on a DL380G7 
+    def press_pwr_btn(self):
+        """Press Power Button"""
+        return self._control_tag('SERVER_INFO', 'PRESS_PWR_BTN')
+    
+    def hold_pwr_btn(self):
+        """Press and Hold Power Button"""
+        return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN')
+    
+    def set_host_power(self, host_power="Yes"):
+        """Toggle Power ON or OFF"""
+        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER', attrib={'HOST_POWER': host_power})
+
+    def set_server_auto_pwr(selc, server_auto_power='Yes' ):
+       """Set Auto Power On with Power"""
+       return self._control_tag('SERVER_INFO', 'SET_AUTO_PWR', attrib={"VALUE": server_auto_power.upper()})
+
     def update_rib_firmware(self, filename):
         """Upload new RIB firmware"""
         size = os.path.getsize(filename)
@@ -730,7 +787,7 @@ class Ilo(object):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_DIAGPORT_SETTINGS', {}))
 
-    @untested
+    @untested 
     def get_enclosure_ip_settings(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_ENCLOSURE_IP_SETTINGS', {}))
