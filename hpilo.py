@@ -479,15 +479,14 @@ class Ilo(object):
         """Get information about the OA of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
-    @untested
     def get_one_time_boot(self):
         """Get the one time boot state of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT')
+        return = self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', 'ONE_TIME_BOOT')
 
     @untested
     def get_persistent_boot(self):
         """Get the boot order of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT')
+        return self._info_tag2('SERVER_INFO', 'GET_PERSISTENT_BOOT', 'PERSISTENT_BOOT')
 
     def get_power_cap(self):
         """Get the power cap setting"""
