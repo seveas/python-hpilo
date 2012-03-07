@@ -69,10 +69,11 @@ class Ilo(object):
             self._detect_protocol()
 
         # Serialize the XML
-        if hasattr(etree, 'tostringlist'):
-            xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
-        else:
-            xml = etree.tostring(xml)
+        if not isinstance(xml, basestring):
+            if hasattr(etree, 'tostringlist'):
+                xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+            else:
+                xml = etree.tostring(xml)
 
         header, data =  self._communicate(xml, self.protocol)
 
@@ -138,11 +139,21 @@ class Ilo(object):
             self._debug(2, http_header)
             sock.write(http_header)
 
-        self._debug(2, self.XML_HEADER + xml)
+        if msglen < 4096:
+            self._debug(2, self.XML_HEADER + xml)
 
         # XML header and data need to arrive in 2 distinct packets
         sock.write(self.XML_HEADER)
-        sock.write(xml)
+        if msglen < 4096:
+            sock.write(xml)
+        else:
+            sent = 0
+            xmllen = float(len(xml))
+            pkglen = 2048
+            while xml:
+                sock.write(xml[sent:sent+pkglen])
+                sent += pkglen
+                self._debug(2, "Sent %d/%d bytes (%d%%)" % (sent, xmllen, sent/xmllen*1000))
 
         # And grab the data
         data = ''
@@ -703,18 +714,22 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
+    @untested
     def update_rib_firmware(self, filename):
         """Upload new RIB firmware"""
-        size = os.path.getsize(filename)
         if not self.protocol:
             self._detect_protocol()
 
+        firmware = open(filename,'rb').read()
+        root, inner = self._root_element('RIB_INFO', MODE='write')
+        inner = etree.SubElement(inner, 'UPDATE_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(len(firmware)))
         if self.protocol == ILO_RAW:
             # We need to violate XML here. Dirty.
-            pass
+            xml = "\r\n".join(etree.tostringlist(root)) + '\r\n'
+            xml = xml.replace('</RIB_INFO', firmware + '</RIB_INFO')
+            print self._request(xml)
         else:
             cookie = self._upload_file(filename)
-
 
 
 ##############################################################################################
