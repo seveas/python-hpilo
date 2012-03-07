@@ -347,7 +347,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'LICENSE', elements=[license])
 
     def add_user(self, user_login, user_name, password, admin_priv=False,
-            remote_cons_prive=True, reset_server_priv=False,
+            remote_cons_priv=True, reset_server_priv=False,
             virtual_media_priv=False, config_ilo_priv=True):
         """Add a new user to the iLO interface with the specified name,
            password and permissions. Permission attributes should be boolean
@@ -637,7 +637,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_user(self, user_login, user_name=None, password=None,
-            admin_priv=None, remote_cons_prive=None, reset_server_priv=None,
+            admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
         """Set attributes for a user, only specified arguments will be changed.
            All arguments except user_name and password should be boolean"""
