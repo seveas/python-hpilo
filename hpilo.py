@@ -662,6 +662,14 @@ class Ilo(object):
 
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=elements)
 
+    def press_pwr_btn(self):
+        """Press the power button"""
+        return self._control_tag('SERVER_INFO', 'PRESS_PWR_BTN')
+
+    def hold_pwr_btn(self):
+        """Press and hold the power button"""
+        return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN')
+
     def reset_rib(self):
         """Reset the iLO/RILOE board"""
         return self._control_tag('RIB_INFO', 'RESET_RIB')
