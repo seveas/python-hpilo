@@ -244,8 +244,12 @@ class Ilo(object):
         """Returns a dict with tag names of all child elements as keys and the
            VALUE attributes as values"""
         retval = {}
+        keys = [elt.tag.lower() for elt in element]
+        if len(keys) != 1 and len(set(keys)) == 1:
+            # Can't return a dict
+            retval = []
         for elt in element:
-            key, val, unit = elt.tag.lower(), elt.get('VALUE', None), elt.get('UNIT', None)
+            key, val, unit = elt.tag.lower(), elt.get('VALUE', elt.get('value', None)), elt.get('UNIT', None)
             if val is None:
                 # HP is not best friends with consistency. Sometimes there are
                 # attributes, sometimes child tags and sometimes text nodes. Oh
@@ -260,9 +264,15 @@ class Ilo(object):
             val = self._coerce(val)
 
             if unit:
-                retval[key] = (val, unit)
+                if isinstance(retval, list):
+                    retval.append((val,unit))
+                else:
+                    retval[key] = (val, unit)
             else:
-                retval[key] = val
+                if isinstance(retval, list):
+                    retval.append(val)
+                else:
+                    retval[key] = val
         return retval
 
     def _element_to_dict(self, element):
@@ -489,15 +499,13 @@ class Ilo(object):
         """Get information about the OA of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
-    @untested
     def get_one_time_boot(self):
         """Get the one time boot state of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT')
+        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', 'ONE_TIME_BOOT')
 
-    @untested
     def get_persistent_boot(self):
         """Get the boot order of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT')
+        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', 'PERSISTENT_BOOT')
 
     def get_power_cap(self):
         """Get the power cap setting"""
