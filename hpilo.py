@@ -656,11 +656,6 @@ class Ilo(object):
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
-        vars = dict(locals())
-        del vars['self']
-        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
-        return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
