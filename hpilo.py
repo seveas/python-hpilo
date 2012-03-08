@@ -627,6 +627,24 @@ class Ilo(object):
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
+    def mod_network_settings(self, enable_nic=None, reg_ddns_server=None,
+            ping_gateway=None, dhcp_domain_name=None, speed_autoselect=None,
+            nic_speed=None, full_duplex=None, dhcp_enable=None,
+            ip_address=None, subnet_mask=None, gateway_ip_address=None,
+            dns_name=None, domain_name=None, dhcp_gateway=None,
+            dhcp_dns_server=None, dhcp_wins_server=None, dhcp_static_route=None,
+            reg_wins_server=None, prim_dns_server=None, sec_dns_server=None,
+            ter_dns_server=None, prim_wins_server=None, sec_wins_server=None,
+            static_route_1=None, static_route_2=None, static_route_3=None,
+            dhcp_sntp_settings=None, sntp_server1=None, sntp_server2=None,
+            timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None):
+        """Confifure the network settings for the iLO card"""
+        vars = dict(locals())
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
+
     def mod_remote_console_settings(self, remote_console_port=None,
             remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
