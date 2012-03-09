@@ -383,6 +383,17 @@ class Ilo(object):
         """Clears the server power on time"""
         return self._control_tag('SERVER_INFO', 'CLEAR_SERVER_POWER_ON_TIME')
 
+    def computer_lock_config(self, computer_lock=None, computer_lock_key=None):
+        """Configure the computer lock settings"""
+        if computer_lock_key:
+            computer_lock = "custom"
+        if not computer_lock:
+            raise IloError("A value must be specified for computer_lock")
+        elements = [etree.Element('COMPUTER_LOCK', VALUE=computer_lock)]
+        if computer_lock_key:
+            elements.append(etree.Element('COMPUTER_LOCK_KEY', VALUE=computer_lock_key))
+        return self._control_tag('RIB_INFO', 'COMPUTER_LOCK_CONFIG', elements=elements)
+
     def delete_user(self, user_login):
         """Delete the specified user from the ilo"""
         return self._control_tag('USER_INFO', 'DELETE_USER', attrib={'USER_LOGIN': user_login})
@@ -394,6 +405,10 @@ class Ilo(object):
     def eject_virtual_media(self, device="cdrom"):
         """Eject the virtual media attached to the specified device"""
         return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA', attrib={"DEVICE": device.upper()})
+
+    def factory_defaults(self):
+        """Reset the iLO to factory default settings"""
+        return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
 
     def get_all_users(self):
         """Get a list of all loginnames"""
@@ -468,6 +483,10 @@ class Ilo(object):
                 del record_['fields']
             records.append(record_)
         return records
+
+    def get_host_power_saver_status(self):
+        """Get the configuration of the ProLiant power regulator"""
+        return self._info_tag('SERVER_INFO', 'GET_HOST_POWER_SAVER_STATUS', 'GET_HOST_POWER_SAVER')
 
     def get_host_power_status(self):
         """Whether the server is powered on or not"""
@@ -579,6 +598,14 @@ class Ilo(object):
         """Get the status of virtual media devices. Valid devices are FLOPPY and CDROM"""
         return self._info_tag('RIB_INFO', 'GET_VM_STATUS', attrib={'DEVICE': device})
 
+    def hotkey_config(self, ctrl_t=None, ctrl_u=None, ctrl_v=None, ctrl_w=None,
+                      ctrl_x=None, ctrl_y=None):
+        """Change a set of shortcuts"""
+        vars = locals()
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=vars[x]) for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'HOTKEY_CONFIG', elements=elements)
+
     # Not sure how this would work, and I have no relevant hardware
     #def insert_virtual_floppy(self, device, image_location):
     #    """Insert a virtual floppy"""
@@ -683,6 +710,14 @@ class Ilo(object):
         """Press and hold the power button"""
         return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN')
 
+    def cold_boot_server(self):
+        """Force a cold boot of the server"""
+        return self._control_tag('SERVER_INFO', 'COLD_BOOT_SERVER')
+
+    def warm_boot_server(self):
+        """Force a warm boot of the server"""
+        return self._control_tag('SERVER_INFO', 'WARM_BOOT_SERVER')
+
     def reset_rib(self):
         """Reset the iLO/RILOE board"""
         return self._control_tag('RIB_INFO', 'RESET_RIB')
@@ -691,10 +726,27 @@ class Ilo(object):
         """Power cycle the server"""
         return self._control_tag('SERVER_INFO', 'RESET_SERVER')
 
+    def set_language(self, lang_id):
+        """Set the default language"""
+        return self._control_tag('RIB_INFO', 'SET_LANGUAGE', attrib={'LANG_ID': lang_id})
+
     def set_host_power(self, host_power=True):
         """Turn host power on or off"""
         power = ['No', 'Yes'][bool(host_power)]
         return self._control_tag('SERVER_INFO', 'SET_HOST_POWER', attrib={'HOST_POWER': power})
+
+    def set_host_power_saver(self, host_power_saver):
+        """Set the configuration of the ProLiant power regulator"""
+        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER_SAVER', attrib={'HOST_POWER_SAVER': str(host_power_saver)})
+
+    def set_one_time_boot(self, device):
+        """Set one time boot device"""
+        return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device.upper()})
+
+    def set_persistent_boot(self, devices):
+        """Set persistent boot order, devices should be comma-separated"""
+        elements = [etree.Element('DEVICE', VALUE=x.upper()) for x in devices.split(',')]
+        return self._control_tag('SERVER_INFO', 'SET_PERSISTENT_BOOT', elements=elements)
 
     @untested
     def set_power_cap(self, power_cap):
@@ -783,11 +835,6 @@ class Ilo(object):
     def get_host_power_reg_info(self):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_HOST_POWER_REG_INFO', {}))
-
-    @untested
-    def get_host_power_saver_status(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_HOST_POWER_SAVER_STATUS', {}))
 
     @untested
     def get_topology(self):
