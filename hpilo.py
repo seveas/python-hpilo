@@ -654,14 +654,14 @@ class Ilo(object):
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
             f8_login_required=None, lock_configuration=None,
-            http_port=None, https_port=None,
-            ssh_port=None, ssh_status=None, virtual_media_port=None,
-            min_password=None, enfoce_aes=None,
-            authentication_failure_logging=None, rbsu_post_ip=None):
-        """Modify iLO global settings, only values that are specified will be
-           changed. Remote console settings can be changed with
-   :func:`mod_remote_console_settings` as the function signature for
-           this function is ridiculous enough already"""
+            http_port=None, https_port=None, ssh_port=None, ssh_status=None, 
+            vmedia_disable=None, virtual_media_port=None, remote_console_port=None,
+            min_password=None, enfoce_aes=None, authentication_failure_logging=None,
+            rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
+            terminal_services_port=None, high_performance_mouse=None,
+            shared_console_enable=None, shared_console_port=None,
+            remote_console_acquire=None):
+        """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
@@ -678,25 +678,15 @@ class Ilo(object):
             ter_dns_server=None, prim_wins_server=None, sec_wins_server=None,
             static_route_1=None, static_route_2=None, static_route_3=None,
             dhcp_sntp_settings=None, sntp_server1=None, sntp_server2=None,
-            timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None):
-        """Confifure the network settings for the iLO card"""
+            timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None,
+            shared_network_port=None, vlan_enabled=None, vlan_id=None,
+            shared_network_port_vlan=None, shared_network_port_vlan_id=None):
+        """Configure the network settings for the iLO card"""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
-
-    def mod_remote_console_settings(self, remote_console_port=None,
-            remote_console_encryption=None, remote_keyboard_model=None,
-            terminal_services_port=None, high_performance_mouse=None,
-            shared_console_enable=None, shared_console_port=None,
-            remote_console_acquire=None):
-        """Modify remote console settings, only values that are specified will be changed"""
-        vars = dict(locals())
-        del vars['self']
-        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
-        return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
