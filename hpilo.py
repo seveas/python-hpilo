@@ -1,17 +1,17 @@
 # (c) 2011-2012 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
+import os
+import random
+import re
 import socket
 import cStringIO as StringIO
-import re
-import os
 import sys
+import warnings
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import cElementTree as etree
-import uuid
-import warnings
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -43,7 +43,7 @@ class Ilo(object):
 
     XML_HEADER = '<?xml version="1.0"?>\r\n'
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
-    HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
+    HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 4096
 
     def __init__(self, hostname, login, password, timeout=60, port=443):
@@ -54,6 +54,7 @@ class Ilo(object):
         self.debug    = 0
         self.protocol = None
         self.port     = port
+        self.cookie   = None
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -113,10 +114,60 @@ class Ilo(object):
         else:
             self.protocol = ILO_RAW
 
-    def _upload_file(self, filename):
-        boundary = 'hpilo-firmware-upload-%s' % uuid.uuid4()
+    def _upload_file(self, filename, progress):
+        firmware = open(filename, 'rb').read()
+        boundary = '------hpiLO3t' + str(random.randint(100000,1000000)) + 'z'
+        while boundary in firmware:
+            boundary = '------hpiLO3t' + str(random.randint(100000,1000000)) + 'z'
+        parts = [
+            """--%s\r\nContent-Disposition: form-data; name="fileType"\r\n\r\n""" % boundary,
+            """\r\n--%s\r\nContent-Disposition: form-data; name="fwimgfile"; filename="%s"\r\nContent-Type: application/octet-stream\r\n\r\n""" % (boundary, filename),
+            firmware,
+            """\r\n--%s--\r\n""" % boundary
+        ]
+        total_bytes = sum([len(x) for x in parts])
+        sock = self._get_socket()
 
-    def _communicate(self, xml, protocol, extra_header='', progress=None):
+        self._debug(2, self.HTTP_UPLOAD_HEADER % (total_bytes, boundary))
+        sock.write(self.HTTP_UPLOAD_HEADER % (total_bytes, boundary))
+        for part in parts:
+            if len(part) < 2048:
+                self._debug(2, part)
+                sock.write(part)
+            else:
+                sent = 0
+                pkglen = 2048
+                fwlen = len(part)
+                while sent < fwlen:
+                    written = sock.write(part[sent:sent+pkglen])
+                    sent += written
+                    if callable(progress):
+                        progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
+                    else:
+                        self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
+                if callable(progress):
+                    progress("")
+                else:
+                    self._debug(2, "")
+
+
+        data = ''
+        try:
+            while True:
+                d = sock.read()
+                data += d
+                if not d:
+                    break
+        except socket.sslerror, e: # Connection closed
+            if not data:
+                raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
+
+        self._debug(1, "Received %d bytes" % len(data))
+        self._debug(2, data)
+        self.cookie = re.search('Set-Cookie: *(.*)', data).groups(1)
+        self._debug(2, "Cookie: %s" % self.cookie)
+
+    def _get_socket(self):
         """Set up an https connection and do an HTTP/raw socket request"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(self.timeout)
@@ -128,12 +179,17 @@ class Ilo(object):
         except socket.error, e:
             raise IloError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
         try:
-            sock = socket.ssl(sock)
+            return socket.ssl(sock)
         except socket.sslerror, e:
             raise IloError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message))
 
+    def _communicate(self, xml, protocol, progress=None):
+        sock = self._get_socket()
         msglen = msglen_ = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
+            extra_header = ''
+            if self.cookie:
+                extra_header = "\r\nCookie: %s" % self.cookie
             http_header = self.HTTP_HEADER % (msglen, extra_header)
             msglen += len(http_header)
         self._debug(1, "Sending XML request, %d bytes" % msglen)
@@ -160,7 +216,9 @@ class Ilo(object):
                     progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
                 else:
                     self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-            if not callable(progress):
+            if callable(progress):
+                progress("")
+            else:
                 self._debug(2, "")
             sock.write(post.strip())
         else:
@@ -171,12 +229,20 @@ class Ilo(object):
         try:
             while True:
                 d = sock.read()
-                if callable(progress) and d.startswith('<?xml') and d.strip().endswith('</RIBCL>'):
-                    progress(self._parse_message(d, include_inform=True))
                 data += d
                 if not d:
                     break
-        except socket.sslerror: # Connection closed
+                if callable(progress) and d.strip().endswith('</RIBCL>'):
+                    d = d[d.find('<?xml'):]
+                    while '<?xml' in d:
+                        end = d.find('<?xml', 5)
+                        if end == -1:
+                            progress(self._parse_message(d, include_inform=True))
+                            break
+                        else:
+                            progress(self._parse_message(d[:end], include_inform=True))
+                            d = d[end:]
+        except socket.sslerror, e: # Connection closed
             if not data:
                 raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 
@@ -229,9 +295,11 @@ class Ilo(object):
         message = etree.fromstring(data)
         if message.tag == 'RIBCL':
             for child in message:
-                # INFORM messages are useless
                 if child.tag == 'INFORM':
                     if include_inform:
+                        # Filter useless message:
+                        if 'should be updated' in child.text:
+                            return None
                         return child.text
                 # RESPONE with status 0 also adds no value
                 elif child.tag == 'RESPONSE' and int(child.get('STATUS'), 16) == 0:
@@ -668,7 +736,7 @@ class Ilo(object):
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
             f8_login_required=None, lock_configuration=None,
-            http_port=None, https_port=None, ssh_port=None, ssh_status=None, 
+            http_port=None, https_port=None, ssh_port=None, ssh_status=None,
             vmedia_disable=None, virtual_media_port=None, remote_console_port=None,
             min_password=None, enfoce_aes=None, authentication_failure_logging=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
@@ -813,7 +881,6 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
-    @untested
     def update_rib_firmware(self, filename, progress=None):
         """Upload new RIB firmware"""
         if not self.protocol:
@@ -840,8 +907,8 @@ class Ilo(object):
             inner.tail = '$EMBED:%s$' % filename
             return self._request(root, progress_)[1]
         else:
-            raise NotImplementedError("TBD")
-            cookie = self._upload_file(filename)
+            self._upload_file(filename, progress_)
+            return self._request(root, progress_)[1]
 
 
 ##############################################################################################
