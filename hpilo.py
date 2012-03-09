@@ -770,6 +770,16 @@ class Ilo(object):
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
 
+    def mod_snmp_im_settings(self, web_agent_ip_address=None, snmp_address_1=None,
+            snmp_address_2=None, snmp_address_3=None, os_traps=None,
+            snmp_passthrough_status=None, rib_traps=None, cim_security_mask=None):
+        """Configure the SNMP and Insight Manager integration settings"""
+        vars = dict(locals())
+        del vars['self']
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
+
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
