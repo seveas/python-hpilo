@@ -343,9 +343,10 @@ class Ilo(object):
         header, message = self._request(root)
         if message is None:
             return None
-        # Code path below is untested. Error out for now.
-        raise IloError("You've reached unknown territories, please report a bug")
         message = message.find(returntag or tagname)
+        if message.text.strip():
+            return message.text.strip()
+        raise IloError("You've reached unknown territories, please report a bug")
         if list(message):
             return self._element_children_to_dict(message)
         else:
@@ -370,6 +371,15 @@ class Ilo(object):
 
         return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
                 attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
+
+    @untested
+    def cert_fqdn(self, use_fqdn):
+        use_fqdn = str({True: 'Yes', False: 'No'}.get(use_fqdn, use_fqdn))
+        return self._control_tag('RIB_INFO', 'CERT_FQDN', attrib={'VALUE': use_fqdn})
+
+    def certificate_signing_request(self):
+        """Get a certificate signing request from the iLO"""
+        return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST')
 
     def clear_ilo_event_log(self):
         """Clears the iLO event log"""
@@ -418,6 +428,10 @@ class Ilo(object):
     def get_all_user_info(self):
         """Get basic and authorization info of all users"""
         return self._info_tag2('USER_INFO', 'GET_ALL_USER_INFO', key='user_login')
+
+    def get_cert_subject_info(self):
+        """Get ssl certificate subject information"""
+        return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO')
 
     def get_dir_config(self):
         """Get directory authentication configuration"""
