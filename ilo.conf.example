@@ -1,3 +1,11 @@
 [ilo]
 login = Administrator
 password = AdminPassword
+
+[license]
+ilo2_advanced = FAKEILO2LICENSEXXXXXXXXXX
+ilo3_advanced = FAKEI-LO3LI-CENSE-XXXXX-XXXXX
+
+[firmware]
+ilo2 = /usr/share/ilo/ilo2_207.bin
+ilo3 = /usr/share/ilo/ilo3_126.bin

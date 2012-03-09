@@ -120,6 +120,8 @@ def main():
         else:
             return str(val)
     param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
+    if method == 'update_rib_firmware':
+        params['progress'] = print_progress
     result = getattr(ilo, method)(**params)
     if opts.json:
         json.dump(result, sys.stdout)
@@ -169,6 +171,13 @@ def hpilo_help_methods(option, opt_str, value, parser):
     print u"""Supported methods:
 - %s""" % u"\n- ".join(ilo_methods)
     parser.exit()
+
+def print_progress(text):
+    if text.startswith('\r'):
+        sys.stdout.write(text)
+        sys.stdout.flush()
+    else:
+        print text
 
 if __name__ == '__main__':
     main()

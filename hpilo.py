@@ -4,6 +4,7 @@
 import socket
 import cStringIO as StringIO
 import re
+import os
 import sys
 try:
     import xml.etree.cElementTree as etree
@@ -59,9 +60,13 @@ class Ilo(object):
 
     def _debug(self, level, message):
         if self.debug >= level:
-            print >>sys.stderr, re.sub(r'PASSWORD=".*"','PASSWORD="********"', message)
+            if message.startswith('\r'):
+                sys.stderr.write(re.sub(r'PASSWORD=".*"','PASSWORD="********"', message))
+                sys.stderr.flush()
+            else:
+                print >>sys.stderr, re.sub(r'PASSWORD=".*"','PASSWORD="********"', message)
 
-    def _request(self, xml):
+    def _request(self, xml, progress=None):
         """Given an ElementTree.Element, serialize it and do the request.
            Returns an ElementTree.Element containing the response"""
 
@@ -69,13 +74,12 @@ class Ilo(object):
             self._detect_protocol()
 
         # Serialize the XML
-        if not isinstance(xml, basestring):
-            if hasattr(etree, 'tostringlist'):
-                xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
-            else:
-                xml = etree.tostring(xml)
+        if hasattr(etree, 'tostringlist'):
+            xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+        else:
+            xml = etree.tostring(xml)
 
-        header, data =  self._communicate(xml, self.protocol)
+        header, data =  self._communicate(xml, self.protocol, progress=progress)
 
         # This thing usually contains multiple XML messages
         messages = []
@@ -112,8 +116,7 @@ class Ilo(object):
     def _upload_file(self, filename):
         boundary = 'hpilo-firmware-upload-%s' % uuid.uuid4()
 
-
-    def _communicate(self, xml, protocol, extra_header=''):
+    def _communicate(self, xml, protocol, extra_header='', progress=None):
         """Set up an https connection and do an HTTP/raw socket request"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(self.timeout)
@@ -139,27 +142,37 @@ class Ilo(object):
             self._debug(2, http_header)
             sock.write(http_header)
 
-        if msglen < 4096:
-            self._debug(2, self.XML_HEADER + xml)
+        self._debug(2, self.XML_HEADER + xml)
 
         # XML header and data need to arrive in 2 distinct packets
         sock.write(self.XML_HEADER)
-        if msglen < 4096:
-            sock.write(xml)
-        else:
+        if '$EMBED' in xml:
+            pre, name, post = re.compile(r'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
+            sock.write(pre)
             sent = 0
-            xmllen = float(len(xml))
+            fwlen = os.path.getsize(name)
+            fw = open(name, 'rb').read()
             pkglen = 2048
-            while xml:
-                sock.write(xml[sent:sent+pkglen])
-                sent += pkglen
-                self._debug(2, "Sent %d/%d bytes (%d%%)" % (sent, xmllen, sent/xmllen*1000))
+            while sent < fwlen:
+                written = sock.write(fw[sent:sent+pkglen])
+                sent += written
+                if callable(progress):
+                    progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
+                else:
+                    self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
+            if not callable(progress):
+                self._debug(2, "")
+            sock.write(post.strip())
+        else:
+            sock.write(xml)
 
         # And grab the data
         data = ''
         try:
             while True:
                 d = sock.read()
+                if callable(progress) and d.startswith('<?xml') and d.strip().endswith('</RIBCL>'):
+                    progress(self._parse_message(d, include_inform=True))
                 data += d
                 if not d:
                     break
@@ -204,7 +217,7 @@ class Ilo(object):
         element = etree.SubElement(login, element, **attrs)
         return root, element
 
-    def _parse_message(self, data):
+    def _parse_message(self, data, include_inform=False):
         """Parse iLO responses into Element instances and remove useless messages"""
         # Bug in some ilo versions causes malformed XML
         if '<RIBCL VERSION="2.22"/>' in data:
@@ -218,7 +231,8 @@ class Ilo(object):
             for child in message:
                 # INFORM messages are useless
                 if child.tag == 'INFORM':
-                    pass
+                    if include_inform:
+                        return child.text
                 # RESPONE with status 0 also adds no value
                 elif child.tag == 'RESPONSE' and int(child.get('STATUS'), 16) == 0:
                     if child.get('MESSAGE') != 'No error':
@@ -800,20 +814,33 @@ class Ilo(object):
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
     @untested
-    def update_rib_firmware(self, filename):
+    def update_rib_firmware(self, filename, progress=None):
         """Upload new RIB firmware"""
         if not self.protocol:
             self._detect_protocol()
 
-        firmware = open(filename,'rb').read()
-        root, inner = self._root_element('RIB_INFO', MODE='write')
-        inner = etree.SubElement(inner, 'UPDATE_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(len(firmware)))
-        if self.protocol == ILO_RAW:
-            # We need to violate XML here. Dirty.
-            xml = "\r\n".join(etree.tostringlist(root)) + '\r\n'
-            xml = xml.replace('</RIB_INFO', firmware + '</RIB_INFO')
-            print self._request(xml)
+        if progress:
+            def progress_(data):
+                if data is None:
+                    return
+                elif isinstance(data, basestring):
+                    if '%' in data:
+                        data = '\r\033[K' + data
+                    progress(data)
+                else:
+                    raise RuntimeError("Unknown progress message")
         else:
+            progress_ = None
+
+        fwlen = os.path.getsize(filename)
+        root, inner = self._root_element('RIB_INFO', MODE='write')
+        etree.SubElement(inner, 'TPM_ENABLED', VALUE='Yes')
+        inner = etree.SubElement(inner, 'UPDATE_RIB_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(fwlen))
+        if self.protocol == ILO_RAW:
+            inner.tail = '$EMBED:%s$' % filename
+            return self._request(root, progress_)[1]
+        else:
+            raise NotImplementedError("TBD")
             cookie = self._upload_file(filename)
 
 
