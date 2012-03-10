@@ -634,7 +634,7 @@ class Ilo(object):
         return self._info_tag('SERVER_INFO', 'GET_POWER_READINGS')
 
     def get_pwreg(self):
-        """I have no idea what this does"""
+        """Get the power and power alert threshold settings"""
         return self._info_tag('SERVER_INFO', 'GET_PWREG')
 
     def get_server_auto_pwr(self):
@@ -850,16 +850,21 @@ class Ilo(object):
         elements = [etree.Element('DEVICE', VALUE=x.upper()) for x in devices.split(',')]
         return self._control_tag('SERVER_INFO', 'SET_PERSISTENT_BOOT', elements=elements)
 
-    @untested
+    def set_pwreg(self, type, threshold=None, duration=None):
+        """Set the power alert threshold"""
+        elements = [etree.Element('PWRALERT', TYPE=type)]
+        if type.lower() != "disabled":
+            elements.append(etree.Element('PWRALERT_SETTINGS', THRESHOLD=str(threshold), DURATION=str(duration)))
+        return self._control_tag('SERVER_INFO', 'SET_PWREG', elements=elements)
+
     def set_power_cap(self, power_cap):
         """Set the power cap feature to a specific value"""
-        return self._control_taf('SERVER_INFO', 'SET_POWER_CAP', attrib={'POWER_CAP': int(power_cap)})
+        return self._control_tag('SERVER_INFO', 'SET_POWER_CAP', attrib={'POWER_CAP': str(power_cap)})
 
-    @untested
     def set_server_auto_pwr(self, setting):
         """Set the automatic power on delay setting. Valid settings are False,
            True (for minumum delay), 15, 30, 45 60 (for that amount of delay or
-           random (for a random delay op to 60 seconds. """
+           random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
 
