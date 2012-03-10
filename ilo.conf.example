@@ -9,3 +9,6 @@ ilo3_advanced = FAKEI-LO3LI-CENSE-XXXXX-XXXXX
 [firmware]
 ilo2 = /usr/share/ilo/ilo2_207.bin
 ilo3 = /usr/share/ilo/ilo3_126.bin
+
+[ca]
+path = ~/.hpilo_ca

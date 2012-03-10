@@ -1,0 +1,250 @@
+#!/usr/bin/python
+
+import ConfigParser
+import hpilo
+import optparse
+import os
+import subprocess
+import sys
+import time
+
+def main():
+    usage = """%prog [options] init
+%prog [options] sign hostname [hostname ...]"""
+    p = optparse.OptionParser(usage=usage)
+    p.add_option("-l", "--login", dest="login", default=None,
+                 help="Username to access the iLO")
+    p.add_option("-p", "--password", dest="password", default=None,
+                 help="Password to access the iLO")
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw"), default=None,
+                 help="Use the specified protocol instead of autodetecting")
+    p.add_option("-d", "--debug", dest="debug", action="count", default=0,
+                 help="Output debug information, repeat to see all XML data")
+    p.add_option("-o", "--port", dest="port", type="int", default=443,
+                 help="SSL port to connect to")
+    p.add_option("-s", "--openssl", dest="openssl_bin", default="/usr/bin/openssl",
+                 help="Path to the openssl binary")
+    p.add_option("-u", "--upgrade", dest="upgrade", action="store_true", default=False,
+                 help="Upgrade iLO firmware that is too old automatically")
+
+    opts, args = p.parse_args()
+
+    if not args or args[0] not in ('init','sign'):
+        p.print_help()
+        p.exit(1)
+
+    if not os.path.exists(os.path.expanduser(opts.config)):
+        p.error("COnfiguration file does not exist")
+
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.expanduser(opts.config))
+    if not config.has_option('ca', 'path'):
+        p.error("No CA path specified in the config")
+    ca_path = os.path.expanduser(config.get('ca', 'path'))
+    os.environ['CA_PATH'] = ca_path
+    openssl_cnf = os.path.join(ca_path, 'openssl.cnf')
+
+    openssl = OpenSSL(opts.openssl_bin, openssl_cnf)
+
+    if args[0] == 'init':
+        if len(args) > 2:
+            p.error("Too many arguments")
+        if not os.path.exists(ca_path):
+            os.makedirs(ca_path)
+        if not os.path.exists(openssl_cnf):
+            open(openssl_cnf, 'w').write(default_openssl_cnf)
+        for dir in ('ca', 'certs', 'crl', 'archive'):
+            if not os.path.exists(os.path.join(ca_path, dir)):
+                os.mkdir(os.path.join(ca_path, dir))
+        if not os.path.exists(os.path.join(ca_path, 'archive', 'index')):
+            open(os.path.join(ca_path, 'archive', 'index'),'w').close()
+        if not os.path.exists(os.path.join(ca_path, 'archive', 'serial')):
+            fd = open(os.path.join(ca_path, 'archive', 'serial'),'w')
+            fd.write("00\n")
+            fd.close()
+        if not os.path.exists(os.path.join(ca_path, 'ca', 'hpilo_ca.key')):
+            openssl('genrsa', '-out', os.path.join(ca_path, 'ca', 'hpilo_ca.key'), '2048')
+        if not os.path.exists(os.path.join(ca_path, 'ca', 'hpilo_ca.crt')):
+            openssl('req', '-new', '-x509', '-days', '7300', # 20 years should be enough for everyone :-)
+                    '-key', os.path.join(ca_path, 'ca', 'hpilo_ca.key'),
+                    '-out', os.path.join(ca_path, 'ca', 'hpilo_ca.crt'))
+        sys.exit(0)
+
+    # Do we have login information
+    login = None
+    password = None
+    if config.has_option('ilo', 'login'):
+        login = config.get('ilo', 'login')
+    if config.has_option('ilo', 'password'):
+        password = config.get('ilo', 'password')
+    if opts.login:
+        login = opts.login
+    if opts.password:
+        password = opts.password
+    if not login or not password:
+        p.error("No login details provided")
+
+    for hostname in args[1:]:
+        csr_path = os.path.join(ca_path, 'certs', hostname + '.csr')
+        crt_path = os.path.join(ca_path, 'certs', hostname + '.crt')
+        if os.path.exists(crt_path):
+            print "Certificate already signed, skipping"
+            continue
+
+        ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
+        ilo.debug = opts.debug
+        if opts.protocol == 'http':
+            ilo.protocol = hpilo.ILO_HTTP
+        elif opts.protocol == 'raw':
+            ilo.protocol = hpilo.ILO_RAW
+
+        print "(1/5) Checking certificate config of %s" % hostname
+        fw_version = ilo.get_fw_version()
+        if fw_version['management_processor'] == 'iLO2':
+            version = fw_version['firmware_version']
+            i_version = [int(x) for x in version.split('.')]
+            if i_version < [2,6]:
+                print "iLO2 firmware version %s is too old" % version
+                if not opts.upgrade:
+                    print "Please upgrade firmware to 2.06 or newer"
+                    continue
+                if not config.has_option('firmware', 'ilo2'):
+                    print "Cannot upgrade firmware, no firmware specified in the config"
+                    continue
+                print "Upgrading iLO firmware"
+                ilo.update_rib_firmware(config.get('firmware', 'ilo2'), print_progress)
+                print "Waiting a minute to let firmware upgrade settle..."
+                time.sleep(60)
+            cn = ilo.get_cert_subject_info()['csr_subject_common_name']
+            if '.' not in cn:
+                ilo.cert_fqdn(use_fqdn=True)
+                cn = ilo.get_cert_subject_info()['csr_subject_common_name']
+            if cn != hostname:
+                print "Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn)
+                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
+                print "Waiting a minute to let the iLO reset itself"
+                time.sleep(60)
+
+        elif fw_version['management_processor'] == 'iLO3':
+            cn = ilo.get_network_settings()['dns_name']
+            if cn != hostname[:hostname.find('.')]:
+                print "Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn)
+                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
+                print "Waiting a minute to let the iLO reset itself"
+                time.sleep(60)
+
+        else:
+            print "hpilo_ca cannot manage certificates for %s, only iLO2 and iLO3 are supported" % (fw_version['management_processor'], hostname)
+            continue
+
+        print "(2/5) Retrieving certificate signing request"
+        csr = ilo.certificate_signing_request()
+        fd = open(csr_path, 'w')
+        fd.write(csr)
+        fd.close()
+
+        print "(3/5) Signing certificate"
+        openssl('ca', '-batch', '-in', csr_path, '-out', crt_path)
+
+        print "(4/5) Uploading certificate"
+        fd = open(crt_path)
+        cert = fd.read()
+        fd.close()
+        cert = cert[cert.find('-----BEGIN'):]
+        ilo.import_certificate(cert)
+
+        print "(5/5) Resetting iLO"
+        ilo.reset_rib()
+
+class OpenSSL(object):
+    def __init__(self, openssl_bin, openssl_cnf):
+        self.openssl_bin = openssl_bin
+        self.openssl_cnf = openssl_cnf
+
+    def __call__(self, *args):
+        args = list(args)
+        if args[0] in ('req', 'ca'):
+            args = args[:1] + ['-config', self.openssl_cnf] + args[1:]
+        return subprocess.call([self.openssl_bin] + args)
+
+default_openssl_cnf = """default_ca = hpilo_ca
+
+[hpilo_ca]
+dir              = $ENV::CA_PATH
+certs            = $dir/certs
+crl_dir          = $dir/crl
+private_key      = $dir/ca/hpilo_ca.key
+certificate      = $dir/ca/hpilo_ca.crt
+database         = $dir/archive/index
+new_certs_dir    = $dir/archive
+serial           = $dir/archive/serial
+crlnumber        = $dir/crl/crlnumber
+crl              = $dir/crl/crl.pem
+RANDFILE         = $dir/.rand
+x509_extensions  = usr_cert
+name_opt         = ca_default
+cert_opt         = ca_default
+default_days     = 1825 # 5 years
+default_crl_days = 30
+default_md       = sha1
+preserve         = no
+policy           = req_policy
+
+[req_policy]
+countryName            = supplied
+stateOrProvinceName    = supplied
+organizationName       = supplied
+organizationalUnitName = optional
+commonName             = supplied
+emailAddress           = optional
+
+[req]
+dir                = $ENV::CA_PATH
+default_bits       = 2048
+default_md         = sha1
+default_keyfile    = $dir/ca/hpilo_ca.key
+distinguished_name = req_distinguished_name
+x509_extensions    = ca_cert # The extentions to add to the self signed cert
+string_mask        = MASK:0x2002
+
+[req_distinguished_name]
+countryName                 = Country Name (2 letter code)
+countryName_default         = NL
+countryName_min             = 2
+countryName_max             = 2
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = Flevoland
+localityName                = Locality Name (eg, city)
+localityName_default        = Lelystad
+0.organizationName          = Organization Name (eg, company)
+0.organizationName_default  = Kaarsemaker.net
+commonName                  = Common Name (eg, your name or your server's hostname)
+commonName_max              = 64
+commonName_default          = hpilo_ca
+
+[usr_cert]
+basicConstraints       = CA:FALSE
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+nsComment              = "Certificate generated by iLO CA"
+
+[ca_cert]
+basicConstraints       = CA:true
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+nsComment              = "Certificate generated by iLO CA"
+"""
+
+def print_progress(text):
+    if text.startswith('\r'):
+        sys.stdout.write(text)
+        sys.stdout.flush()
+    else:
+        print text
+
+if __name__ == '__main__':
+    main()

@@ -454,8 +454,8 @@ class Ilo(object):
         return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
                 attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
 
-    @untested
     def cert_fqdn(self, use_fqdn):
+        """Configure whether to use the fqdn or the short hostname for certificate requests"""
         use_fqdn = str({True: 'Yes', False: 'No'}.get(use_fqdn, use_fqdn))
         return self._control_tag('RIB_INFO', 'CERT_FQDN', attrib={'VALUE': use_fqdn})
 
@@ -513,7 +513,7 @@ class Ilo(object):
 
     def get_cert_subject_info(self):
         """Get ssl certificate subject information"""
-        return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO')
+        return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO', 'CSR_CERT_SETTINGS')
 
     def get_dir_config(self):
         """Get directory authentication configuration"""
@@ -702,10 +702,9 @@ class Ilo(object):
         elements = [etree.Element(x.upper(), VALUE=vars[x]) for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'HOTKEY_CONFIG', elements=elements)
 
-    # Not sure how this would work, and I have no relevant hardware
-    #def insert_virtual_floppy(self, device, image_location):
-    #    """Insert a virtual floppy"""
-    #    return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_FLOPPY', attrib={'IMAGE_LOCATION': image_location})
+    def import_certificate(self, certificate):
+        """Import a signed SSL certificate"""
+        return self._control_tag('RIB_INFO', 'IMPORT_CERTIFICATE', text=certificate)
 
     @untested
     def import_ssh_key(self, user_login, ssh_key):
@@ -723,6 +722,11 @@ class Ilo(object):
             raise ValueError("Invalid SSH key")
         key = "-----BEGIN SSH KEY-----\r\n%s %s %s\r\n----END SSH KEY-----" % (algo, key, user_login)
         return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key)
+
+    # Not sure how this would work, and I have no relevant hardware
+    #def insert_virtual_floppy(self, device, image_location):
+    #    """Insert a virtual floppy"""
+    #    return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_FLOPPY', attrib={'IMAGE_LOCATION': image_location})
 
     @untested
     def delete_ssh_key(self, user_login):

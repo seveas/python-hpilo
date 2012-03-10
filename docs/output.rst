@@ -27,6 +27,20 @@ return something.
                      'user_name': 'Administrator',
                      'virtual_media_priv': True}}
 
+.. function:: get_cert_subject_info()
+  :noindex:
+
+  >>> pprint(my_ilo.get_cert_subject_info())
+  {'csr_subject_common_name': 'example-server.int.kaarsemaker.net',
+   'csr_subject_country': 'US',
+   'csr_subject_location': 'Houston',
+   'csr_subject_org_name': 'Hewlett-Packard Development Company',
+   'csr_subject_orgunit_name': 'ISS',
+   'csr_subject_state': 'Texas',
+   'csr_use_cert_2048pkey': 'NO',
+   'csr_use_cert_custom_subject': 'NO',
+   'csr_use_cert_fqdn': 'YES'}
+
 .. function:: get_dir_config()
   :noindex:
 

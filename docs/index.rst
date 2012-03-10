@@ -12,6 +12,9 @@ functions return structured data based on the XML returned by the iLO. See
 A command line interface to this module, :doc:`hpilo_cli </cli>` makes accessing iLO
 interfaces almost trivial and easy to integrate with non-python scripts.
 
+To make managing SSL certificates for iLO boards easier, you can use
+:doc:`hpilo_ca </ca>`.
+
 HP, Integrated Lights out and iLO are trademarks of HP, with whom the author of
 this software is not affiliated in any way other than using some of their
 hardware.
@@ -30,5 +33,6 @@ Contents:
    ilo
    output
    cli
+   ca
 
 .. _`TechSupport site`:  http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&cc=us&prodTypeId=18964&prodSeriesId=4154735&swItem=MTX-9ded60bd746942e18651211f51&prodNameId=4154847&swEnvOID=4004&swLang=8&taskId=135&mode=5
