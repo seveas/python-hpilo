@@ -3,7 +3,7 @@ Accessing HP iLO interfaces from python
 
 This module will make it easy for you to access the Integrated Lights Out
 management interface of your HP hardware. It supports iLO, iLO 2 and iLO 3 and
-It uses the XML interface to access and change the iLO.
+uses the XML interface to access and change the iLO.
 
 The complete API is described in the :doc:`iLO class API reference </ilo>`. All
 functions return structured data based on the XML returned by the iLO. See

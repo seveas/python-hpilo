@@ -5,13 +5,7 @@ The commandline interface allows you to make calls from your shell or scripts
 written in another language than python. It supports all methods that the
 library has and is used as follows::
 
-
   Usage: hpilo_cli [options] hostname method [args...]
-
-  Supported methods:
-  - activate_license
-  [... other methods skipped ...]
-  - uid_control
 
   Options:
     -l LOGIN, --login=LOGIN
@@ -26,16 +20,20 @@ library has and is used as follows::
     -P PROTOCOL, --protocol=PROTOCOL
                           Use the specified protocol instead of autodetecting
     -d, --debug           Output debug information, repeat to see all XML data
+    -o PORT, --port=PORT  SSL port to connect to
+    --untested            Allow untested methods
     -h, --help            show this help message or help for a method
+    -H, --help-methods    show all supported methods
 
-The configuration file is a simple ini file that should look like this::
+The configuration file (by default :file:`~/.ilo.conf` is a simple ini file
+that should look like this::
 
   [ilo]
   login = Administrator
   password = AdminPassword
 
 Using such a file is recommended over using the login/password commandline
-arguments.
+arguments. A full example config file is shipped with the hpilo distribution.
 
 To pass arguments to method calls, pass :attr:`key=value` pairs on the
 command-line. These can reference arbitrary configuration variables using
@@ -75,4 +73,5 @@ Setting a licence key defined in the config file::
 
   [license]
   ilo3_advanced = FAKEL-ICENS-EFORH-PILO3-XXXXX
+
   $ hpilo_cli example-server.int.kaarsemaker.net activate_license key=$license.ilo3_advanced

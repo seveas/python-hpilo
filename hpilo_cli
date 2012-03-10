@@ -104,8 +104,7 @@ def main():
     if opts.password:
         password = opts.password
     if not login or not password:
-        p.print_help()
-        p.exit()
+        p.error("No login details provided")
 
     ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
     ilo.debug = opts.debug

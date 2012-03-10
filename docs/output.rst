@@ -123,6 +123,12 @@ return something.
     'type': 0},
    (Further records skipped)]
 
+.. function:: get_host_power_saver_status()
+  :noindex:
+
+  >>> pprint(my_ilo.get_host_power_saver_status())
+  {'host_power_saver': 'AUTO'}
+
 .. function:: get_host_power_status()
   :noindex:
 
@@ -158,6 +164,18 @@ return something.
     'last_update': '01/30/2011 16:42',
     'severity': 'Informational'},
     (Other log entries skipped)]
+
+.. function:: get_language()
+  :noindex:
+
+  >>> pprint(my_ilo.get_language())
+  {'lang_id': 'en', 'language': 'English'}
+
+.. function:: get_all_languages()
+  :noindex:
+
+  >>> pprint(my_ilo.get_all_languages())
+  {'lang_id': 'en', 'language': 'English'}
 
 .. function:: get_network_settings()
   :noindex:
@@ -215,6 +233,18 @@ return something.
    'rack': 'chassis-25',
    'st': 0,
    'uidstatus': 'Off'}
+
+.. function:: get_one_time_boot()
+  :noindex:
+
+  >>> pprint(my_ilo.get_one_time_boot())
+  {'boot_type': 'Normal'}
+
+.. function:: get_persistent_boot()
+  :noindex:
+
+  >>> pprint(my_ilo.get_persistent_boot())
+  ['CDROM', 'FLOPPY', 'USB', 'HDD', 'NETWORK']
 
 .. function:: get_power_cap()
   :noindex:
