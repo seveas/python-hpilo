@@ -18,9 +18,7 @@ $ git clone git://github.com/seveas/python-hpilo
 $ cd python-hpilo
 $ python setup.py install
 
-The minimum python version supported is 2.5 as this software uses the
-ElementTree XML library. It is probably possible to use older versions and an
-external ElementTree library, but this is left as an exercise to the reader.
+The minimum python version supported is 2.4 as I need this on CentOS 5
 
 Usage
 -----

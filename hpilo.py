@@ -7,6 +7,15 @@ import re
 import socket
 import cStringIO as StringIO
 import sys
+try:
+    import ssl
+except ImportError:
+    # Fallback for older python versions
+    class ssl:
+        PROTOCOL_TLSv1 = 3
+        @staticmethod
+        def wrap_socket(sock, *args, **kwargs):
+            return socket.ssl(sock)
 import warnings
 try:
     import xml.etree.cElementTree as etree
@@ -179,9 +188,9 @@ class Ilo(object):
         except socket.error, e:
             raise IloError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
         try:
-            return socket.ssl(sock)
+            return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
         except socket.sslerror, e:
-            raise IloError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message))
+            raise IloError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
 
     def _communicate(self, xml, protocol, progress=None):
         sock = self._get_socket()
