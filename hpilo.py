@@ -717,7 +717,6 @@ class Ilo(object):
         """Import a signed SSL certificate"""
         return self._control_tag('RIB_INFO', 'IMPORT_CERTIFICATE', text=certificate)
 
-    @untested
     def import_ssh_key(self, user_login, ssh_key):
         """Imports an SSH key for the specified user. The value of ssh_key
            should be the content of an id_dsa.pub file"""
@@ -725,13 +724,13 @@ class Ilo(object):
         if ' ' not in ssh_key:
             raise ValueError("Invalid SSH key")
         algo, key = ssh_key.split(' ',2)[:2]
-        if algo not in ('ssh-dss', 'ssh-rsa'):
-            raise ValueError("Invalid SSH key")
+        if algo != 'ssh-dss':
+            raise ValueError("Invalid SSH key, only DSA keys are supported")
         try:
             key.decode('base64')
         except Exception:
             raise ValueError("Invalid SSH key")
-        key = "-----BEGIN SSH KEY-----\r\n%s %s %s\r\n----END SSH KEY-----" % (algo, key, user_login)
+        key = "-----BEGIN SSH KEY-----\r\n%s\r\n%s\r\n%s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
         return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key)
 
     # Not sure how this would work, and I have no relevant hardware
@@ -742,7 +741,7 @@ class Ilo(object):
     @untested
     def delete_ssh_key(self, user_login):
         """Delete a users SSH key"""
-        return self._control_tag('USER_INFO', 'MOD_USER', elements=[etree.Element('DEL_USERS_SSH_KEY')])
+        return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=[etree.Element('DEL_USERS_SSH_KEY')])
 
     def insert_virtual_media(self, device, image_url):
         """Insert a virtual floppy or CDROM. Note that you will also need to
