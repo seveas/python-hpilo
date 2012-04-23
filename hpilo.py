@@ -297,7 +297,7 @@ class Ilo(object):
         # Bug in some ilo versions causes malformed XML
         if '<RIBCL VERSION="2.22"/>' in data:
             data = data.replace('<RIBCL VERSION="2.22"/>', '<RIBCL VERSION="2.22">')
-        if re.search(r'''= *[^"']''', data):
+        if re.search(r'''=+ *[^"'\n=]''', data):
             data = re.sub(r'''= *([^"'\n]+?) *\n''', r'="\1"', data)
         data = data.strip()
         if not data:
