@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name = "python-hpilo",
-      version = "1.1",
+      version = "1.2",
       author = "Dennis Kaarsemaker",
       author_email = "dennis@kaarsemaker.net",
       url = "http://github.com/seveas/python-hpilo",
@@ -15,7 +15,7 @@ setup(name = "python-hpilo",
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Programming Language :: Python :: 2',
+        'Programming Language :: Python',
         'Topic :: System :: Hardware',
         'Topic :: System :: Systems Administration',
         'Topic :: System :: Networking',

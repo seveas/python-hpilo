@@ -5,7 +5,10 @@ import os
 import random
 import re
 import socket
-import cStringIO as StringIO
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import io as StringIO
 import sys
 try:
     import ssl
@@ -31,7 +34,10 @@ _untested = []
 def untested(meth):
     """Decorator to mark a method as untested"""
     meth.untested = True
-    _untested.append(meth.func_name)
+    if hasattr(meth, 'func_name'):
+        _untested.append(meth.func_name)
+    else:
+        _untested.append(meth.__name__)
     return meth
 
 class IloError(Exception):
@@ -167,7 +173,8 @@ class Ilo(object):
                 data += d
                 if not d:
                     break
-        except socket.sslerror, e: # Connection closed
+        except socket.sslerror: # Connection closed
+            e = sys.exc_info()[1]
             if not data:
                 raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 
@@ -185,11 +192,13 @@ class Ilo(object):
             sock.connect((self.hostname, self.port))
         except socket.timeout:
             raise IloError("Timeout connecting to %s:%d" % (self.hostname, self.port))
-        except socket.error, e:
+        except socket.error:
+            e = sys.exc_info()[1]
             raise IloError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
         try:
             return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
-        except socket.sslerror, e:
+        except socket.sslerror:
+            e = sys.exc_info()[1]
             raise IloError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
 
     def _communicate(self, xml, protocol, progress=None):
@@ -251,7 +260,8 @@ class Ilo(object):
                         else:
                             progress(self._parse_message(d[:end], include_inform=True))
                             d = d[end:]
-        except socket.sslerror, e: # Connection closed
+        except socket.sslerror: # Connection closed
+            e = sys.exc_info()[1]
             if not data:
                 raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 

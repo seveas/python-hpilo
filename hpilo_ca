@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
 import hpilo
 import optparse
 import os
@@ -92,7 +95,7 @@ def main():
         csr_path = os.path.join(ca_path, 'certs', hostname + '.csr')
         crt_path = os.path.join(ca_path, 'certs', hostname + '.crt')
         if os.path.exists(crt_path):
-            print "Certificate already signed, skipping"
+            print("Certificate already signed, skipping")
             continue
 
         ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
@@ -102,62 +105,62 @@ def main():
         elif opts.protocol == 'raw':
             ilo.protocol = hpilo.ILO_RAW
 
-        print "(1/5) Checking certificate config of %s" % hostname
+        print("(1/5) Checking certificate config of %s" % hostname)
         fw_version = ilo.get_fw_version()
         if fw_version['management_processor'] == 'iLO2':
             version = fw_version['firmware_version']
             i_version = [int(x) for x in version.split('.')]
             if i_version < [2,6]:
-                print "iLO2 firmware version %s is too old" % version
+                print("iLO2 firmware version %s is too old" % version)
                 if not opts.upgrade:
-                    print "Please upgrade firmware to 2.06 or newer"
+                    print("Please upgrade firmware to 2.06 or newer")
                     continue
                 if not config.has_option('firmware', 'ilo2'):
-                    print "Cannot upgrade firmware, no firmware specified in the config"
+                    print("Cannot upgrade firmware, no firmware specified in the config")
                     continue
-                print "Upgrading iLO firmware"
+                print("Upgrading iLO firmware")
                 ilo.update_rib_firmware(config.get('firmware', 'ilo2'), print_progress)
-                print "Waiting a minute to let firmware upgrade settle..."
+                print("Waiting a minute to let firmware upgrade settle...")
                 time.sleep(60)
             cn = ilo.get_cert_subject_info()['csr_subject_common_name']
             if '.' not in cn:
                 ilo.cert_fqdn(use_fqdn=True)
                 cn = ilo.get_cert_subject_info()['csr_subject_common_name']
             if cn != hostname:
-                print "Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn)
+                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
                 ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print "Waiting a minute to let the iLO reset itself"
+                print("Waiting a minute to let the iLO reset itself")
                 time.sleep(60)
 
         elif fw_version['management_processor'] == 'iLO3':
             cn = ilo.get_network_settings()['dns_name']
             if cn != hostname[:hostname.find('.')]:
-                print "Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn)
+                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
                 ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print "Waiting a minute to let the iLO reset itself"
+                print("Waiting a minute to let the iLO reset itself")
                 time.sleep(60)
 
         else:
-            print "hpilo_ca cannot manage certificates for %s, only iLO2 and iLO3 are supported" % (fw_version['management_processor'], hostname)
+            print("hpilo_ca cannot manage certificates for %s, only iLO2 and iLO3 are supported" % (fw_version['management_processor'], hostname))
             continue
 
-        print "(2/5) Retrieving certificate signing request"
+        print("(2/5) Retrieving certificate signing request")
         csr = ilo.certificate_signing_request()
         fd = open(csr_path, 'w')
         fd.write(csr)
         fd.close()
 
-        print "(3/5) Signing certificate"
+        print("(3/5) Signing certificate")
         openssl('ca', '-batch', '-in', csr_path, '-out', crt_path)
 
-        print "(4/5) Uploading certificate"
+        print("(4/5) Uploading certificate")
         fd = open(crt_path)
         cert = fd.read()
         fd.close()
         cert = cert[cert.find('-----BEGIN'):]
         ilo.import_certificate(cert)
 
-        print "(5/5) Resetting iLO"
+        print("(5/5) Resetting iLO")
         ilo.reset_rib()
 
 class OpenSSL(object):
@@ -244,7 +247,7 @@ def print_progress(text):
         sys.stdout.write(text)
         sys.stdout.flush()
     else:
-        print text
+        print(text)
 
 if __name__ == '__main__':
     main()

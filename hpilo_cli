@@ -3,7 +3,14 @@
 # (c) 2011-2012 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+try:
+    basestring
+except NameError:
+    basestring = str
 import hpilo
 import optparse
 import os
@@ -62,11 +69,18 @@ def main():
         p.error("Method %s has not been tested, pass --untested to execute" % method)
 
     # Arguments must be passed as param=value pairs that are valid arguments to the methods
-    func = getattr(hpilo.Ilo, method).im_func
-    argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
-    args_with_defaults = []
-    if func.func_defaults:
-        args_with_defaults = argnames[-len(func.func_defaults):] 
+    if sys.version_info[0] >= 3:
+        func = getattr(hpilo.Ilo, method)#.__func__
+        argnames = func.__code__.co_varnames[1:func.__code__.co_argcount]
+        args_with_defaults = []
+        if func.__defaults__:
+            args_with_defaults = argnames[-len(func.__defaults__):]
+    else:
+        func = getattr(hpilo.Ilo, method).im_func
+        argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
+        args_with_defaults = []
+        if func.func_defaults:
+            args_with_defaults = argnames[-len(func.func_defaults):]
     params = {}
     for arg in args:
         if '=' not in arg:
@@ -126,12 +140,12 @@ def main():
         json.dump(result, sys.stdout)
     else:
         if isinstance(result, basestring):
-            print ">>> print(my_ilo.%s(%s))" % (method, param_str)
+            print(">>> print(my_ilo.%s(%s))" % (method, param_str))
             print(result)
         elif result is None:
-            print ">>> my_ilo.%s(%s)" % (method, param_str)
+            print(">>> my_ilo.%s(%s)" % (method, param_str))
         else:
-            print ">>> pprint(my_ilo.%s(%s))" % (method, param_str)
+            print(">>> pprint(my_ilo.%s(%s))" % (method, param_str))
             pprint(result)
 
 def hpilo_help(option, opt_str, value, parser):
@@ -155,20 +169,20 @@ def hpilo_help(option, opt_str, value, parser):
                        ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults)]
                 args = ' ' + ' '.join(args[1:])
 
-            print "Ilo.%s%s:" % (value, args)
+            print("Ilo.%s%s:" % (value, args))
             doc = getattr(hpilo.Ilo, value).__doc__ or "No documentation"
             doc = re.sub(r':[a-z]+:`(.*?)`', r'\1', doc)
-            print textwrap.fill(doc, 80)
+            print(textwrap.fill(doc, 80))
         else:
-            print "No such method: %s" % value
+            print("No such method: %s" % value)
     if parser:
         parser.exit()
     else:
         sys.exit()
 
 def hpilo_help_methods(option, opt_str, value, parser):
-    print u"""Supported methods:
-- %s""" % u"\n- ".join(ilo_methods)
+    print("""Supported methods:
+- %s""" % "\n- ".join(ilo_methods))
     parser.exit()
 
 def print_progress(text):
@@ -176,7 +190,7 @@ def print_progress(text):
         sys.stdout.write(text)
         sys.stdout.flush()
     else:
-        print text
+        print(text)
 
 if __name__ == '__main__':
     main()
