@@ -33,7 +33,7 @@ def main():
                  help="Timeout for iLO connections")
     p.add_option("-j", "--json", dest="json", action="store_true", default=False,
                  help="Output a json document instead of a python dict")
-    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw"), default=None,
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw","local"), default=None,
                  help="Use the specified protocol instead of autodetecting")
     p.add_option("-d", "--debug", dest="debug", action="count", default=0,
                  help="Output debug information, repeat to see all XML data")
@@ -109,23 +109,27 @@ def main():
     # Do we have login information
     login = None
     password = None
-    if config.has_option('ilo', 'login'):
-        login = config.get('ilo', 'login')
-    if config.has_option('ilo', 'password'):
-        password = config.get('ilo', 'password')
-    if opts.login:
-        login = opts.login
-    if opts.password:
-        password = opts.password
-    if not login or not password:
-        p.error("No login details provided")
+    if opts.protocol != 'local':
+        if config.has_option('ilo', 'login'):
+            login = config.get('ilo', 'login')
+        if config.has_option('ilo', 'password'):
+            password = config.get('ilo', 'password')
+        if opts.login:
+            login = opts.login
+        if opts.password:
+            password = opts.password
+        if not login or not password:
+            p.error("No login details provided")
 
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
+    opts.protocol = {
+        'http':  hpilo.ILO_HTTP,
+        'raw':   hpilo.ILO_RAW,
+        'local': hpilo.ILO_LOCAL,
+    }.get(opts.protocol, None)
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol)
     ilo.debug = opts.debug
-    if opts.protocol == 'http':
-        ilo.protocol = hpilo.ILO_HTTP
-    elif opts.protocol == 'raw':
-       ilo.protocol = hpilo.ILO_RAW
+    if config.has_option('ilo', 'hponcfg'):
+        ilo.hponcfg = config.get('ilo', 'hponcfg')
 
     def _q(val):
         if isinstance(val, basestring):

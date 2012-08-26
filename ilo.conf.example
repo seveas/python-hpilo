@@ -1,6 +1,7 @@
 [ilo]
 login = Administrator
 password = AdminPassword
+hponcfg = /usr/local/bin/hponcfg
 
 [license]
 ilo2_advanced = FAKEILO2LICENSEXXXXXXXXXX

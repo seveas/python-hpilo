@@ -9,6 +9,7 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import io as StringIO
+import subprocess
 import sys
 try:
     import ssl
@@ -28,6 +29,7 @@ except ImportError:
 # Which protocol to use
 ILO_RAW  = 1
 ILO_HTTP = 2
+ILO_LOCAL = 3
 
 _untested = []
 
@@ -53,22 +55,27 @@ class IloWarning(Warning):
 
 class Ilo(object):
     """Represents an iLO/iLO2/iLO3/RILOE II management interface on a
-        specific host. A new connection using the specified login, password
-        and timeout will be made for each API call."""
+        specific host. A new connection using the specified login, password and
+        timeout will be made for each API call. The library will detect which
+        protocol to use, but you can override this by setting protocol to
+        ILO_RAW or ILO_HTTP. Use ILO_LOCAL to avoid using a network connection
+        and use hponcfg instead. Username and password are ignored for ILO_LOCAL
+        connections."""
 
     XML_HEADER = '<?xml version="1.0"?>\r\n'
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 4096
+    hponcfg = "/sbin/hponcfg"
 
-    def __init__(self, hostname, login, password, timeout=60, port=443):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None):
         self.hostname = hostname
-        self.login = login
-        self.password = password
+        self.login = login or 'Administrator'
+        self.password = password or 'Password'
         self.timeout  = timeout
         self.debug    = 0
-        self.protocol = None
         self.port     = port
+        self.protocol = protocol
         self.cookie   = None
 
     def __str__(self):
@@ -120,6 +127,10 @@ class Ilo(object):
             return header, messages
 
     def _detect_protocol(self):
+        # Use hponcfg when 'connecting' to localhost
+        if self.hostname == 'localhost':
+            self.protocol = ILO_LOCAL
+            return
         # Do a bogus request, using the HTTP protocol. If there is no
         # header (see special case in communicate(), we should be using the
         # raw protocol
@@ -184,7 +195,18 @@ class Ilo(object):
         self._debug(2, "Cookie: %s" % self.cookie)
 
     def _get_socket(self):
-        """Set up an https connection and do an HTTP/raw socket request"""
+        """Set up a subprocess or an https connection and do an HTTP/raw socket request"""
+        if self.protocol == ILO_LOCAL:
+            self._debug(1, "Launching hponcfg")
+            try:
+                sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
+            except OSError:
+                e = sys.exc_info()[1]
+                raise IloError("Cannot run %s: %s" % (self.hponcfg, str(e)))
+            sp.write = sp.stdin.write
+            sp.read = sp.stdout.read
+            return sp
+
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(self.timeout)
         self._debug(1, "Connecting to %s:%d" % (self.hostname, self.port))
@@ -219,7 +241,8 @@ class Ilo(object):
         self._debug(2, self.XML_HEADER + xml)
 
         # XML header and data need to arrive in 2 distinct packets
-        sock.write(self.XML_HEADER)
+        if self.protocol != ILO_LOCAL:
+            sock.write(self.XML_HEADER)
         if '$EMBED' in xml:
             pre, name, post = re.compile(r'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
             sock.write(pre)
@@ -243,6 +266,9 @@ class Ilo(object):
             sock.write(xml)
 
         # And grab the data
+        if self.protocol == ILO_LOCAL:
+            # hponcfg doesn't return data until stdin is closed
+            sock.stdin.close()
         data = ''
         try:
             while True:
@@ -267,6 +293,9 @@ class Ilo(object):
 
         self._debug(1, "Received %d bytes" % len(data))
 
+        # Stript out garbage from hponcfg
+        if self.protocol == ILO_LOCAL:
+            data = data[data.find('<'):data.rfind('>')+1]
         # Do we have HTTP?
         header_ = ''
         if protocol == ILO_HTTP and data.startswith('HTTP/1.1 200'):
