@@ -515,6 +515,11 @@ class Ilo(object):
         return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
                 attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
 
+    @untested
+    def ahs_clear_data(self):
+        """FIXME: I have no relevant hardware. Please report sample output"""
+        return self._raw(('RIB_INFO', {'MODE': 'WRITE'}), ('AHS_CLEAR_DATA', {}))
+
     def cert_fqdn(self, use_fqdn):
         """Configure whether to use the fqdn or the short hostname for certificate requests"""
         use_fqdn = str({True: 'Yes', False: 'No'}.get(use_fqdn, use_fqdn))
@@ -562,6 +567,11 @@ class Ilo(object):
     def factory_defaults(self):
         """Reset the iLO to factory default settings"""
         return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
+
+    @untested
+    def get_ahs_status(self):
+        """FIXME: I have no relevant hardware. Please report sample output"""
+        return self._raw(('RIB_INFO', {'MODE': 'READ'}), ('GET_AHS_STATUS', {}))
 
     def get_all_users(self):
         """Get a list of all loginnames"""
@@ -806,7 +816,7 @@ class Ilo(object):
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
-            remote_console_acquire=None):
+            remote_console_acquire=None, brownout_recovery=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
@@ -885,6 +895,12 @@ class Ilo(object):
     def reset_server(self):
         """Power cycle the server"""
         return self._control_tag('SERVER_INFO', 'RESET_SERVER')
+
+    @untested
+    def set_ahs_status(self, status):
+        """Enable or disable AHS logging"""
+        status = {True: 'Enable', False: 'Disable'}[status]
+        return self._control_tag('RIB_INFO', 'SET_AHS_STATUS', attrib={'VALUE': status})
 
     def set_language(self, lang_id):
         """Set the default language"""
