@@ -1,4 +1,4 @@
-# Downloader / extracter for latest iLO2 / iLO3 firmware
+# Downloader / extracter for latest iLO2 / iLO3 / iLO4 firmware
 
 import tarfile
 import os
