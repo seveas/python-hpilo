@@ -25,6 +25,7 @@ try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import cElementTree as etree
+import hpilo_fw
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -950,9 +951,24 @@ class Ilo(object):
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
     def update_rib_firmware(self, filename, progress=None):
-        """Upload new RIB firmware"""
+        """Upload new RIB firmware, use "latest" as filename to automatically
+        download and use the latest firmware"""
         if not self.protocol:
             self._detect_protocol()
+
+        if self.protocol == 'ILO_LOCAL':
+            raise ValueError("Cannot update iLO firmware using hponcfg")
+
+        if filename == 'latest':
+            config = hpilo_fw.config()
+            current = self.get_fw_version()
+            ilo = current['management_processor'].lower()
+            if ilo not in config:
+                raise IloError("Cannot update %s to the latest version automatically" % ilo)
+            if current['firmware_version'] >= config[ilo]['version']:
+                return "Already up-to-date"
+            hpilo_fw.download(ilo)
+            filename = config[ilo]['file']
 
         if progress:
             def progress_(data):

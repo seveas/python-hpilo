@@ -8,7 +8,7 @@ setup(name = "python-hpilo",
       author_email = "dennis@kaarsemaker.net",
       url = "http://github.com/seveas/python-hpilo",
       description = "Accessing HP iLO interfaces from python",
-      py_modules = ["hpilo"],
+      py_modules = ["hpilo", "hpilo_fw"],
       scripts = ["hpilo_cli", "hpilo_ca"],
       classifiers = [
         'Development Status :: 5 - Production/Stable',
