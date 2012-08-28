@@ -9,11 +9,11 @@ if PY3:
     import urllib.request as urllib2
     import configparser as ConfigParser
     import io as StringIO
-    b = bytes
+    b = lambda x: bytes(x, 'ascii')
 else:
     import urllib2
     import ConfigParser
-    import StringIO
+    import cStringIO as StringIO
     b = lambda x: x
 
 _config = None

@@ -5,12 +5,22 @@ import os
 import random
 import re
 import socket
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import io as StringIO
 import subprocess
 import sys
+import warnings
+import hpilo_fw
+
+PY3 = sys.version_info[0] >= 3
+if PY3:
+    import io as StringIO
+    b = lambda x: bytes(x, 'ascii')
+    class Bogus(Exception): pass
+    socket.sslerror = Bogus
+    basestring = str
+else:
+    import cStringIO as StringIO
+    b = lambda x: x
+
 try:
     import ssl
 except ImportError:
@@ -20,12 +30,10 @@ except ImportError:
         @staticmethod
         def wrap_socket(sock, *args, **kwargs):
             return socket.ssl(sock)
-import warnings
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import cElementTree as etree
-import hpilo_fw
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -63,7 +71,7 @@ class Ilo(object):
         and use hponcfg instead. Username and password are ignored for ILO_LOCAL
         connections."""
 
-    XML_HEADER = '<?xml version="1.0"?>\r\n'
+    XML_HEADER = b('<?xml version="1.0"?>\r\n')
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 4096
@@ -83,12 +91,14 @@ class Ilo(object):
         return "iLO interface of %s" % self.hostname
 
     def _debug(self, level, message):
+        if message.__class__.__name__ == 'bytes':
+            message = message.decode('latin-1')
         if self.debug >= level:
+            sys.stderr.write(re.sub(r'PASSWORD=".*"', 'PASSWORD="********"', message))
             if message.startswith('\r'):
-                sys.stderr.write(re.sub(r'PASSWORD=".*"','PASSWORD="********"', message))
                 sys.stderr.flush()
             else:
-                print >>sys.stderr, re.sub(r'PASSWORD=".*"','PASSWORD="********"', message)
+                sys.stderr.write('\n')
 
     def _request(self, xml, progress=None):
         """Given an ElementTree.Element, serialize it and do the request.
@@ -99,7 +109,7 @@ class Ilo(object):
 
         # Serialize the XML
         if hasattr(etree, 'tostringlist'):
-            xml = "\r\n".join(etree.tostringlist(xml)) + '\r\n'
+            xml = b("\r\n").join(etree.tostringlist(xml)) + b('\r\n')
         else:
             xml = etree.tostring(xml)
 
@@ -135,7 +145,7 @@ class Ilo(object):
         # Do a bogus request, using the HTTP protocol. If there is no
         # header (see special case in communicate(), we should be using the
         # raw protocol
-        header, data = self._communicate('<RIBCL VERSION="2.0"></RIBCL>', ILO_HTTP)
+        header, data = self._communicate(b('<RIBCL VERSION="2.0"></RIBCL>'), ILO_HTTP)
         if header:
             self.protocol = ILO_HTTP
         else:
@@ -143,20 +153,20 @@ class Ilo(object):
 
     def _upload_file(self, filename, progress):
         firmware = open(filename, 'rb').read()
-        boundary = '------hpiLO3t' + str(random.randint(100000,1000000)) + 'z'
+        boundary = b('------hpiLO3t' + str(random.randint(100000,1000000)) + 'z')
         while boundary in firmware:
-            boundary = '------hpiLO3t' + str(random.randint(100000,1000000)) + 'z'
+            boundary = b('------hpiLO3t' + str(random.randint(100000,1000000)) + 'z')
         parts = [
-            """--%s\r\nContent-Disposition: form-data; name="fileType"\r\n\r\n""" % boundary,
-            """\r\n--%s\r\nContent-Disposition: form-data; name="fwimgfile"; filename="%s"\r\nContent-Type: application/octet-stream\r\n\r\n""" % (boundary, filename),
+            b("--") + boundary + b("""\r\nContent-Disposition: form-data; name="fileType"\r\n\r\n"""),
+            b("\r\n--") + boundary + b('''\r\nContent-Disposition: form-data; name="fwimgfile"; filename="''') + b(filename) + b('''"\r\nContent-Type: application/octet-stream\r\n\r\n'''),
             firmware,
-            """\r\n--%s--\r\n""" % boundary
+            b("\r\n--") + boundary + b("--\r\n"),
         ]
         total_bytes = sum([len(x) for x in parts])
         sock = self._get_socket()
 
-        self._debug(2, self.HTTP_UPLOAD_HEADER % (total_bytes, boundary))
-        sock.write(self.HTTP_UPLOAD_HEADER % (total_bytes, boundary))
+        self._debug(2, self.HTTP_UPLOAD_HEADER % (total_bytes, boundary.decode('ascii')))
+        sock.write(b(self.HTTP_UPLOAD_HEADER % (total_bytes, boundary.decode('ascii'))))
         for part in parts:
             if len(part) < 2048:
                 self._debug(2, part)
@@ -182,7 +192,7 @@ class Ilo(object):
         try:
             while True:
                 d = sock.read()
-                data += d
+                data += d.decode('latin-1')
                 if not d:
                     break
         except socket.sslerror: # Connection closed
@@ -237,15 +247,15 @@ class Ilo(object):
 
         if protocol == ILO_HTTP:
             self._debug(2, http_header)
-            sock.write(http_header)
+            sock.write(b(http_header))
 
         self._debug(2, self.XML_HEADER + xml)
 
         # XML header and data need to arrive in 2 distinct packets
         if self.protocol != ILO_LOCAL:
             sock.write(self.XML_HEADER)
-        if '$EMBED' in xml:
-            pre, name, post = re.compile(r'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
+        if b('$EMBED') in xml:
+            pre, name, post = re.compile(b(r'(.*)\$EMBED:(.*)\$(.*)'), re.DOTALL).match(xml).groups()
             sock.write(pre)
             sent = 0
             fwlen = os.path.getsize(name)
@@ -273,7 +283,7 @@ class Ilo(object):
         data = ''
         try:
             while True:
-                d = sock.read()
+                d = sock.read().decode('latin-1')
                 data += d
                 if not d:
                     break
@@ -411,7 +421,7 @@ class Ilo(object):
     def _element_to_dict(self, element):
         """Returns a dict with tag attributes as items"""
         retval = {}
-        for key, val in element.attrib.iteritems():
+        for key, val in element.attrib.items():
             retval[key.lower()] = self._coerce(val)
         return retval
 

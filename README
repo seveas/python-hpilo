@@ -18,7 +18,7 @@ $ git clone git://github.com/seveas/python-hpilo
 $ cd python-hpilo
 $ python setup.py install
 
-The minimum python version supported is 2.4 as I need this on CentOS 5
+The minimum python version supported is 2.4. Python 3 is also supported.
 
 Usage
 -----
