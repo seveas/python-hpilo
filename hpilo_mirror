@@ -1,0 +1,69 @@
+#!/usr/bin/python3
+#
+# Mirror the iLO firmware directory and create firmware.conf for the hpilo
+# repository. Not meant to be used by end users.
+
+import configparser
+import glob
+import io
+import os
+import subprocess
+import sys
+import tarfile
+
+root = '/var/tmp'
+ftproot = 'ftp://ftp.hp.com/pub/softlib2/software1/sc-linux-fw-ilo'
+httproot = ftproot.replace('ftp', 'http', 1)
+
+os.chdir(root)
+subprocess.call(['wget', '-q', '--mirror', ftproot])
+
+parser = configparser.ConfigParser()
+
+for dir in glob.glob(os.path.join(ftproot[6:], '*', '*')):
+    bin = glob.glob(os.path.join(dir, '*.bin'))
+    if bin:
+        bin = os.path.basename(bin[0])
+    else:
+        file = glob.glob(os.path.join(dir, '*.scexe'))
+        if not file:
+            continue
+        file = file[0]
+        with open(file, 'rb') as fd:
+            scexe = fd.read()
+
+        # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
+        skip_start = scexe.index(b'_SKIP=') + 6
+        skip_end = scexe.index(b'\n', skip_start)
+        skip = int(scexe[skip_start:skip_end]) - 1
+        tarball = scexe.split(b'\n', skip)[-1]
+
+        # Now uncompress it
+        if tarball[:2] != b'\x1f\x8b':
+            raise ValueError("Downloaded scexe file seems corrupt")
+
+        tf = tarfile.open(fileobj=io.BytesIO(tarball), mode='r:gz')
+        for bf in tf.getnames():
+            tf.extract(bf, os.path.dirname(file))
+            if bf.endswith('.bin'):
+                bin = bf.lower()
+
+    if '_' in bin:
+        ilo, version = os.path.splitext(bin.lower())[0].split('_')
+    else:
+        ilo, version = 'ilo', os.path.splitext(bin.lower())[0].replace('ilo', '')
+    version = '%s.%s' % (version[0], version[1:])
+
+    if not parser.has_section(ilo):
+        parser.add_section(ilo)
+    if version.endswith('j'):
+        continue
+    if parser.has_option(ilo, 'version') and version < parser.get(ilo, 'version'):
+        continue
+    parser.set(ilo, 'version', version)
+    parser.set(ilo, 'url', '%s/%s/%s' % (ftproot, dir, bin))
+    parser.set(ilo, 'file', bin)
+
+for k in sorted(parser._sections.keys()):
+    parser._sections.move_to_end(k)
+parser.write(open(os.path.join(os.path.dirname(__file__), 'firmware.conf'), 'w'))

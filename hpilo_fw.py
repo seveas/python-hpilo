@@ -65,7 +65,7 @@ def download(ilo, path=None):
     # Now uncompress it
     if tarball[:2] != '\x1f\x8b':
         raise ValueError("Downloaded scexe file seems corrupt")
-    
+
     tf = tarfile.open(fileobj=BytesIO(tarball), mode='r:gz')
     tf.extract(conf[ilo]['file'], path)
 
