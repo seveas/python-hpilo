@@ -74,7 +74,7 @@ Setting a licence key defined in the config file::
   [license]
   ilo3_advanced = FAKEL-ICENS-EFORH-PILO3-XXXXX
 
-  $ hpilo_cli example-server.int.kaarsemaker.net activate_license key=$license.ilo3_advanced
+  $ hpilo_cli example-server.int.kaarsemaker.net activate_license key='$license.ilo3_advanced'
 
 Using hponcfg to talk to the local iLO device to reset the password without knowing it::
 
@@ -83,3 +83,7 @@ Using hponcfg to talk to the local iLO device to reset the password without know
 -P local is optional when specifying localhost as hostname, so this works too::
 
   $ hpilo_cli localhost mod_user user_login=Administrator password=NewPassword
+
+If hponcfg is not at :file:`/sbin/hponcfg` or
+:file:`C:\\Program Files\\HP Lights-Out Configuration Utility\\cpqlocfg.exe`, you
+cen set an alternative path in the config, see the example config file.

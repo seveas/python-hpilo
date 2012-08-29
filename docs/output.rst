@@ -6,8 +6,8 @@ return something.
 
 .. note::
 
-  As not all devices support all hardware, the sample output does not all
-  originate from the save server. The data has also been anonymised.
+  As not all devices support all methods, the sample output does not all
+  originate from the same server. The data has also been anonymised.
 
 .. function:: get_all_users()
   :noindex:

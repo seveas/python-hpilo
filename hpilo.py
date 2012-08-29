@@ -2,6 +2,7 @@
 # see COPYING for license details
 
 import os
+import platform
 import random
 import re
 import socket
@@ -76,6 +77,8 @@ class Ilo(object):
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 4096
     hponcfg = "/sbin/hponcfg"
+    if platform.system() == 'Windows':
+        hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
 
     def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None):
         self.hostname = hostname
