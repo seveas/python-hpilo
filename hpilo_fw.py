@@ -8,12 +8,13 @@ PY3 = sys.version_info[0] >= 3
 if PY3:
     import urllib.request as urllib2
     import configparser as ConfigParser
-    import io as StringIO
+    from io import BytesIO, StringIO
     b = lambda x: bytes(x, 'ascii')
 else:
     import urllib2
     import ConfigParser
-    import cStringIO as StringIO
+    from cStringIO import StringIO as StringIO
+    BytesIO = StringIO
     b = lambda x: x
 
 _config = None
@@ -22,7 +23,7 @@ def config():
     if not _config:
         conf = _download('https://raw.github.com/seveas/python-hpilo/master/firmware.conf').decode('ascii')
         parser = ConfigParser.ConfigParser()
-        parser.readfp(StringIO.StringIO(conf))
+        parser.readfp(StringIO(conf))
         _config = {}
         for section in parser.sections():
             _config[section] = {}
@@ -57,15 +58,15 @@ def download(ilo, path=None):
 
     # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
     skip_start = scexe.index(b('_SKIP=')) + 6
-    skip_end = scexe.index('\n', skip_start)
+    skip_end = scexe.index(b('\n'), skip_start)
     skip = int(scexe[skip_start:skip_end]) - 1
-    tarball = scexe.split('\n', skip)[-1]
+    tarball = scexe.split(b('\n'), skip)[-1]
 
     # Now uncompress it
     if tarball[:2] != '\x1f\x8b':
         raise ValueError("Downloaded scexe file seems corrupt")
     
-    tf = tarfile.open(fileobj=StringIO.StringIO(tarball), mode='r:gz')
+    tf = tarfile.open(fileobj=BytesIO(tarball), mode='r:gz')
     tf.extract(conf[ilo]['file'], path)
 
 if __name__ == '__main__':
