@@ -37,7 +37,7 @@ arguments. A full example config file is shipped with the hpilo distribution.
 
 To pass arguments to method calls, pass :attr:`key=value` pairs on the
 command-line. These can reference arbitrary configuration variables using
-:attr:`key=$section.option`
+:attr:`key='$section.option'`
 
 Some examples will make it clearer, so here are a few:
 

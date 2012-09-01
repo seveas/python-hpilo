@@ -21,7 +21,7 @@ hardware.
 
 See also
 --------
-More information about interactign with the iLO XML interface can be found in
+More information about interacting with the iLO XML interface can be found in
 the sample XML files provided by HP on their `TechSupport site`_.
 
 Contents:
