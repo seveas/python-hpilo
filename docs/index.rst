@@ -30,6 +30,7 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
+   install
    ilo
    output
    cli
