@@ -10,18 +10,22 @@ if PY3:
     import configparser as ConfigParser
     from io import BytesIO, StringIO
     b = lambda x: bytes(x, 'ascii')
+    GZIP_CONSTANT = '\x1f\x8b'.encode('latin-1')
 else:
     import urllib2
     import ConfigParser
     from cStringIO import StringIO as StringIO
     BytesIO = StringIO
     b = lambda x: x
+    GZIP_CONSTANT = '\x1f\x8b'
 
 _config = None
 def config():
     global _config
     if not _config:
-        conf = _download('https://raw.github.com/seveas/python-hpilo/master/firmware.conf').decode('ascii')
+        conf = _download('https://raw.github.com/seveas/python-hpilo/master/firmware.conf')
+        if PY3:
+            conf = conf.decode('ascii')
         parser = ConfigParser.ConfigParser()
         parser.readfp(StringIO(conf))
         _config = {}
@@ -63,10 +67,10 @@ def download(ilo, path=None):
     tarball = scexe.split(b('\n'), skip)[-1]
 
     # Now uncompress it
-    if tarball[:2] != '\x1f\x8b':
+    if tarball[:2] != GZIP_CONSTANT:
         raise ValueError("Downloaded scexe file seems corrupt")
 
-    tf = tarfile.open(fileobj=BytesIO(tarball), mode='r:gz')
+    tf = tarfile.open(name="bogus_name_for_old_python_versions", fileobj=BytesIO(tarball), mode='r:gz')
     tf.extract(conf[ilo]['file'], path)
 
 if __name__ == '__main__':
