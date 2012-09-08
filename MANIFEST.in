@@ -1,1 +1,3 @@
 include docs/*rst
+include ilo.conf.example
+include COPYING
