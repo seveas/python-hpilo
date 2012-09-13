@@ -455,11 +455,17 @@ class Ilo(object):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname, **attrib)
         header, message = self._request(root)
-        message = message.find(returntag or tagname)
-        if list(message):
-            return self._element_children_to_dict(message)
-        else:
-            return self._element_to_dict(message)
+        if isinstance(returntag, basestring):
+            returntag = [returntag or tagname]
+        for tag in returntag:
+            if not message.find(tag):
+                continue
+            message = message.find(tag)
+            if list(message):
+                return self._element_children_to_dict(message)
+            else:
+                return self._element_to_dict(message)
+        raise IloError("Expected tag '%s' not found" % "' or '".join(returntag))
 
     def _info_tag2(self, infotype, tagname, returntag=None, key=None):
         root, inner = self._root_element(infotype, MODE='read')
@@ -690,7 +696,11 @@ class Ilo(object):
 
     def get_one_time_boot(self):
         """Get the one time boot state of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', 'ONE_TIME_BOOT')
+        # Inconsistency between iLO 2 and 3, let's fix that
+        data = self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'))
+        if 'device' in data['boot_type']:
+            data['boot_type'] = data['boot_type']['device']
+        return data
 
     def get_persistent_boot(self):
         """Get the boot order of the host"""
