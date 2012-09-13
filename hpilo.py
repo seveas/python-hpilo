@@ -53,6 +53,11 @@ def untested(meth):
     return meth
 
 class IloError(Exception):
+    def __init__(self, message, errorcode=None):
+        super(IloError, self).__init__(message)
+        self.errorcode = error_code
+
+class IloCommunicationError(IloError):
     pass
 
 class IloLoginFailed(IloError):
@@ -201,7 +206,7 @@ class Ilo(object):
         except socket.sslerror: # Connection closed
             e = sys.exc_info()[1]
             if not data:
-                raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
+                raise IloCommunicationError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 
         self._debug(1, "Received %d bytes" % len(data))
         self._debug(2, data)
@@ -216,7 +221,7 @@ class Ilo(object):
                 sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
             except OSError:
                 e = sys.exc_info()[1]
-                raise IloError("Cannot run %s: %s" % (self.hponcfg, str(e)))
+                raise IloCommunicationError("Cannot run %s: %s" % (self.hponcfg, str(e)))
             sp.write = sp.stdin.write
             sp.read = sp.stdout.read
             return sp
@@ -227,15 +232,15 @@ class Ilo(object):
         try:
             sock.connect((self.hostname, self.port))
         except socket.timeout:
-            raise IloError("Timeout connecting to %s:%d" % (self.hostname, self.port))
+            raise IloCommunicationError("Timeout connecting to %s:%d" % (self.hostname, self.port))
         except socket.error:
             e = sys.exc_info()[1]
-            raise IloError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
+            raise IloCommunicationError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
         try:
             return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
         except socket.sslerror:
             e = sys.exc_info()[1]
-            raise IloError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
+            raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
 
     def _communicate(self, xml, protocol, progress=None):
         sock = self._get_socket()
@@ -303,7 +308,7 @@ class Ilo(object):
         except socket.sslerror: # Connection closed
             e = sys.exc_info()[1]
             if not data:
-                raise IloError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
+                raise IloCommunicationError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 
         self._debug(1, "Received %d bytes" % len(data))
 
@@ -375,10 +380,12 @@ class Ilo(object):
                         # This is triggered when doing protocol detection, ignore
                         pass
                     else:
-                        if int(child.get('STATUS'), 16) in IloLoginFailed.possible_codes or \
-                                child.get('MESSAGE') in IloLoginFailed.possible_messages:
-                            raise IloLoginFailed
-                        raise IloError("Error communicating with iLO: %s" % child.get('MESSAGE'))
+                        status = int(child.get('STATUS'), 16)
+                        message = child.get('MESSAGE')
+                        if status in IloLoginFailed.possible_codes or \
+                                 message in IloLoginFailed.possible_messages:
+                            raise IloLoginFailed(message, status)
+                        raise IloError(message, status)
                 # And this type of message is the actual payload.
                 else:
                     return message
@@ -555,7 +562,7 @@ class Ilo(object):
         if computer_lock_key:
             computer_lock = "custom"
         if not computer_lock:
-            raise IloError("A value must be specified for computer_lock")
+            raise ValueError("A value must be specified for computer_lock")
         elements = [etree.Element('COMPUTER_LOCK', VALUE=computer_lock)]
         if computer_lock_key:
             elements.append(etree.Element('COMPUTER_LOCK_KEY', VALUE=computer_lock_key))
