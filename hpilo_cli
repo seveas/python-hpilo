@@ -12,6 +12,11 @@ try:
 except NameError:
     basestring = str
 import hpilo
+try:
+    input = raw_input
+except NameError:
+    pass
+import getpass
 import optparse
 import os
 from pprint import pprint
@@ -27,6 +32,8 @@ def main():
                  help="Username to access the iLO")
     p.add_option("-p", "--password", dest="password", default=None,
                  help="Password to access the iLO")
+    p.add_option("-i", "--interactive", action="store_true", default=False,
+                 help="Prompt for username and/or password if they are not specified.")
     p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
                  help="File containing authentication and config details", metavar="FILE")
     p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
@@ -119,7 +126,13 @@ def main():
         if opts.password:
             password = opts.password
         if not login or not password:
-            p.error("No login details provided")
+            if opts.interactive:
+                while not login:
+                    login = input('Login for iLO at %s: ' % hostname)
+                while not password:
+                    password = getpass.getpass('Password for %s@%s:' % (login, hostname))
+            else:
+                p.error("No login details provided")
 
     opts.protocol = {
         'http':  hpilo.ILO_HTTP,
