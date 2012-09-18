@@ -12,6 +12,8 @@ library has and is used as follows::
                           Username to access the iLO
     -p PASSWORD, --password=PASSWORD
                           Password to access the iLO
+    -i, --interactive     Prompt for username and/or password if they are not
+                          specified.
     -c FILE, --config=FILE
                           File containing authentication and config details
     -t TIMEOUT, --timeout=TIMEOUT
