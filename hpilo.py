@@ -55,7 +55,7 @@ def untested(meth):
 class IloError(Exception):
     def __init__(self, message, errorcode=None):
         super(IloError, self).__init__(message)
-        self.errorcode = error_code
+        self.errorcode = errorcode
 
 class IloCommunicationError(IloError):
     pass
