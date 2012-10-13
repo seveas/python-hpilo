@@ -458,13 +458,21 @@ class Ilo(object):
         fd.close()
         return ret
 
-    def _info_tag(self, infotype, tagname, returntag=None, attrib={}):
+    def _info_tag(self, infotype, tagname, returntags=None, attrib={}):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname, **attrib)
         header, message = self._request(root)
-        if isinstance(returntag, basestring):
-            returntag = [returntag or tagname]
-        for tag in returntag:
+
+        # Use tagname as returntags if returntags isn't specificed
+        if isinstance(returntags, basestring):
+            returntags = [returntags]
+        elif returntags is None:
+            if isinstance(tagname, basestring):
+                returntags = [tagname]
+            else:
+                returntags = tagname
+
+        for tag in returntags:
             if not message.find(tag):
                 continue
             message = message.find(tag)
@@ -472,7 +480,7 @@ class Ilo(object):
                 return self._element_children_to_dict(message)
             else:
                 return self._element_to_dict(message)
-        raise IloError("Expected tag '%s' not found" % "' or '".join(returntag))
+        raise IloError("Expected tag '%s' not found" % "' or '".join(returntags))
 
     def _info_tag2(self, infotype, tagname, returntag=None, key=None):
         root, inner = self._root_element(infotype, MODE='read')
