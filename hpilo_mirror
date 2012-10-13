@@ -14,21 +14,21 @@ import tarfile
 root = '/var/tmp'
 ftproot = 'ftp://ftp.hp.com/pub/softlib2/software1/sc-linux-fw-ilo'
 httproot = ftproot.replace('ftp', 'http', 1)
+conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware.conf')
 
-os.chdir(root)
-subprocess.call(['wget', '-q', '--mirror', ftproot])
+subprocess.call(['wget', '-q', '--mirror', ftproot], preexec_fn=lambda: os.chdir(root))
 
 parser = configparser.ConfigParser()
-
-for dir in glob.glob(os.path.join(ftproot[6:], '*', '*')):
+for dir in glob.glob(os.path.join(root, ftproot[6:], '*', '*')):
     bin = glob.glob(os.path.join(dir, '*.bin'))
+    file = glob.glob(os.path.join(dir, '*.scexe'))
+    if file:
+        file = file[0]
     if bin:
         bin = os.path.basename(bin[0])
     else:
-        file = glob.glob(os.path.join(dir, '*.scexe'))
         if not file:
             continue
-        file = file[0]
         with open(file, 'rb') as fd:
             scexe = fd.read()
 
@@ -61,9 +61,10 @@ for dir in glob.glob(os.path.join(ftproot[6:], '*', '*')):
     if parser.has_option(ilo, 'version') and version < parser.get(ilo, 'version'):
         continue
     parser.set(ilo, 'version', version)
-    parser.set(ilo, 'url', '%s/%s/%s' % (ftproot, dir, bin))
+    parser.set(ilo, 'url', 'http:/%s' % file.replace(root, ''))
     parser.set(ilo, 'file', bin)
 
 for k in sorted(parser._sections.keys()):
     parser._sections.move_to_end(k)
-parser.write(open(os.path.join(os.path.dirname(__file__), 'firmware.conf'), 'w'))
+with open(conf, 'w') as fd:
+    parser.write(fd)
