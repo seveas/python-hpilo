@@ -467,13 +467,10 @@ class Ilo(object):
         if isinstance(returntags, basestring):
             returntags = [returntags]
         elif returntags is None:
-            if isinstance(tagname, basestring):
-                returntags = [tagname]
-            else:
-                returntags = tagname
+            returntags = [tagname]
 
         for tag in returntags:
-            if not message.find(tag):
+            if message.find(tag) is None:
                 continue
             message = message.find(tag)
             if list(message):
@@ -1087,3 +1084,87 @@ class Ilo(object):
         """FIXME: I have no relevant hardware. Please report sample output"""
         return self._info_tag('RIB_INFO', 'GET_VF_STATUS')
 
+###############################################################################
+### Testsuite, not to be run by end-users
+### Note: use only assertTrue/assertRaises for compatibility with older python
+### versions
+    def _test(self):
+        import unittest
+        this_ilo = self
+        class IloTest(unittest.TestCase):
+            @classmethod
+            def setUpClass(self):
+                sys.stdout.write("Identifying iLO version... ")
+                sys.stdout.flush()
+                self.ilo = this_ilo
+                res = self.ilo.get_fw_version()
+                print(res['management_processor'])
+                self.ilo_version = int(res['management_processor'][3:] or 1)
+                print("Running tests. This will take a few minutes")
+
+            def test_get_all_users(self):
+                users = self.ilo.get_all_users()
+                self.assertTrue(isinstance(users, list))
+                self.assertTrue(self.ilo.login in users)
+
+            def test_get_embedded_health(self):
+                if self.ilo_version < 2:
+                    return
+                res = self.ilo.get_embedded_health()
+                self.assertTrue(isinstance(res, dict))
+                self.assertTrue('temperature' in res)
+
+            def test_get_cert_subject_info(self):
+                if self.ilo_version < 2:
+                    return
+                res = self.ilo.get_cert_subject_info()
+                self.assertTrue(isinstance(res, dict))
+
+            def test_get_host_data(self):
+                res = self.ilo.get_host_data()
+                res2 = self.ilo.get_host_data(decoded_only=False)
+                self.assertTrue(isinstance(res, list))
+                self.assertTrue(isinstance(res2, list))
+                self.assertTrue(len(res2) > len(res))
+                self.assertTrue(self.issubset(res, res2))
+                self.assertTrue('b64_data' in res[0])
+
+            def test_get_host_power_status(self):
+                res = self.ilo.get_host_power_status()
+                self.assertTrue(isinstance(res, dict))
+                self.assertTrue('host_power_saver' in res)
+
+            def test_get_one_time_boot(self):
+                if self.ilo_version < 2:
+                    return
+                res = self.ilo.get_one_time_boot()
+                self.assertTrue(isinstance(res, dict))
+                self.assertTrue('boot_type' in res)
+
+            def test_get_server_power_on_time(self):
+                res
+
+            # Tests to write:
+            #
+            # get_server_power_on_time
+            # get_sso_settings
+            # Auth error
+            # Connect error
+            # Wrong method for ilo version error
+            # uid_control
+
+            if os.environ.get('HPILO_TEST_CHANGES', None) == 'OK':
+                pass
+                # Tests that make changes:
+                # activate_license
+                # add_user/delete_user/import_ssh_key for user/delete_ssh_key
+                # mod_global_settings ssh_port 2222 / 22
+
+            def issubset(self, a, b):
+                for elt in a:
+                    if elt not in b:
+                        return False
+                return  True
+
+        self.IloTest = IloTest
+        unittest.main(self, argv=[sys.argv[0], 'IloTest'])

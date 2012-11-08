@@ -88,4 +88,4 @@ Using hponcfg to talk to the local iLO device to reset the password without know
 
 If hponcfg is not at :file:`/sbin/hponcfg` or
 :file:`C:\\Program Files\\HP Lights-Out Configuration Utility\\cpqlocfg.exe`, you
-cen set an alternative path in the config, see the example config file.
+can set an alternative path in the config, see the example config file.
