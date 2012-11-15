@@ -120,7 +120,7 @@ class Ilo(object):
             xml = b("\r\n").join(etree.tostringlist(xml)) + b('\r\n')
         else:
             xml = etree.tostring(xml)
-
+        print xml
         header, data =  self._communicate(xml, self.protocol, progress=progress)
 
         # This thing usually contains multiple XML messages
@@ -880,10 +880,19 @@ class Ilo(object):
             dir_user_context_9=None,dir_user_context_10=None,
             dir_user_context_11=None,dir_user_context_12=None,
             dir_user_context_13=None,dir_user_context_14=None,
-            dir_user_context_15=None,dir_enable_group_acct=None,
+            dir_user_context_15=None,dir_enable_grp_acct=None,
             dir_kerberos_enabled=None,dir_kerberos_realm=None,
             dir_kerberos_kdc_address=None,dir_kerberos_kdc_port=None,
-            dir_kerberos_keytab=None):
+            #dir_kerberos_keytab=None,
+            dir_grpacct1_name=None,dir_grpacct1_sid=None,
+            dir_grpacct1_priv=None,dir_grpacct2_name=None,
+            dir_grpacct2_sid=None,dir_grpacct2_priv=None,
+            dir_grpacct3_name=None,dir_grpacct3_sid=None,
+            dir_grpacct3_priv=None,dir_grpacct4_name=None,
+            dir_grpacct4_sid=None,dir_grpacct4_priv=None,
+            dir_grpacct5_name=None,dir_grpacct5_sid=None,
+            dir_grpacct5_priv=None,dir_grpacct6_name=None,
+            dir_grpacct6_sid=None,dir_grpacct6_priv=None):
         """Modify iLO directory configuration, only values that are specified
              will be changed."""
         vars = dict(locals())
