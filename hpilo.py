@@ -899,14 +899,17 @@ class Ilo(object):
         del vars['self']
 
         # create special case for element with text inside
-        keytab_el = etree.Element('DIR_KERBEROS_KEYTAB')
-        keytab_el.text = dir_kerberos_keytab
-        del vars['dir_kerberos_keytab']
+        if dir_kerberos_keytab:
+            keytab_el = etree.Element('DIR_KERBEROS_KEYTAB')
+            keytab_el.text = dir_kerberos_keytab
+            del vars['dir_kerberos_keytab']
 
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', \
                 False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
-        elements.append(keytab_el)
+        
+        if dir_kerberos_keytab:
+            elements.append(keytab_el)
         return self._control_tag('DIR_INFO','MOD_DIR_CONFIG',elements=elements)
 
 
