@@ -869,6 +869,50 @@ class Ilo(object):
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
 
+
+    def mod_dir_config(self, dir_authentication_enabled=None,
+            dir_local_user_acct=None,dir_server_address=None,
+            dir_server_port=None,dir_object_dn=None,dir_object_password=None,
+            dir_user_context_1=None,dir_user_context_2=None,
+            dir_user_context_3=None,dir_user_context_4=None,
+            dir_user_context_5=None,dir_user_context_6=None,
+            dir_user_context_7=None,dir_user_context_8=None,
+            dir_user_context_9=None,dir_user_context_10=None,
+            dir_user_context_11=None,dir_user_context_12=None,
+            dir_user_context_13=None,dir_user_context_14=None,
+            dir_user_context_15=None,dir_enable_grp_acct=None,
+            dir_kerberos_enabled=None,dir_kerberos_realm=None,
+            dir_kerberos_kdc_address=None,dir_kerberos_kdc_port=None,
+            dir_kerberos_keytab=None,
+            dir_grpacct1_name=None,dir_grpacct1_sid=None,
+            dir_grpacct1_priv=None,dir_grpacct2_name=None,
+            dir_grpacct2_sid=None,dir_grpacct2_priv=None,
+            dir_grpacct3_name=None,dir_grpacct3_sid=None,
+            dir_grpacct3_priv=None,dir_grpacct4_name=None,
+            dir_grpacct4_sid=None,dir_grpacct4_priv=None,
+            dir_grpacct5_name=None,dir_grpacct5_sid=None,
+            dir_grpacct5_priv=None,dir_grpacct6_name=None,
+            dir_grpacct6_sid=None,dir_grpacct6_priv=None):
+        """Modify iLO directory configuration, only values that are specified
+             will be changed."""
+        vars = dict(locals())
+        del vars['self']
+
+        # create special case for element with text inside
+        if dir_kerberos_keytab:
+            keytab_el = etree.Element('DIR_KERBEROS_KEYTAB')
+            keytab_el.text = dir_kerberos_keytab
+            del vars['dir_kerberos_keytab']
+
+        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', \
+                False: 'No'}.get(vars[x], vars[x])))
+                    for x in vars if vars[x] is not None]
+        
+        if dir_kerberos_keytab:
+            elements.append(keytab_el)
+        return self._control_tag('DIR_INFO','MOD_DIR_CONFIG',elements=elements)
+
+
     def mod_snmp_im_settings(self, web_agent_ip_address=None, snmp_address_1=None,
             snmp_address_2=None, snmp_address_3=None, os_traps=None,
             snmp_passthrough_status=None, rib_traps=None, cim_security_mask=None):
