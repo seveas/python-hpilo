@@ -336,6 +336,10 @@ class Ilo(object):
             # We must be using iLO2 or older, they don't do HTTP for XML requests
             # This case is only triggered by the protocol detection
             header = None
+
+        elif not data.startswith('<?xml'):
+            raise IloError("Remote returned bogus data, maybe it's not an iLO")
+
         else:
             header = None
 
