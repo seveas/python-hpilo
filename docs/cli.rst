@@ -41,6 +41,8 @@ To pass arguments to method calls, pass :attr:`key=value` pairs on the
 command-line. These can reference arbitrary configuration variables using
 :attr:`key='$section.option'`
 
+You can also call multiple methds at once by separating them with a :data:`+`
+
 Some examples will make it clearer, so here are a few:
 
 Getting the status of the UID light::
@@ -60,11 +62,20 @@ Setting the name of the server::
 
 Displaying help for the :func:`get_host_data` method::
 
-  $ hpilo --help get_host_data
+  $ hpilo_cli --help get_host_data
   Ilo.get_host_data [decoded_only=True]:
   Get SMBIOS records that describe the host. By default only the ones
   where human readable information is available are returned. To get
   all records pass decoded_only=False
+
+Calling multiple methods::
+
+  $ hpilo_cli example-server.int.kaarsemaker.net get_uid_status + uid_control uid=No + get_uid_status
+  >>> print(my_ilo.get_uid_status())
+  ON
+  >>> my_ilo.uid_control(uid="No")
+  >>> print(my_ilo.get_uid_status())
+  OFF
 
 Setting a licence key defined in the config file::
 

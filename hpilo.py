@@ -75,7 +75,8 @@ class Ilo(object):
         protocol to use, but you can override this by setting protocol to
         ILO_RAW or ILO_HTTP. Use ILO_LOCAL to avoid using a network connection
         and use hponcfg instead. Username and password are ignored for ILO_LOCAL
-        connections."""
+        connections. Set delayed to True to make python-hpilo not send requests
+        immediately, but group them together. See :func:`call_delayed`"""
 
     XML_HEADER = b('<?xml version="1.0"?>\r\n')
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
@@ -563,6 +564,18 @@ class Ilo(object):
             return self._element_to_dict(message)
 
     def call_delayed(self):
+        """In delayed mode, calling a method on an iLO object will not cause an
+           immediate callout to the iLO. Instead, the method and parameters are
+           stored for future calls of this method. This method makes one
+           connection to the iLO and sends all commands as one XML document.
+           This speeds up applications that make many calls to the iLO by
+           removing seconds of overhead per call.
+
+           The return value of call_delayed is a list of return values for
+           individual methods that don't return None. This means that there may
+           be fewer items returned than methods called as only `get_*` methods
+           return data"""
+
         if not self._elements:
             raise ValueError("No commands scheduled")
         root, inner = self._elements
@@ -570,6 +583,8 @@ class Ilo(object):
         ret = []
         for message, processor in zip(message, self._processors):
             ret.append(processor.pop(0)(message, *processor))
+        self._processors = []
+        self._elements = None
         return ret
 
     def activate_license(self, key):
@@ -921,7 +936,7 @@ class Ilo(object):
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', \
                 False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
-        
+
         if dir_kerberos_keytab:
             elements.append(keytab_el)
         return self._control_tag('DIR_INFO','MOD_DIR_CONFIG',elements=elements)
