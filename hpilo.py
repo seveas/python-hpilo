@@ -646,10 +646,9 @@ class Ilo(object):
         """Reset the iLO to factory default settings"""
         return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
 
-    @untested
     def get_ahs_status(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('RIB_INFO', {'MODE': 'READ'}), ('GET_AHS_STATUS', {}))
+        """Get active health system  logging status"""
+        return self._info_tag('RIB_INFO', 'GET_AHS_STATUS')
 
     def get_all_users(self):
         """Get a list of all loginnames"""
@@ -936,10 +935,9 @@ class Ilo(object):
         """Power cycle the server"""
         return self._control_tag('SERVER_INFO', 'RESET_SERVER')
 
-    @untested
     def set_ahs_status(self, status):
         """Enable or disable AHS logging"""
-        status = {True: 'Enable', False: 'Disable'}[status]
+        status = {True: 'enable', False: 'disable'}[status]
         return self._control_tag('RIB_INFO', 'SET_AHS_STATUS', attrib={'VALUE': status})
 
     def set_language(self, lang_id):

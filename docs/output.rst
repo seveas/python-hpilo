@@ -9,6 +9,12 @@ return something.
   As not all devices support all methods, the sample output does not all
   originate from the same server. The data has also been anonymised.
 
+.. function:: get_ahs_status()
+  :noindex:
+
+  >>> pprint(my_ilo.get_ahs_status())
+  {'ahs_hardware_status': 'ENABLED', 'ahs_status': 'DISABLED'}
+
 .. function:: get_all_users()
   :noindex:
 
