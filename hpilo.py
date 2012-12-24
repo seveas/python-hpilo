@@ -85,15 +85,18 @@ class Ilo(object):
     if platform.system() == 'Windows':
         hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
 
-    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False):
         self.hostname = hostname
-        self.login = login or 'Administrator'
+        self.login    = login or 'Administrator'
         self.password = password or 'Password'
         self.timeout  = timeout
         self.debug    = 0
         self.port     = port
         self.protocol = protocol
         self.cookie   = None
+        self.delayed  = delayed
+        self._elements = None
+        self._processors = []
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -349,8 +352,14 @@ class Ilo(object):
 
     def _root_element(self, element, **attrs):
         """Create a basic XML structure for a message. Return root and innermost element"""
-        root = etree.Element('RIBCL', VERSION="2.0")
-        login = etree.SubElement(root, 'LOGIN', USER_LOGIN=self.login, PASSWORD=self.password)
+        if not self.delayed or not self._elements:
+            root = etree.Element('RIBCL', VERSION="2.0")
+            login = etree.SubElement(root, 'LOGIN', USER_LOGIN=self.login, PASSWORD=self.password)
+        if self.delayed:
+            if self._elements:
+                root, login = self._elements
+            else:
+                self._elements = (root, login)
         element = etree.SubElement(login, element, **attrs)
         return root, element
 
@@ -473,6 +482,8 @@ class Ilo(object):
         return val
 
     def _raw(self, *tags):
+        if self.delayed:
+            raise IloError("Cannot use raw tags in delayed mode")
         root, inner = self._root_element(tags[0][0], **(tags[0][1]))
         for t in tags[1:]:
             inner = etree.SubElement(inner, t[0], **t[1])
@@ -486,13 +497,15 @@ class Ilo(object):
     def _info_tag(self, infotype, tagname, returntags=None, attrib={}, process=lambda x: x):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname, **attrib)
+        if self.delayed:
+            self._processors.append([self._process_info_tag, returntags or [tagname], process])
+            return
         header, message = self._request(root)
+        return self._process_info_tag(message, returntags or [tagname], process)
 
-        # Use tagname as returntags if returntags isn't specificed
+    def _process_info_tag(self, message, returntags, process):
         if isinstance(returntags, basestring):
             returntags = [returntags]
-        elif returntags is None:
-            returntags = [tagname]
 
         for tag in returntags:
             if message.find(tag) is None:
@@ -507,8 +520,14 @@ class Ilo(object):
     def _info_tag2(self, infotype, tagname, returntag=None, key=None, process=lambda x: x):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname)
+        if self.delayed:
+            self._processors.append([self._process_info_tag2, returntag or tagname, process])
+            return
         header, message = self._request(root)
-        message = message.find(returntag or tagname)
+        return self._process_info_tag2(message, returntag or tagname, process)
+
+    def _process_info_tag2(self, message, returntag, process):
+        message = message.find(returntag)
 
         if key:
             retval = {}
@@ -529,6 +548,8 @@ class Ilo(object):
             inner.text = text
         for element in elements:
             inner.append(element)
+        if self.delayed:
+            return
         header, message = self._request(root)
         if message is None:
             return None
@@ -540,6 +561,16 @@ class Ilo(object):
             return self._element_children_to_dict(message)
         else:
             return self._element_to_dict(message)
+
+    def call_delayed(self):
+        if not self._elements:
+            raise ValueError("No commands scheduled")
+        root, inner = self._elements
+        header, message = self._request(root)
+        ret = []
+        for message, processor in zip(message, self._processors):
+            ret.append(processor.pop(0)(message, *processor))
+        return ret
 
     def activate_license(self, key):
         """Activate an iLO advanced license"""
@@ -988,6 +1019,9 @@ class Ilo(object):
     def update_rib_firmware(self, filename, progress=None):
         """Upload new RIB firmware, use "latest" as filename to automatically
         download and use the latest firmware"""
+        if self.delayed:
+            raise IloError("Cannot run firmware update in delayed mode")
+
         if not self.protocol:
             self._detect_protocol()
 
