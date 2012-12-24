@@ -411,25 +411,25 @@ class Ilo(object):
                 # HP is not best friends with consistency. Sometimes there are
                 # attributes, sometimes child tags and sometimes text nodes. Oh
                 # well, deal with it :)
-                if list(elt):
+                if elt.attrib and list(elt):
                     val = self._element_to_dict(elt)
+                elif list(elt):
+                    val = self._element_to_list(elt)
                 elif elt.text:
-                    val = elt.text
+                    val = elt.text.strip()
                 elif elt.attrib:
                     val = self._element_to_dict(elt)
 
             val = self._coerce(val)
 
             if unit:
-                if isinstance(retval, list):
-                    retval.append((val,unit))
-                else:
-                    retval[key] = (val, unit)
+                val = (val, unit)
+            if isinstance(retval, list):
+                retval.append(val)
+            elif key in retval:
+                retval[key].update(val)
             else:
-                if isinstance(retval, list):
-                    retval.append(val)
-                else:
-                    retval[key] = val
+                retval[key] = val
         return retval
 
     def _element_to_dict(self, element):
@@ -437,7 +437,28 @@ class Ilo(object):
         retval = {}
         for key, val in element.attrib.items():
             retval[key.lower()] = self._coerce(val)
+        if list(element):
+            fields = []
+            for child in element.getchildren():
+                if child.tag == 'FIELD':
+                    fields.append(self._element_to_dict(child))
+            if fields:
+                names = [x['name'] for x in fields]
+                if len(names) == len(set(names)):
+                    # Field names are unique, treat them like attributes
+                    for field in fields:
+                        retval[field['name']] = field['value']
+                else:
+                    # Field names are not unique, such as the name "MAC"
+                    retval['fields'] = fields
         return retval
+
+    def _element_to_list(self, element):
+        tagnames = [x.tag for x in element]
+        if len(set(tagnames)) == 1:
+            return [self._element_children_to_dict(x) for x in element]
+        else:
+            return [(child.tag.lower(), self._element_to_dict(child)) for child in element]
 
     def _coerce(self, val):
         """Do some data type coercion: unquote, turn integers into integers and
@@ -462,7 +483,7 @@ class Ilo(object):
         fd.close()
         return ret
 
-    def _info_tag(self, infotype, tagname, returntags=None, attrib={}):
+    def _info_tag(self, infotype, tagname, returntags=None, attrib={}, process=lambda x: x):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname, **attrib)
         header, message = self._request(root)
@@ -478,12 +499,12 @@ class Ilo(object):
                 continue
             message = message.find(tag)
             if list(message):
-                return self._element_children_to_dict(message)
+                return process(self._element_children_to_dict(message))
             else:
-                return self._element_to_dict(message)
+                return process(self._element_to_dict(message))
         raise IloError("Expected tag '%s' not found" % "' or '".join(returntags))
 
-    def _info_tag2(self, infotype, tagname, returntag=None, key=None):
+    def _info_tag2(self, infotype, tagname, returntag=None, key=None, process=lambda x: x):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname)
         header, message = self._request(root)
@@ -499,7 +520,7 @@ class Ilo(object):
                 retval[elt[key]] = elt
             else:
                 retval.append(elt)
-        return retval
+        return process(retval)
 
     def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[], text=None):
         root, inner = self._root_element(controltype, MODE='write')
@@ -587,7 +608,8 @@ class Ilo(object):
 
     def eject_virtual_media(self, device="cdrom"):
         """Eject the virtual media attached to the specified device"""
-        return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA', attrib={"DEVICE": device.upper()})
+        return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA',
+                attrib={"DEVICE": device.upper()})
 
     def factory_defaults(self):
         """Reset the iLO to factory default settings"""
@@ -600,8 +622,8 @@ class Ilo(object):
 
     def get_all_users(self):
         """Get a list of all loginnames"""
-        data = self._info_tag2('USER_INFO', 'GET_ALL_USERS', key='value')
-        return [x for x in data if x]
+        return self._info_tag2('USER_INFO', 'GET_ALL_USERS', key='value',
+                process=lambda data: [x for x in data if x])
 
     def get_all_user_info(self):
         """Get basic and authorization info of all users"""
@@ -617,30 +639,22 @@ class Ilo(object):
 
     def get_embedded_health(self):
         """Get server health information"""
-        root, attach = self._root_element('SERVER_INFO', MODE='read')
-        etree.SubElement(attach, 'GET_EMBEDDED_HEALTH')
-
-        header, message = self._request(root)
-
-        health = {}
-        for category in message.find('GET_EMBEDDED_HEALTH_DATA'):
-            tag = category.tag.lower()
-            if not list(category):
-                health[tag] = None
-            elif not list(category[0]):
-                health[tag] = {}
-                for elt in category:
-                    elttag = elt.tag.lower()
-                    if elttag not in health[tag]:
-                        health[tag][elttag] = {}
-                    health[tag][elttag].update(self._element_to_dict(elt))
-            else:
-                health[tag] = [self._element_children_to_dict(x) for x in category]
-                if 'location' in health[tag][0]:
-                    health[tag] = dict((x['location'], x) for x in health[tag])
-                elif 'label' in health[tag][0]:
-                    health[tag] = dict((x['label'], x) for x in health[tag])
-        return health
+        def process(data):
+            for category in data:
+                if category == 'health_at_a_glance':
+                    health = {}
+                    for key, val in data[category]:
+                        if key not in health:
+                            health[key] = val
+                        else:
+                            health[key].update(val)
+                    data[category] = health
+                else:
+                    tag = 'label' in data[category][0] and 'label' or 'location'
+                    data[category] = dict([(x[tag], x) for x in data[category]])
+            return data
+        return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
+                process=process)
 
     def get_fw_version(self):
         """Get the iLO firmware version"""
@@ -655,26 +669,11 @@ class Ilo(object):
            where human readable information is available are returned. To get
            all records pass :attr:`decoded_only=False` """
 
-        root, attach = self._root_element('SERVER_INFO', MODE='read')
-        etree.SubElement(attach, 'GET_HOST_DATA')
-
-        header, message = self._request(root)
-
-        records = []
-        for record in message.find('GET_HOST_DATA').findall('SMBIOS_RECORD'):
-            if decoded_only and not list(record):
-                continue
-            record_ = self._element_to_dict(record)
-            record_['fields'] = []
-            for field in list(record):
-                record_['fields'].append(self._element_to_dict(field))
-            names = [x['name'] for x in record_['fields']]
-            if len(names) == len(set(names)):
-                for field in record_['fields']:
-                    record_[field['name']] = field['value']
-                del record_['fields']
-            records.append(record_)
-        return records
+        def process(data):
+            if decoded_only:
+                data = [x for x in data if len(x) > 2]
+            return data
+        return self._info_tag('SERVER_INFO', 'GET_HOST_DATA', process=process)
 
     def get_host_power_saver_status(self):
         """Get the configuration of the ProLiant power regulator"""
@@ -682,13 +681,13 @@ class Ilo(object):
 
     def get_host_power_status(self):
         """Whether the server is powered on or not"""
-        data = self._info_tag('SERVER_INFO', 'GET_HOST_POWER_STATUS', 'GET_HOST_POWER')
-        return data['host_power']
+        return self._info_tag('SERVER_INFO', 'GET_HOST_POWER_STATUS', 'GET_HOST_POWER',
+                process=lambda data: data['host_power'])
 
     def get_host_pwr_micro_ver(self):
         """Get the version of the power micro firmware"""
-        data = self._info_tag('SERVER_INFO', 'GET_HOST_PWR_MICRO_VER')
-        return data['pwr_micro']['version']
+        return self._info_tag('SERVER_INFO', 'GET_HOST_PWR_MICRO_VER',
+                process=lambda data: data['pwr_micro']['version'])
 
     def get_ilo_event_log(self):
         """Get the full iLO event log"""
@@ -713,10 +712,11 @@ class Ilo(object):
     def get_one_time_boot(self):
         """Get the one time boot state of the host"""
         # Inconsistency between iLO 2 and 3, let's fix that
-        data = self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'))
-        if 'device' in data['boot_type']:
-            data['boot_type'] = data['boot_type']['device']
-        return data
+        def process(data):
+            if 'device' in data['boot_type']:
+                data['boot_type'] = data['boot_type']['device']
+            return data
+        return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'), process=process)
 
     def get_persistent_boot(self):
         """Get the boot order of the host"""
@@ -724,8 +724,7 @@ class Ilo(object):
 
     def get_power_cap(self):
         """Get the power cap setting"""
-        data = self._info_tag('SERVER_INFO', 'GET_POWER_CAP')
-        return data['power_cap']
+        return self._info_tag('SERVER_INFO', 'GET_POWER_CAP', process=lambda data: data['power_cap'])
 
     def get_power_readings(self):
         """Get current, min, max and average power readings"""
@@ -737,8 +736,7 @@ class Ilo(object):
 
     def get_server_auto_pwr(self):
         """Get the automatic power on delay setting"""
-        data = self._info_tag('SERVER_INFO', 'GET_SERVER_AUTO_PWR')
-        return data['server_auto_pwr']
+        return self._info_tag('SERVER_INFO', 'GET_SERVER_AUTO_PWR', process=lambda data: data['server_auto_pwr'])
 
     def get_server_event_log(self):
         """Get the IML log of the server"""
@@ -746,13 +744,11 @@ class Ilo(object):
 
     def get_server_name(self):
         """Get the name of the server this iLO is managing"""
-        name = self._info_tag('SERVER_INFO', 'GET_SERVER_NAME', 'SERVER_NAME')
-        return name['value']
+        return self._info_tag('SERVER_INFO', 'GET_SERVER_NAME', 'SERVER_NAME', process=lambda name: name['value'])
 
     def get_server_power_on_time(self):
         """How many minutes ago has the server been powered on"""
-        minutes = self._info_tag('SERVER_INFO', 'GET_SERVER_POWER_ON_TIME', 'SERVER_POWER_ON_MINUTES')
-        return int(minutes['value'])
+        return self._info_tag('SERVER_INFO', 'GET_SERVER_POWER_ON_TIME', 'SERVER_POWER_ON_MINUTES', process=lambda data: int(data['value']))
 
     def get_snmp_im_settings(self):
         """Where does the iLO send SNMP traps to and which traps does it send"""
@@ -760,22 +756,7 @@ class Ilo(object):
 
     def get_sso_settings(self):
         """Get the HP SIM Single Sign-On settings"""
-        root, attach = self._root_element('SSO_INFO', MODE='read')
-        etree.SubElement(attach, 'GET_SSO_SETTINGS')
-
-        header, message = self._request(root)
-
-        retval = {}
-        for record in message.find('GET_SSO_SETTINGS'):
-            tag = record.tag.lower()
-            attrib = record.attrib
-            if 'VALUE' in attrib:
-                retval[tag] = self._coerce(attrib['VALUE'])
-                continue
-            if tag not in retval:
-                retval[tag] = {}
-            retval[tag].update(dict([(x[0].lower(), self._coerce(x[1])) for x in attrib.items()]))
-        return retval
+        return self._info_tag('SSO_INFO', 'GET_SSO_SETTINGS')
 
     def get_twofactor_settings(self):
         """Get two-factor authentication settings"""
@@ -783,8 +764,7 @@ class Ilo(object):
 
     def get_uid_status(self):
         """Get the status of the UID light"""
-        data = self._info_tag('SERVER_INFO', 'GET_UID_STATUS')
-        return data['uid']
+        return self._info_tag('SERVER_INFO', 'GET_UID_STATUS', process=lambda data: data['uid'])
 
     def get_user(self, user_login):
         """Get user info about a specific user"""
