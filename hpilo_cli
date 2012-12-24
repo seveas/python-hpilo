@@ -68,54 +68,63 @@ def main():
     if os.path.exists(os.path.expanduser(opts.config)):
         config.read(os.path.expanduser(opts.config))
 
-    hostname, method = args[:2]
-    args = args[2:]
+    hostname = args.pop(0)
 
-    # Can we run untested methods
-    if method in hpilo._untested and not opts.untested:
-        p.error("Method %s has not been tested, pass --untested to execute" % method)
+    args_ = list_split(args, '+')
+    calls = []
 
-    # Arguments must be passed as param=value pairs that are valid arguments to the methods
-    if sys.version_info[0] >= 3:
-        func = getattr(hpilo.Ilo, method)#.__func__
-        argnames = func.__code__.co_varnames[1:func.__code__.co_argcount]
-        args_with_defaults = []
-        if func.__defaults__:
-            args_with_defaults = argnames[-len(func.__defaults__):]
-    else:
-        func = getattr(hpilo.Ilo, method).im_func
-        argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
-        args_with_defaults = []
-        if func.func_defaults:
-            args_with_defaults = argnames[-len(func.func_defaults):]
-    params = {}
-    for arg in args:
-        if '=' not in arg:
-            hpilo_help(None, None, method, None)
-        param, val = arg.split('=', 1)
-        if param not in argnames:
-            hpilo_help(None, None, method, None)
+    for args in args_:
+        method = args.pop(0)
 
-        # Optionally extract values from the config
-        if val.startswith('$') and '.' in val:
-            section, option = val[1:].split('.', 1)
-            if config.has_option(section, option):
-                val = config.get(section, option)
+        # Can we run untested methods
+        if method in hpilo._untested and not opts.untested:
+            p.error("Method %s has not been tested, pass --untested to execute" % method)
 
-        # Do some type coercion for shell goodness
-        if val.isdigit():
-            val = int(val)
+        # Arguments must be passed as param=value pairs that are valid arguments to the methods
+        if sys.version_info[0] >= 3:
+            func = getattr(hpilo.Ilo, method)#.__func__
+            argnames = func.__code__.co_varnames[1:func.__code__.co_argcount]
+            args_with_defaults = []
+            if func.__defaults__:
+                args_with_defaults = argnames[-len(func.__defaults__):]
         else:
-            val = {'true': True, 'false': False}.get(val.lower(), val)
-        params[param] = val
+            func = getattr(hpilo.Ilo, method).im_func
+            argnames = func.func_code.co_varnames[1:func.func_code.co_argcount]
+            args_with_defaults = []
+            if func.func_defaults:
+                args_with_defaults = argnames[-len(func.func_defaults):]
+        params = {}
+        for arg in args:
+            if '=' not in arg:
+                hpilo_help(None, None, method, None)
+            param, val = arg.split('=', 1)
+            if param not in argnames:
+                hpilo_help(None, None, method, None)
 
-    for name in argnames:
-        if name not in params and name not in args_with_defaults:
-            hpilo_help(None, None, method, sys)
+            # Optionally extract values from the config
+            if val.startswith('$') and '.' in val:
+                section, option = val[1:].split('.', 1)
+                if config.has_option(section, option):
+                    val = config.get(section, option)
+
+            # Do some type coercion for shell goodness
+            if val.isdigit():
+                val = int(val)
+            else:
+                val = {'true': True, 'false': False}.get(val.lower(), val)
+            params[param] = val
+
+        for name in argnames:
+            if name not in params and name not in args_with_defaults:
+                hpilo_help(None, None, method, sys)
+
+        calls.append((method, params))
 
     # Do we have login information
     login = None
     password = None
+    if hostname == 'localhost':
+        opts.protocol = 'local'
     if opts.protocol != 'local':
         if config.has_option('ilo', 'login'):
             login = config.get('ilo', 'login')
@@ -139,7 +148,7 @@ def main():
         'raw':   hpilo.ILO_RAW,
         'local': hpilo.ILO_LOCAL,
     }.get(opts.protocol, None)
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol)
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1)
     ilo.debug = opts.debug
     if config.has_option('ilo', 'hponcfg'):
         ilo.hponcfg = config.get('ilo', 'hponcfg')
@@ -149,21 +158,32 @@ def main():
             return '"%s"' % val.replace("\\","\\\\").replace('"','\\"')
         else:
             return str(val)
-    param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
-    if method == 'update_rib_firmware':
-        params['progress'] = print_progress
-    result = getattr(ilo, method)(**params)
+
+    for method, params in calls:
+        if method == 'update_rib_firmware':
+            params['progress'] = print_progress
+        results = [getattr(ilo, method)(**params)]
+
+    if len(calls) > 1:
+        results = ilo.call_delayed()
+
     if opts.json:
         json.dump(result, sys.stdout)
     else:
-        if isinstance(result, basestring):
-            print(">>> print(my_ilo.%s(%s))" % (method, param_str))
-            print(result)
-        elif result is None:
-            print(">>> my_ilo.%s(%s)" % (method, param_str))
-        else:
-            print(">>> pprint(my_ilo.%s(%s))" % (method, param_str))
-            pprint(result)
+        for method, params in calls:
+            param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
+            if method.startswith('get') or len(calls) == 1:
+                result = results.pop(0)
+            else:
+                result = None
+            if isinstance(result, basestring):
+                print(">>> print(my_ilo.%s(%s))" % (method, param_str))
+                print(result)
+            elif result is None:
+                print(">>> my_ilo.%s(%s)" % (method, param_str))
+            else:
+                print(">>> pprint(my_ilo.%s(%s))" % (method, param_str))
+                pprint(result)
 
 def hpilo_help(option, opt_str, value, parser):
     if not value:
@@ -208,6 +228,18 @@ def print_progress(text):
         sys.stdout.flush()
     else:
         print(text)
+
+def list_split(lst, sep):
+    ret = []
+    while True:
+        try:
+            pos = lst.index(sep)
+        except ValueError:
+            ret.append(lst)
+            break
+        ret.append(lst[:pos])
+        lst = lst[pos+1:]
+    return ret
 
 if __name__ == '__main__':
     main()
