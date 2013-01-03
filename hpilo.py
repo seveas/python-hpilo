@@ -560,6 +560,8 @@ class Ilo(object):
         message = message.find(returntag or tagname)
         if message.text.strip():
             return message.text.strip()
+        if not message.attrib and not list(message):
+            return None
         raise IloError("You've reached unknown territories, please report a bug")
         if list(message):
             return self._element_children_to_dict(message)
