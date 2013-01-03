@@ -54,7 +54,10 @@ def untested(meth):
 
 class IloError(Exception):
     def __init__(self, message, errorcode=None):
-        super(IloError, self).__init__(message)
+        if issubclass(IloError, object):
+            super(IloError, self).__init__(message)
+        else:
+            Exception.__init__(self, message)
         self.errorcode = errorcode
 
 class IloCommunicationError(IloError):
