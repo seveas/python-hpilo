@@ -521,30 +521,6 @@ class Ilo(object):
                 return process(self._element_to_dict(message))
         raise IloError("Expected tag '%s' not found" % "' or '".join(returntags))
 
-    def _info_tag2(self, infotype, tagname, returntag=None, key=None, process=lambda x: x):
-        root, inner = self._root_element(infotype, MODE='read')
-        etree.SubElement(inner, tagname)
-        if self.delayed:
-            self._processors.append([self._process_info_tag2, returntag or tagname, key, process])
-            return
-        header, message = self._request(root)
-        return self._process_info_tag2(message, returntag or tagname, key, process)
-
-    def _process_info_tag2(self, message, returntag, key, process):
-        message = message.find(returntag)
-
-        if key:
-            retval = {}
-        else:
-            retval = []
-        for elt in message:
-            elt = self._element_to_dict(elt)
-            if key:
-                retval[elt[key]] = elt
-            else:
-                retval.append(elt)
-        return process(retval)
-
     def _control_tag(self, controltype, tagname, returntag=None, attrib={}, elements=[], text=None):
         root, inner = self._root_element(controltype, MODE='write')
         inner = etree.SubElement(inner, tagname, **attrib)
@@ -677,12 +653,16 @@ class Ilo(object):
 
     def get_all_users(self):
         """Get a list of all loginnames"""
-        return self._info_tag2('USER_INFO', 'GET_ALL_USERS', key='value',
+        return self._info_tag('USER_INFO', 'GET_ALL_USERS',
                 process=lambda data: [x for x in data if x])
 
     def get_all_user_info(self):
         """Get basic and authorization info of all users"""
-        return self._info_tag2('USER_INFO', 'GET_ALL_USER_INFO', key='user_login')
+        def process(data):
+            if isinstance(data, dict):
+                data = data.values()
+            return dict([(x['user_login'], x) for x in data])
+        return self._info_tag('USER_INFO', 'GET_ALL_USER_INFO', process=process)
 
     def get_cert_subject_info(self):
         """Get ssl certificate subject information"""
@@ -746,7 +726,7 @@ class Ilo(object):
 
     def get_ilo_event_log(self):
         """Get the full iLO event log"""
-        return self._info_tag2('RIB_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
+        return self._info_tag('RIB_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
 
     def get_language(self):
         """Get the default language set"""
@@ -795,7 +775,7 @@ class Ilo(object):
 
     def get_server_event_log(self):
         """Get the IML log of the server"""
-        return self._info_tag2('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
+        return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
 
     def get_server_name(self):
         """Get the name of the server this iLO is managing"""
