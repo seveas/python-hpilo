@@ -525,12 +525,12 @@ class Ilo(object):
         root, inner = self._root_element(infotype, MODE='read')
         etree.SubElement(inner, tagname)
         if self.delayed:
-            self._processors.append([self._process_info_tag2, returntag or tagname, process])
+            self._processors.append([self._process_info_tag2, returntag or tagname, key, process])
             return
         header, message = self._request(root)
-        return self._process_info_tag2(message, returntag or tagname, process)
+        return self._process_info_tag2(message, returntag or tagname, key, process)
 
-    def _process_info_tag2(self, message, returntag, process):
+    def _process_info_tag2(self, message, returntag, key, process):
         message = message.find(returntag)
 
         if key:
