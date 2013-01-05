@@ -146,6 +146,9 @@ def main():
 
         print("(2/5) Retrieving certificate signing request")
         csr = ilo.certificate_signing_request()
+        if not csr:
+            print("Reveived an empty CSR")
+            continue
         fd = open(csr_path, 'w')
         fd.write(csr)
         fd.close()
