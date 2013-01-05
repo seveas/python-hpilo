@@ -553,11 +553,16 @@ class Ilo(object):
         for element in elements:
             inner.append(element)
         if self.delayed:
+            if tagname == 'CERTIFICATE_SIGNING_REQUEST':
+                self._processors.append([self._process_control_tag, returntag or tagname])
             return
         header, message = self._request(root)
+        return self._process_control_tag(message, returntag or tagname)
+
+    def _process_control_tag(self, message, returntag):
         if message is None:
             return None
-        message = message.find(returntag or tagname)
+        message = message.find(returntag)
         if message.text.strip():
             return message.text.strip()
         if not message.attrib and not list(message):

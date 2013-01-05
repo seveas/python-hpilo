@@ -172,7 +172,7 @@ def main():
     else:
         for method, params in calls:
             param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
-            if method.startswith('get') or len(calls) == 1:
+            if method.startswith('get') or method == 'certificate_signing_request' or len(calls) == 1:
                 result = results.pop(0)
             else:
                 result = None
