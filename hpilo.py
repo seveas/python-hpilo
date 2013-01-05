@@ -71,6 +71,9 @@ class IloLoginFailed(IloError):
 class IloWarning(Warning):
     pass
 
+class IloTestWarning(Warning):
+    pass
+
 class Ilo(object):
     """Represents an iLO/iLO2/iLO3/RILOE II management interface on a
         specific host. A new connection using the specified login, password and
@@ -842,7 +845,6 @@ class Ilo(object):
     #    """Insert a virtual floppy"""
     #    return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_FLOPPY', attrib={'IMAGE_LOCATION': image_location})
 
-    @untested
     def delete_ssh_key(self, user_login):
         """Delete a users SSH key"""
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=[etree.Element('DEL_USERS_SSH_KEY')])
@@ -1153,24 +1155,77 @@ class Ilo(object):
 ### Testsuite, not to be run by end-users
 ### Note: use only assertTrue/assertRaises for compatibility with older python
 ### versions
-    def _test(self):
+    def _test(self, tests):
         import unittest
         this_ilo = self
         class IloTest(unittest.TestCase):
             @classmethod
             def setUpClass(self):
+
                 sys.stdout.write("Identifying iLO version... ")
                 sys.stdout.flush()
                 self.ilo = this_ilo
+                self.do_write_tests = os.environ.get('HPILO_TEST_CHANGES', None) == 'OK'
                 res = self.ilo.get_fw_version()
                 print(res['management_processor'])
                 self.ilo_version = int(res['management_processor'][3:] or 1)
                 print("Running tests. This will take a few minutes")
 
-            def test_get_all_users(self):
+            def test_auth_error(self):
+                real_password, self.ilo.password = self.ilo.password, 'Incorrect Password'
+                try:
+                    self.assertRaises(IloLoginFailed, self.ilo.get_fw_version)
+                finally:
+                    self.ilo.password = real_password
+
+            def test_non_ilo(self):
+                def get_socket(*args):
+                    class FakeSocket(object):
+                        def __init__(self):
+                            self.data = 'Bogus data'
+
+                        def write(self, data):
+                            pass
+
+                        def read(self):
+                            d = self.data
+                            self.data = ''
+                            return d
+                    return FakeSocket()
+                real_get_socket, self.ilo._get_socket = self.ilo._get_socket, get_socket
+
+                try:
+                    self.assertRaises(IloError, self.ilo.get_fw_version)
+                finally:
+                    self.ilo._get_socket = real_get_socket
+
+            def test_users(self):
                 users = self.ilo.get_all_users()
                 self.assertTrue(isinstance(users, list))
                 self.assertTrue(self.ilo.login in users)
+                users = self.ilo.get_all_user_info()
+                self.assertTrue(isinstance(users, dict))
+                self.assertTrue(self.ilo.login in users)
+                self.assertTrue(users[self.ilo.login]['admin_priv'])
+                if not self.do_write_tests:
+                    return
+                if 'dennis' in users:
+                    warnings.warn('User dennis exists, not testing user manipulation', IloTestWarning)
+                    return
+                try:
+                    self.ilo.add_user('dennis', 'Dennis Kaarsemaker', 'Password123')
+                    users = self.ilo.get_all_users()
+                    self.assertTrue('dennis' in users)
+                    key = 'ssh-dss AAAAB3NzaC1kc3MAAACBAIpNY5fvLSS3MCjGNKjuWHrFGR5J6vLqdqIrXttTz7o6GWtmyxcC0Mlp2c/h1bMfvUiKDvDp+5T7SGo/2R+aXLaPwYtm6eBPEBU2CgVTnpeVELDeaJ/tr0kTL/PKMHZDFgT9c7/hOiWr4amlGvuxs60MP/xs4jWaxLxabhjiRoCLAAAAFQChDEFySo74rpPNNWfvJHgiylTbRQAAAIEAgo8UQqXP7gMTAUdHTqlzoTnj3loc4ZTnf3W6jr25cs5XaXNnRtadfw0G4VWaS/uDyNhsq/o2nFrhWTwAvojWSe4C5MDdGGerktL1ZY/QfoxB0d7aK/dlHd1iOVpGahCqyzmhEDmEnq6TWd6cBVHNVcryLEJVVtaf8QmJlwS+XkIAAACAJGnuO6ZJ1S2AMOY1uOpov/srTyuu6PxtcnHsHA5wNoNQFcYElnDndJUfMAPi0vzODntHoiOGdrX3RcjxSAB5lAgNZwFnwGWoAa8UIQlX+GwDYAIk+8G36tmHRgtl7xJlFqs9W6BhrJEmfL4ubWCPXl/yMDrrLnMQuV3Mg0DNVSg= Ilo test key'
+                    #self.ilo.import_ssh_key('dennis', key)
+                    self.ilo.delete_ssh_key('dennis')
+                    self.ilo.delete_user('dennis')
+                    users = self.ilo.get_all_users()
+                    self.assertTrue('dennis' not in users)
+                except:
+                    # Clean up after ourselves
+                    self.ilo.delete_user('dennis')
+                    raise
 
             def test_get_embedded_health(self):
                 if self.ilo_version < 2:
@@ -1194,10 +1249,14 @@ class Ilo(object):
                 self.assertTrue(self.issubset(res, res2))
                 self.assertTrue('b64_data' in res[0])
 
-            def test_get_host_power_status(self):
-                res = self.ilo.get_host_power_status()
+            def test_get_host_power_saver_status(self):
+                res = self.ilo.get_host_power_saver_status()
                 self.assertTrue(isinstance(res, dict))
                 self.assertTrue('host_power_saver' in res)
+
+            def test_get_host_power_status(self):
+                res = self.ilo.get_host_power_status()
+                self.assertTrue(res in ('ON', 'OFF'))
 
             def test_get_one_time_boot(self):
                 if self.ilo_version < 2:
@@ -1206,24 +1265,68 @@ class Ilo(object):
                 self.assertTrue(isinstance(res, dict))
                 self.assertTrue('boot_type' in res)
 
-            def test_get_server_power_on_time(self):
-                res
+            def test_uid(self):
+                status = self.ilo.get_uid_status()
+                self.assertTrue(status in ('ON', 'OFF'))
+                if not self.do_write_test:
+                    return
+                if status == 'OFF':
+                    self.ilo.uid_control(uid='Yes')
+                    self.assertTrue(self.ilo.get_uid_status() == 'ON')
+                    self.ilo.uid_control(uid='No')
+                    self.assertTrue(self.ilo.get_uid_status() == 'OFF')
+                else:
+                    self.ilo.uid_control(uid='No')
+                    self.assertTrue(self.ilo.get_uid_status() == 'OFF')
+                    self.ilo.uid_control(uid='Yes')
+                    self.assertTrue(self.ilo.get_uid_status() == 'ON')
 
             # Tests to write:
             #
+            # Many to skip if doing write tests, which implicitely test readers
+            #
+            # All ahs functions
+            # hponcfg?
+            # get_dir_config
             # get_server_power_on_time
             # get_sso_settings
-            # Auth error
+            # get_global_settings
+            # get_host_pwr_micro_ver
+            # get_ilo_event_log (should start with reset)
+            # get_language
+            # get_all_languages
+            # get_network_settings
+            # get_oa_info
+            # get_persistent_boot
+            # get_power_cap
+            # get_power_readings(self):
+            # get_pwreg
+            # get_server_auto_pwr
+            # get_server_event_log
+            # get_server_power_on_time
+            # get_snmp_im_settings
+            # get_sso_settings
+            # get_twofactor_settings
+            # get_user
+            # get_vm_status
             # Connect error
             # Wrong method for ilo version error
-            # uid_control
+            # delayed call
+            # certificate_signing_request
+            # delayed call with csr + get_all_user_info
 
-            if os.environ.get('HPILO_TEST_CHANGES', None) == 'OK':
-                pass
-                # Tests that make changes:
-                # activate_license
-                # add_user/delete_user/import_ssh_key for user/delete_ssh_key
-                # mod_global_settings ssh_port 2222 / 22
+            # Tests that make changes:
+            # activate_license (correct and wrong)
+            # mod_user admin_priv
+            # reset ilo log and fetch, same for server log. Fetch single entry
+            # mod_global_settings ssh_port 2222 / 22
+            # mod_global_settings brownout_recovery (is ilo4 specific, test on all to catch)
+            # mod_network_settings sec_wins_server
+            # mod_snmp_im_settings snmp_address_3
+            # reset_rib? Maybe extra
+            # set_ahs_status
+            # set_language
+            # set_one_time_boot
 
             def issubset(self, a, b):
                 for elt in a:
@@ -1231,5 +1334,11 @@ class Ilo(object):
                         return False
                 return  True
 
+        # Limit tests if requested
+        # FIXME: there has to be a better way than this
+        if tests:
+            for attr in IloTest.__dict__.keys():
+                if attr.startswith('test_') and attr[5:] not in tests:
+                    delattr(IloTest, attr)
         self.IloTest = IloTest
-        unittest.main(self, argv=[sys.argv[0], 'IloTest'])
+        unittest.main(self, argv=[sys.argv[0], 'IloTest'], verbosity=2)

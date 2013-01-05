@@ -80,6 +80,10 @@ def main():
         if method in hpilo._untested and not opts.untested:
             p.error("Method %s has not been tested, pass --untested to execute" % method)
 
+        if method == '_test':
+            calls.append(('_test', {'tests': args}))
+            continue
+
         # Arguments must be passed as param=value pairs that are valid arguments to the methods
         if sys.version_info[0] >= 3:
             func = getattr(hpilo.Ilo, method)#.__func__
