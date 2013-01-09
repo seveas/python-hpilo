@@ -172,7 +172,9 @@ def main():
         results = ilo.call_delayed()
 
     if opts.json:
-        json.dump(result, sys.stdout)
+        if len(calls) == 1:
+            results = results[0]
+        json.dump(results, sys.stdout)
     else:
         for method, params in calls:
             param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])
