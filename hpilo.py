@@ -430,6 +430,12 @@ class Ilo(object):
                 if elt.attrib and list(elt):
                     val = self._element_to_dict(elt)
                 elif list(elt):
+                    # FIXME - support yet another XML structure (iLO3)
+                    if element.tag == 'GET_EMBEDDED_HEALTH_DATA' and  elt.tag == 'DRIVES':
+                        continue
+                    # FIXME - support yet another XML structure (iLO4)
+                    if element.tag == 'GET_EMBEDDED_HEALTH_DATA' and  elt.tag in ('MEMORY', 'NIC_INFORMATION', 'FIRMWARE_INFORMATION', 'STORAGE'):
+                        continue
                     val = self._element_to_list(elt)
                 elif elt.text:
                     val = elt.text.strip()
@@ -687,9 +693,11 @@ class Ilo(object):
                         else:
                             health[key].update(val)
                     data[category] = health
-                else:
+                elif isinstance(data[category], list):
                     tag = 'label' in data[category][0] and 'label' or 'location'
                     data[category] = dict([(x[tag], x) for x in data[category]])
+                elif data[category] == '':
+                    data[category] = None
             return data
         return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
                 process=process)
