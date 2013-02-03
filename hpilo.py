@@ -30,7 +30,26 @@ except ImportError:
         PROTOCOL_TLSv1 = 3
         @staticmethod
         def wrap_socket(sock, *args, **kwargs):
-            return socket.ssl(sock)
+            return ssl(sock)
+
+        def __init__(self, sock):
+            self.sock = sock
+            self.sslsock = socket.ssl(sock)
+
+        def read(self, n=None):
+            if not n:
+                return self.sslsock.read()
+            return self.sslsock.read(n)
+
+        def write(self, data):
+            return self.sslsock.write(data)
+
+        def shutdown(self, what):
+            return self.sock.shutdown(what)
+
+        def close(self):
+            return self.sock.close()
+
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
@@ -1178,24 +1197,34 @@ class Ilo(object):
         return self._info_tag('RIB_INFO', 'GET_VF_STATUS')
 
 ###############################################################################
-### Testsuite, not to be run by end-users
-### Note: use only assertTrue/assertRaises for compatibility with older python
-### versions
-    def _test(self, tests):
+# Testsuite, safe to run on all iLO versions. Reports of failures of the
+# testsuite are very much appreciated. The testsuite by default makes no
+# changes to the iLO configuration.
+#
+# You can use _test_writes instead of _test to also test methods that make
+# changes to the iLO configuration. All changes should be undone, but no
+# guarantees are made.
+#
+# The writing tests also clear the iLO and server event log, which cannot be
+# undone. The iLO will also be reset at least once.  A firware upgrade will not
+# be attempted by the test.
+#
+# To run these tests: use hpilo_cli hostname_here _test To run only a subset of
+# the test: hpilo_cli hostname_here testname_here [another testname ...]
+
+    def _test(self, opts, tests):
         import unittest
         this_ilo = self
-        class IloTest(unittest.TestCase):
-            @classmethod
-            def setUpClass(self):
+        sys.stdout.write("Identifying iLO version... ")
+        sys.stdout.flush()
+        res = self.get_fw_version()
+        print(res['management_processor'])
+        print("Running tests. This will take a few minutes")
 
-                sys.stdout.write("Identifying iLO version... ")
-                sys.stdout.flush()
-                self.ilo = this_ilo
-                self.do_write_tests = os.environ.get('HPILO_TEST_CHANGES', None) == 'OK'
-                res = self.ilo.get_fw_version()
-                print(res['management_processor'])
-                self.ilo_version = int(res['management_processor'][3:] or 1)
-                print("Running tests. This will take a few minutes")
+        class IloTest(unittest.TestCase):
+            ilo = this_ilo
+            do_write_tests = opts.do_write_tests
+            ilo_version = int(res['management_processor'][3:] or 1)
 
             def test_auth_error(self):
                 real_password, self.ilo.password = self.ilo.password, 'Incorrect Password'
@@ -1363,8 +1392,9 @@ class Ilo(object):
         # Limit tests if requested
         # FIXME: there has to be a better way than this
         if tests:
-            for attr in IloTest.__dict__.keys():
-                if attr.startswith('test_') and attr[5:] not in tests:
+            for attr in list(IloTest.__dict__.keys()):
+                if attr.startswith('test_') and attr not in tests and attr[5:] not in tests:
                     delattr(IloTest, attr)
         self.IloTest = IloTest
-        unittest.main(self, argv=[sys.argv[0], 'IloTest'], verbosity=2)
+        runner = unittest.TextTestRunner(verbosity=2)
+        unittest.main(self, argv=[sys.argv[0], 'IloTest'], testRunner=runner)

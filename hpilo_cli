@@ -54,6 +54,7 @@ def main():
                  help="show all supported methods")
 
     opts, args = p.parse_args()
+    opts.do_write_tests = False
 
     if opts.json:
         import json
@@ -61,6 +62,9 @@ def main():
     # Did we get correct arguments?
     if len(args) < 2:
         p.error("Not enough arguments")
+    if args[1] == '_test_writes':
+        args[1] = '_test'
+        opts.do_write_tests = True
     if args[1] not in ilo_methods and args[1] != '_test':
         p.error("Unknown method: %s" % args[1])
 
@@ -81,7 +85,7 @@ def main():
             p.error("Method %s has not been tested, pass --untested to execute" % method)
 
         if method == '_test':
-            calls.append(('_test', {'tests': args}))
+            calls.append(('_test', {'opts': opts, 'tests': args}))
             continue
 
         # Arguments must be passed as param=value pairs that are valid arguments to the methods
