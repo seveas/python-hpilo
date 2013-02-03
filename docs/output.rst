@@ -244,13 +244,13 @@ return something.
   :noindex:
 
   >>> pprint(my_ilo.get_one_time_boot())
-  {'boot_type': 'Normal'}
+  'normal'
 
 .. function:: get_persistent_boot()
   :noindex:
 
   >>> pprint(my_ilo.get_persistent_boot())
-  ['CDROM', 'FLOPPY', 'USB', 'HDD', 'NETWORK']
+  ['cdrom', 'floppy', 'usb', 'hdd', 'network']
 
 .. function:: get_power_cap()
   :noindex:

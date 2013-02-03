@@ -569,7 +569,9 @@ class Ilo(object):
            The return value of call_delayed is a list of return values for
            individual methods that don't return None. This means that there may
            be fewer items returned than methods called as only `get_*` methods
-           return data"""
+           return data
+
+           Delayed calls only work on iLO 2 or newer"""
 
         if not self._elements:
             raise ValueError("No commands scheduled")
@@ -662,8 +664,12 @@ class Ilo(object):
 
     def get_all_users(self):
         """Get a list of all loginnames"""
-        return self._info_tag('USER_INFO', 'GET_ALL_USERS',
-                process=lambda data: [x for x in data if x])
+        def process(data):
+            if isinstance(data, dict):
+                data = data.values()
+            return [x for x in data if x]
+
+        return self._info_tag('USER_INFO', 'GET_ALL_USERS', process=process)
 
     def get_all_user_info(self):
         """Get basic and authorization info of all users"""
@@ -693,6 +699,7 @@ class Ilo(object):
                         else:
                             health[key].update(val)
                     data[category] = health
+                    continue
                 elif isinstance(data[category], list):
                     tag = 'label' in data[category][0] and 'label' or 'location'
                     data[category] = dict([(x[tag], x) for x in data[category]])
@@ -761,12 +768,18 @@ class Ilo(object):
         def process(data):
             if 'device' in data['boot_type']:
                 data['boot_type'] = data['boot_type']['device']
-            return data
+            return data['boot_type'].lower()
         return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'), process=process)
 
     def get_persistent_boot(self):
         """Get the boot order of the host"""
-        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', 'PERSISTENT_BOOT')
+        def process(data):
+            if isinstance(data, dict):
+                data = data.items()
+                data.sort(key=lambda x: x[1])
+                return [x[0].lower() for x in data]
+            return [x.lower() for x in data]
+        return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', ('PERSISTENT_BOOT', 'GET_PERSISTENT_BOOT'), process=process)
 
     def get_power_cap(self):
         """Get the power cap setting"""
@@ -786,7 +799,11 @@ class Ilo(object):
 
     def get_server_event_log(self):
         """Get the IML log of the server"""
-        return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
+        def process(data):
+            if isinstance(data, dict) and 'description' in data:
+                return []
+            return data
+        return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG', process=process)
 
     def get_server_name(self):
         """Get the name of the server this iLO is managing"""
@@ -832,6 +849,7 @@ class Ilo(object):
         """Import a signed SSL certificate"""
         return self._control_tag('RIB_INFO', 'IMPORT_CERTIFICATE', text=certificate)
 
+    # Broken in iLO3 < 1.55 for Administrator
     def import_ssh_key(self, user_login, ssh_key):
         """Imports an SSH key for the specified user. The value of ssh_key
            should be the content of an id_dsa.pub file"""
