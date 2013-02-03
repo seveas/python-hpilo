@@ -82,6 +82,9 @@ class IloError(Exception):
 class IloCommunicationError(IloError):
     pass
 
+# When we stop supporting ilo 1, 'User login name was not found' and 0x000a can
+# be removed. They should, as they cause IloLoginFailed in cases where login
+# did not fail, but e.g. get_user('nonexistent') was called
 class IloLoginFailed(IloError):
     possible_messages = ['User login name was not found', 'Login failed', 'Login credentials rejected']
     possible_codes = [0x005f, 0x000a]
@@ -340,6 +343,12 @@ class Ilo(object):
                 raise IloCommunicationError("Communication with %s:%d failed: %s" % (self.hostname, self.port, str(e)))
 
         self._debug(1, "Received %d bytes" % len(data))
+        if self.protocol == ILO_LOCAL:
+            sock.stdout.close()
+            sock.wait()
+        elif sock.shutdown:
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
 
         # Stript out garbage from hponcfg
         if self.protocol == ILO_LOCAL:
