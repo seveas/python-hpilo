@@ -1,4 +1,7 @@
 # Downloader / extracter for latest iLO2 / iLO3 / iLO4 firmware
+#
+# (c) 2011-2013 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
 
 import tarfile
 import os

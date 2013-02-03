@@ -28,6 +28,9 @@
 # A [test_remote_n] block specifies a remote server on which to also run the
 # test matrix for all [test_n] hosts. It will not redo the hponcfg based tests
 # as that'd be useless.
+#
+# (c) 2011-2013 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
 
 import ConfigParser
 import glob
