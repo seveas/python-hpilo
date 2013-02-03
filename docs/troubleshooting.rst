@@ -38,3 +38,9 @@ cases have been fixed in newer firmware versions. Please update your firmware ve
 
 and try again. If the problem persists, run the hpilo_cli command in debugging
 mode (-dd) and submit a bug with the resulting XML fragment.
+
+Unexpected errors after a login failure
+---------------------------------------
+If you use the wrong credentials to access the XML interface, some iLO's get
+into some weird state. Call :func:`get_fw_version` a few times to clear this
+state and recover.

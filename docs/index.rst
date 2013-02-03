@@ -36,5 +36,6 @@ Contents:
    cli
    ca
    troubleshooting
+   contributing
 
 .. _`TechSupport site`:  http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&cc=us&prodTypeId=18964&prodSeriesId=4154735&swItem=MTX-9ded60bd746942e18651211f51&prodNameId=4154847&swEnvOID=4004&swLang=8&taskId=135&mode=5
