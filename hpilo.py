@@ -450,6 +450,11 @@ class Ilo(object):
             # Can't return a dict
             retval = []
         for elt in element:
+            # There are some special tags
+            fname =  '_parse_%s_%s' % (element.tag.lower(), elt.tag.lower())
+            if hasattr(self, fname):
+                retval.update(getattr(self, fname)(elt))
+                continue
             key, val, unit = elt.tag.lower(), elt.get('VALUE', elt.get('value', None)), elt.get('UNIT', None)
             if val is None:
                 # HP is not best friends with consistency. Sometimes there are
@@ -458,12 +463,6 @@ class Ilo(object):
                 if elt.attrib and list(elt):
                     val = self._element_to_dict(elt)
                 elif list(elt):
-                    # FIXME - support yet another XML structure (iLO3)
-                    if element.tag == 'GET_EMBEDDED_HEALTH_DATA' and  elt.tag == 'DRIVES':
-                        continue
-                    # FIXME - support yet another XML structure (iLO4)
-                    if element.tag == 'GET_EMBEDDED_HEALTH_DATA' and  elt.tag in ('MEMORY', 'NIC_INFORMATION', 'FIRMWARE_INFORMATION', 'STORAGE'):
-                        continue
                     val = self._element_to_list(elt)
                 elif elt.text:
                     val = elt.text.strip()
@@ -729,13 +728,97 @@ class Ilo(object):
                     data[category] = health
                     continue
                 elif isinstance(data[category], list):
-                    tag = 'label' in data[category][0] and 'label' or 'location'
-                    data[category] = dict([(x[tag], x) for x in data[category]])
+                    for tag in ('label', 'location'):
+                        if tag in data[category][0]:
+                            data[category] = dict([(x[tag], x) for x in data[category]])
+                            break
                 elif data[category] == '':
                     data[category] = None
             return data
         return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
                 process=process)
+
+    # Ok, special XML structures. Yay.
+    def _parse_get_embedded_health_data_drives(self, element):
+        ret = []
+        for bp in element:
+            if bp.tag != 'BACKPLANE':
+                raise IloError("Unexpected data returned: %s" % bp.tag)
+            backplane =  obj = {'drive_bays': {}}
+            ret.append(backplane)
+            for elt in bp:
+                if elt.tag == 'DRIVE_BAY':
+                    obj = {}
+                    backplane['drive_bays'][int(elt.get('VALUE'))] = obj
+                else:
+                    obj[elt.tag.lower()] = elt.get('VALUE')
+        return {'drives_backplanes': ret}
+
+    def _parse_get_embedded_health_data_memory(self, element):
+        ret = {}
+        for elt in element:
+            fname =  '_parse_%s_%s' % (element.tag.lower(), elt.tag.lower())
+            if hasattr(self, fname):
+                ret.update(getattr(self, fname)(elt))
+                continue
+            ret[elt.tag.lower()] = self._element_children_to_dict(elt)
+        return {element.tag.lower(): ret}
+    _parse_memory_memory_details_summary = _parse_get_embedded_health_data_memory
+
+    def _parse_memory_memory_details(self, element):
+        ret = {}
+        for elt in element:
+            if elt.tag not in ret:
+                ret[elt.tag] = {}
+            data = self._element_children_to_dict(elt)
+            ret[elt.tag]["socket %d" % data["socket"]] = data
+        return {element.tag.lower(): ret}
+
+    def _parse_get_embedded_health_data_nic_information(self, element):
+        ret = {}
+        for elt in element:
+            data = self._element_children_to_dict(elt)
+            ret[data['network_port']] = data
+        return {element.tag.lower(): ret}
+
+    def _parse_get_embedded_health_data_firmware_information(self, element):
+        ret = {}
+        for elt in element:
+            data = self._element_children_to_dict(elt)
+            ret[data['firmware_name']] = data['firmware_version']
+        return {element.tag.lower(): ret}
+
+    def _parse_get_embedded_health_data_storage(self, element):
+        ret = []
+        for ctrl in element:
+            data = {}
+            for elt in ctrl:
+                tag = elt.tag.lower()
+                if tag in ('drive_enclosure', 'logical_drive'):
+                    tag += 's'
+                    if tag not in data:
+                        data[tag] = []
+                    if tag == 'drive_enclosures':
+                        data[tag].append(self._element_children_to_dict(elt))
+                    else:
+                        data[tag].append(self._parse_logical_drive(elt))
+                else:
+                    data[tag] = elt.get('VALUE')
+            ret.append(data)
+        return {element.tag.lower(): ret}
+
+    def _parse_logical_drive(self, element):
+        data = {}
+        for elt in element:
+            tag = elt.tag.lower()
+            if tag == 'physical_drive':
+                tag += 's'
+                if tag not in data:
+                    data[tag] = []
+                data[tag].append(self._element_children_to_dict(elt))
+            else:
+                data[tag] = elt.get('VALUE')
+        return data
 
     def get_fw_version(self):
         """Get the iLO firmware version"""
@@ -1335,10 +1418,9 @@ class Ilo(object):
                     self.assertTrue('drives' in res)
                 if self.ilo_version >= 4:
                     self.assertTrue('storage' in res)
-                    # Add a PhysicalDrives type check
-                    # Add a NIC type check
-                    # Add a Memory type check
-                    # Add a Firmware type check
+                    self.assertTrue('nic_information' in res)
+                    self.assertTrue('memory' in res)
+                    self.assertTrue('firmware_information' in res)
 
             def test_get_cert_subject_info(self):
                 if self.ilo_version != 2:
