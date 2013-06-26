@@ -27,6 +27,8 @@ try:
 except ImportError:
     # Fallback for older python versions
     class ssl:
+        PROTOCOL_SSLv3 = 1
+        PROTOCOL_TLSv23 = 2
         PROTOCOL_TLSv1 = 3
         @staticmethod
         def wrap_socket(sock, *args, **kwargs):
@@ -126,6 +128,7 @@ class Ilo(object):
         self.delayed  = delayed
         self._elements = None
         self._processors = []
+        self.ssl_version = ssl.PROTOCOL_TLSv1
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -269,9 +272,13 @@ class Ilo(object):
             e = sys.exc_info()[1]
             raise IloCommunicationError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
         try:
-            return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLSv1)
+            return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
             e = sys.exc_info()[1]
+            # Some ancient iLO's don't support TLSv1, retry with SSLv3
+            if 'wrong version number' in (e.message or str(e)) and self.sslversion == ssl.PROTOCOL_TLSv1:
+                self.ssl_version = ssl.PROTOCOL_SSLv3
+                return self._get_socket()
             raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
 
     def _communicate(self, xml, protocol, progress=None):
