@@ -38,8 +38,10 @@ def main():
                  help="File containing authentication and config details", metavar="FILE")
     p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
                  help="Timeout for iLO connections")
-    p.add_option("-j", "--json", dest="json", action="store_true", default=False,
+    p.add_option("-j", "--json", dest="format", action="store_const", const="json", default="python",
                  help="Output a json document instead of a python dict")
+    p.add_option("-y", "--yaml", dest="format", action="store_const", const="yaml", default="python",
+                 help="Output a yaml document instead of a python dict")
     p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw","local"), default=None,
                  help="Use the specified protocol instead of autodetecting")
     p.add_option("-d", "--debug", dest="debug", action="count", default=0,
@@ -56,8 +58,10 @@ def main():
     opts, args = p.parse_args()
     opts.do_write_tests = False
 
-    if opts.json:
+    if opts.format == 'json':
         import json
+    elif opts.format == 'yaml':
+        import yaml
 
     # Did we get correct arguments?
     if len(args) < 2:
@@ -175,10 +179,12 @@ def main():
     if len(calls) > 1:
         results = ilo.call_delayed()
 
-    if opts.json:
+    if opts.format == 'json':
         if len(calls) == 1:
             results = results[0]
         json.dump(results, sys.stdout)
+    elif opts.format == 'yaml':
+        yaml.dump(results, sys.stdout)
     else:
         for method, params in calls:
             param_str = ', '.join(["%s=%s" % (x[0], _q(x[1])) for x in params.items()])

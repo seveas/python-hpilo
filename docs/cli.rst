@@ -19,6 +19,7 @@ library has and is used as follows::
     -t TIMEOUT, --timeout=TIMEOUT
                           Timeout for iLO connections
     -j, --json            Output a json document instead of a python dict
+    -y, --yaml            Output a yaml document instead of a python dict
     -P PROTOCOL, --protocol=PROTOCOL
                           Use the specified protocol instead of autodetecting
     -d, --debug           Output debug information, repeat to see all XML data
