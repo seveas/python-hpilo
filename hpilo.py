@@ -137,7 +137,7 @@ class Ilo(object):
         if message.__class__.__name__ == 'bytes':
             message = message.decode('latin-1')
         if self.debug >= level:
-            sys.stderr.write(re.sub(r'PASSWORD=".*"', 'PASSWORD="********"', message))
+            sys.stderr.write(re.sub(r'PASSWORD=".*?"', 'PASSWORD="********"', message))
             if message.startswith('\r'):
                 sys.stderr.flush()
             else:
