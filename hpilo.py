@@ -612,8 +612,11 @@ class Ilo(object):
         root, inner = self._elements
         header, message = self._request(root)
         ret = []
-        for message, processor in zip(message, self._processors):
-            ret.append(processor.pop(0)(message, *processor))
+        if message:
+            if not isinstance(message, list):
+                message = [message]
+            for message, processor in zip(message, self._processors):
+                ret.append(processor.pop(0)(message, *processor))
         self._processors = []
         self._elements = None
         return ret
