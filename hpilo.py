@@ -437,6 +437,8 @@ class Ilo(object):
                     else:
                         status = int(child.get('STATUS'), 16)
                         message = child.get('MESSAGE')
+                        if 'syntax error' in message:
+                            message += '. You may have tried to use a feature this iLO version or firmware version does not support.'
                         if status in IloLoginFailed.possible_codes or \
                                  message in IloLoginFailed.possible_messages:
                             raise IloLoginFailed(message, status)
