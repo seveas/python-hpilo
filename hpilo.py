@@ -1007,14 +1007,20 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
-            f8_login_required=None, lock_configuration=None,
+            f8_login_required=None, lock_configuration=None, ilo_funct_enabled=None,
+            serial_cli_status=None, serial_cli_speed=None,
             http_port=None, https_port=None, ssh_port=None, ssh_status=None,
             vmedia_disable=None, virtual_media_port=None, remote_console_port=None,
+            snmp_access_enabled=None, snmp_port=None, snmp_trap_port=None,
+            remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
+            alertmail_enable=None, alertmail_email_address=None,
+            alertmail_sender_domain=None, alertmail_smtp_server=None,
             min_password=None, enfoce_aes=None, authentication_failure_logging=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
-            remote_console_acquire=None, brownout_recovery=None):
+            remote_console_acquire=None, brownout_recovery=None,
+            ipmi_dmci_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
@@ -1034,10 +1040,19 @@ class Ilo(object):
             dhcp_sntp_settings=None, sntp_server1=None, sntp_server2=None,
             timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None,
             shared_network_port=None, vlan_enabled=None, vlan_id=None,
-            shared_network_port_vlan=None, shared_network_port_vlan_id=None):
+            shared_network_port_vlan=None, shared_network_port_vlan_id=None, ipv6_address=None,
+            ipv6_static_route_1=None, ipv6_static_route2=None, ipv6_static_route_3=None,
+            ipv6_prim_dns_server=None, ipv6_sec_dns_server=None, ipv6_ter_dns_server=None,
+            ipv6_default_gateway=None, ipv6_preferred_protocol=None, ipv6_addr_autocfg=None,
+            ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
+            dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None):
         """Configure the network settings for the iLO card"""
         vars = dict(locals())
         del vars['self']
+
+        # For the ipv4 route elements, use "dest gateway" or (dest, gateway) or {'dest': XXX, 'gateway': XXX}
+        # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
+        # IPv6 addresses may specify prefixlength as /64 (default 64)
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
@@ -1086,9 +1101,15 @@ class Ilo(object):
         return self._control_tag('DIR_INFO','MOD_DIR_CONFIG',elements=elements)
 
 
-    def mod_snmp_im_settings(self, web_agent_ip_address=None, snmp_address_1=None,
-            snmp_address_2=None, snmp_address_3=None, os_traps=None,
-            snmp_passthrough_status=None, rib_traps=None, cim_security_mask=None):
+    def mod_snmp_im_settings(self, snmp_access=None, web_agent_ip_address=None,
+            snmp_address_1=None, snmp_address_1_rocommunity=None, snmp_address_1_trapcommunity=None,
+            snmp_address_2=None, snmp_address_2_rocommunity=None, snmp_address_2_trapcommunity=None,
+            snmp_address_3=None, snmp_address_3_rocommunity=None, snmp_address_3_trapcommunity=None,
+            snmp_port=None, snmp_trap_port=None, snmp_v3_engine_id=None, snmp_passthrough_status=None,
+            trap_source_identifier=None, os_traps=None, rib_traps=None, cold_start_trap_broadcast=None,
+            snmp_v1_traps=None, cim_security_mask=None, snmp_sys_location=None, snmp_sys_contact=None,
+            agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None):
+        # FIXME SNMP User profiles
         """Configure the SNMP and Insight Manager integration settings"""
         vars = dict(locals())
         del vars['self']
