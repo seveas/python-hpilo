@@ -643,9 +643,8 @@ class Ilo(object):
         return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
                 attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
 
-    @untested
     def ahs_clear_data(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
+        """Clears Active Health System information log"""
         return self._raw(('RIB_INFO', {'MODE': 'WRITE'}), ('AHS_CLEAR_DATA', {}))
 
     def cert_fqdn(self, use_fqdn):
