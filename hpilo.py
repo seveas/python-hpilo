@@ -652,8 +652,12 @@ class Ilo(object):
         use_fqdn = str({True: 'Yes', False: 'No'}.get(use_fqdn, use_fqdn))
         return self._control_tag('RIB_INFO', 'CERT_FQDN', attrib={'VALUE': use_fqdn})
 
-    def certificate_signing_request(self):
+    def certificate_signing_request(self, country=None, state=None, locality=None, organization=None,
+            organizational_unit=None, common_name=None):
         """Get a certificate signing request from the iLO"""
+        vars = locals()
+        del vars['self']
+        vars = dict([('CSR_' + x.upper(), vars[x]) for x in vars if vars[x]])
         return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST')
 
     def clear_ilo_event_log(self):
