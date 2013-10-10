@@ -1011,7 +1011,10 @@ class Ilo(object):
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
-            remote_console_acquire=None, brownout_recovery=None):
+            remote_console_acquire=None, brownout_recovery=None,
+            snmp_access_enabled=None, snmp_port=None, snmp_trap_port=None,
+            ipmi_dcmi_over_lan_enabled=None, remote_syslog_enable=None,
+            remote_syslog_port=None, remote_syslog_server_address=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
@@ -1031,7 +1034,10 @@ class Ilo(object):
             dhcp_sntp_settings=None, sntp_server1=None, sntp_server2=None,
             timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None,
             shared_network_port=None, vlan_enabled=None, vlan_id=None,
-            shared_network_port_vlan=None, shared_network_port_vlan_id=None):
+            shared_network_port_vlan=None, shared_network_port_vlan_id=None,
+            dhcpv6_stateless_enable=None, dhcpv6_stateful_enable=None,
+            dhcpv6_rapid_commit=None, dhcpv6_sntp_settings=None,
+            dhcpv6_dns_server=None):
         """Configure the network settings for the iLO card"""
         vars = dict(locals())
         del vars['self']
