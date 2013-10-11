@@ -1295,7 +1295,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
 
     def set_language(self, lang_id):
-        """Set the default language"""
+        """Set the default language. Only EN, JA and ZH are supported"""
         return self._control_tag('RIB_INFO', 'SET_LANGUAGE', attrib={'LANG_ID': lang_id})
 
     def set_host_power(self, host_power=True):
@@ -1308,7 +1308,13 @@ class Ilo(object):
         return self._control_tag('SERVER_INFO', 'SET_HOST_POWER_SAVER', attrib={'HOST_POWER_SAVER': str(host_power_saver)})
 
     def set_one_time_boot(self, device):
-        """Set one time boot device"""
+        """Set one time boot device, device should be one of normal, floppy,
+           cdrom, hdd, usb, rbsu or network. Ilo 4 also supports EMB-MENU
+           (Displays the default boot menu), EMB-ACU (Boots into ACU),
+           EMB-HPSUM-AUTO (Boots HPSUM in automatic update mode), EMB-DIAGS
+           (Launches Insight Diagnostics for Linux in interactive mode) and
+           RBSU (Boots into the system RBSU)"""
+
         return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device.upper()})
 
     def set_persistent_boot(self, devices):
@@ -1446,6 +1452,10 @@ class Ilo(object):
             self._upload_file(filename, progress_)
             return self._request(root, progress_)[1]
 
+# TODO
+# - All the profile functions page 111-116
+# - sso_server / delete_server
+# - mod_twofactor_settings / import_2factor_cert
 
 ##############################################################################################
 #### All functions below require hardware I don't have access to
@@ -1610,7 +1620,6 @@ class Ilo(object):
                 self.assertTrue('fans' in res)
                 self.assertTrue('fans' in res['health_at_a_glance'])
 
-                return # FIXME - need to implement this first
                 if self.ilo_version >= 3:
                     self.assertTrue('drives' in res)
                 if self.ilo_version >= 4:
