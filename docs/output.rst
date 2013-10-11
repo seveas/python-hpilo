@@ -275,6 +275,13 @@ return something.
    'get_host_power': {'host_power': 'ON'},
    'pcap': {'mode': 'OFF'}}
 
+.. function:: get_security_msg()
+  :noindex:
+
+  >>> pprint(my_ilo.get_security_msg())
+  {'security_msg': 'Enabled',
+   'security_msg_text': 'Time is an illusion. Lunchtime doubly so'}
+
 .. function:: get_server_auto_pwr()
   :noindex:
 

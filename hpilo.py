@@ -53,9 +53,37 @@ except ImportError:
             return self.sock.close()
 
 try:
-    import xml.etree.cElementTree as etree
+    import xml.etree.ElementTree as etree
 except ImportError:
-    import cElementTree as etree
+    import elementtree.ElementTree as etree
+
+# Oh the joys of monkeypatching...
+# We need a CDATA element in set_security_msg, but ElementTree doesn't support it
+def CDATA(text=None):
+    element = etree.Element('![CDATA[')
+    element.text = text
+    return element
+
+# Python 2.7 and 3
+if hasattr(etree, '_serialize_xml'):
+    etree._original_serialize_xml = etree._serialize_xml
+    def _serialize_xml(write, elem, *args):
+        if elem.tag == '![CDATA[':
+            write("\n<%s%s]]>\n" % (elem.tag, elem.text))
+            return
+        return etree._original_serialize_xml(write, elem, *args)
+    etree._serialize_xml = etree._serialize['xml'] = _serialize_xml
+# Python 2.5-2.6, and non-stdlib ElementTree
+elif hasattr(etree.ElementTree, '_write'):
+    etree.ElementTree._orig_write = etree.ElementTree._write
+    def _write(self, file, node, encoding, namespaces):
+        if node.tag == '![CDATA[':
+            file.write("\n<![CDATA[%s]]>\n" % node.text.encode(encoding))
+        else:
+            self._orig_write(file, node, encoding, namespaces)
+    etree.ElementTree._write = _write
+else:
+    raise RuntimeError("Don't know how to monkeypatch CDATA support. Please report a bug at https://github.com/seveas/python-hpilo")
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -919,6 +947,10 @@ class Ilo(object):
         """Get the power and power alert threshold settings"""
         return self._info_tag('SERVER_INFO', 'GET_PWREG')
 
+    def get_security_msg(self):
+        """Retrieve the security message that is displayed on the login screen"""
+        return self._info_tag('RIB_INFO', 'GET_SECURITY_MSG')
+
     def get_server_auto_pwr(self):
         """Get the automatic power on delay setting"""
         return self._info_tag('SERVER_INFO', 'GET_SERVER_AUTO_PWR', process=lambda data: data['server_auto_pwr'])
@@ -1196,6 +1228,14 @@ class Ilo(object):
     def set_power_cap(self, power_cap):
         """Set the power cap feature to a specific value"""
         return self._control_tag('SERVER_INFO', 'SET_POWER_CAP', attrib={'POWER_CAP': str(power_cap)})
+
+    def set_security_msg(self, security_msg, security_msg_text=''):
+        """Enables/disables the security message on the iLO login screen and sets its value"""
+        enabled = str({True: 'Yes', False: 'No'}.get(security_msg, security_msg))
+        text = etree.Element('SECURITY_MSG_TEXT')
+        text.append(CDATA(security_msg_text))
+        elements = (etree.Element('SECURITY_MSG', VALUE=enabled), text)
+        return self._control_tag('RIB_INFO', 'SET_SECURITY_MSG', elements=elements)
 
     def set_server_auto_pwr(self, setting):
         """Set the automatic power on delay setting. Valid settings are False,
