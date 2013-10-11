@@ -1,5 +1,5 @@
-Ilo obects
-==========
+Ilo objects
+===========
 
 The :class:`Ilo` class encapsulates all functionality. It autodetects which iLO
 version is in use and will send the correct messages for that version. Its
