@@ -994,6 +994,10 @@ class Ilo(object):
         """Get the power and power alert threshold settings"""
         return self._info_tag('SERVER_INFO', 'GET_PWREG')
 
+    def get_rack_settings(self):
+        """Get the rack settings for an iLO"""
+        return self._info_tag('RACK_INFO', 'GET_RACK_SETTINGS')
+
     def get_security_msg(self):
         """Retrieve the security message that is displayed on the login screen"""
         return self._info_tag('RIB_INFO', 'GET_SECURITY_MSG')

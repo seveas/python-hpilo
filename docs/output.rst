@@ -325,6 +325,17 @@ return something.
    'get_host_power': {'host_power': 'ON'},
    'pcap': {'mode': 'OFF'}}
 
+.. function:: get_rack_settings()
+  :noindex:
+
+  >>> pprint(my_ilo.get_rack_settings())
+  {'bay': 9,
+   'enclosure_name': 'CHASSIS-225',
+   'enclosure_sn': 'CZ1234ABCD',
+   'enclosure_type': 'BladeSystem c7000 Enclosure G2',
+   'enclosure_uuid': '09CZ1234ABCD',
+   'rack_name': 'CHASSIS-225'}
+
 .. function:: get_security_msg()
   :noindex:
 
