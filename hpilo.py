@@ -715,6 +715,10 @@ class Ilo(object):
         """Delete the specified user from the ilo"""
         return self._control_tag('USER_INFO', 'DELETE_USER', attrib={'USER_LOGIN': user_login})
 
+    def disable_ers(self):
+        """Disable Insight Remote Support functionality and unregister the server"""
+        return self._control_tag('RIB_INFO', 'DISABLE_ERS')
+
     def eject_virtual_floppy(self):
         """Eject the virtual floppy"""
         return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_FLOPPY')
@@ -723,6 +727,14 @@ class Ilo(object):
         """Eject the virtual media attached to the specified device"""
         return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA',
                 attrib={"DEVICE": device.upper()})
+
+    def ers_ahs_submit(self, message_id, bb_days):
+        """Submity AHS dat to the insight remote support server"""
+        elements = [
+            etree.Element('MESSAGE_ID', attrib={'VALUE': str(message_id)}),
+            etree.Element('BB_DAYS', attrib={'VALUE': str(bb_days)}),
+        ]
+        return self._control_tag('RIB_INFO', 'TRIGGER_BB_DATA', elements=elements)
 
     def fips_enable(self):
         """Enable FIPS standard to enforce AES/3DES encryption, can only be
@@ -735,7 +747,7 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
 
     def get_ahs_status(self):
-        """Get active health system  logging status"""
+        """Get active health system logging status"""
         return self._info_tag('RIB_INFO', 'GET_AHS_STATUS')
 
     def get_all_users(self):
@@ -868,6 +880,10 @@ class Ilo(object):
             else:
                 data[tag] = elt.get('VALUE')
         return data
+
+    def get_ers_settings(self):
+        """Get the ERS Insight Remote Support settings"""
+        return self._info_tag('RIB_INFO', 'GET_ERS_SETTINGS')
 
     def get_fips_status(self):
         """Is the FIPS-mandated AES/3DESencryption enforcement in place"""
@@ -1281,6 +1297,16 @@ class Ilo(object):
         ]
         return self._control_tag('RIB_INFO', 'SET_VM_STATUS', attrib={'DEVICE': device.upper()},
                                  elements=elements)
+
+    def trigger_l2_collection(self, message_id):
+        """Initiate an L2 data collection submission to the Insight Remote Support server."""
+        element = etree.Element('MESSAGE_ID', attrib={'value': str(message_id)})
+        return self._control_tag('RIB_INFO', 'TRIGGER_L2_COLLECTION', elements=[element])
+
+    def trigger_test_event(self, message_id):
+        """Trigger a test service event submission to the Insight Remote Support server."""
+        element = etree.Element('MESSAGE_ID', attrib={'value': str(message_id)})
+        return self._control_tag('RIB_INFO', 'TRIGGER_TEST_EVENT', elements=[element])
 
     def uid_control(self, uid="No"):
         """Turn the UID light on ("Yes") or off ("No")"""

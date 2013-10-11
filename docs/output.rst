@@ -89,6 +89,23 @@ return something.
                                              },
    'vrm': None}
 
+.. function:: get_ers_settings()
+  :noindex:
+
+  >>> pprint(my_ilo.get_ers_settings())
+  {'ers_agent': '',
+   'ers_collection_frequency': 'P30D',
+   'ers_connect_model': 0,
+   'ers_destination_port': 0,
+   'ers_destination_url': '',
+   'ers_last_transmission_date': '-',
+   'ers_last_transmission_errno': 'No error',
+   'ers_last_transmission_type': 0,
+   'ers_state': 0,
+   'ers_web_proxy_port': 0,
+   'ers_web_proxy_url': '',
+   'ers_web_proxy_username': ''}
+
 .. function:: get_fips_status()
   :noindex:
 
