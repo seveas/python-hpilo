@@ -767,6 +767,15 @@ class Ilo(object):
             return dict([(x['user_login'], x) for x in data])
         return self._info_tag('USER_INFO', 'GET_ALL_USER_INFO', process=process)
 
+    def get_asset_tag(self):
+        """Gets the server asset tag"""
+        # The absence of an asset tag is communicated in a warning and there
+        # will be *NO* returntag, hence the AttributeError.
+        try:
+            return self._info_tag('SERVER_INFO', 'GET_ASSET_TAG')
+        except AttributeError:
+            return {'asset_tag': None}
+
     def get_cert_subject_info(self):
         """Get ssl certificate subject information"""
         return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO', 'CSR_CERT_SETTINGS')
@@ -1229,6 +1238,10 @@ class Ilo(object):
         """Enable or disable AHS logging"""
         status = {True: 'enable', False: 'disable'}[status]
         return self._control_tag('RIB_INFO', 'SET_AHS_STATUS', attrib={'VALUE': status})
+
+    def set_asset_tag(self, asset_tag):
+        """Set the server asset tag"""
+        return self._control_tag('SERVER_INFO', 'SET_ASSET_TAG', attrib={'VALUE': asset_tag})
 
     def set_language(self, lang_id):
         """Set the default language"""

@@ -42,6 +42,18 @@ return something.
                      'user_name': 'Administrator',
                      'virtual_media_priv': True}}
 
+.. function:: get_asset_tag()
+  :noindex:
+
+  >>> pprint(my_ilo.get_asset_tag())
+  /home/dennis/code/python-hpilo/hpilo.py:459: IloWarning: No Asset Tag Information.
+    warnings.warn(child.get('MESSAGE'), IloWarning)
+  {'asset_tag': None}
+
+  >>> pprint(my_ilo.get_asset_tag())
+  {'asset_tag': 'NL00001'}
+
+
 .. function:: get_cert_subject_info()
   :noindex:
 
