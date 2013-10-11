@@ -89,6 +89,12 @@ return something.
                                              },
    'vrm': None}
 
+.. function:: get_fips_status()
+  :noindex:
+
+  >>> pprint(my_ilo.get_fips_status())
+  {'fips_mode': 'Enabled'}
+
 .. function:: get_fw_version()
   :noindex:
 

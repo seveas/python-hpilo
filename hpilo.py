@@ -724,6 +724,12 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'EJECT_VIRTUAL_MEDIA',
                 attrib={"DEVICE": device.upper()})
 
+    def fips_enable(self):
+        """Enable FIPS standard to enforce AES/3DES encryption, can only be
+           reset with a call to factory_defaults. Resets Administrator password
+           and license key"""
+        return self._control_tag('RIB_INFO', 'FIPS_ENABLE')
+
     def factory_defaults(self):
         """Reset the iLO to factory default settings"""
         return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
@@ -862,6 +868,10 @@ class Ilo(object):
             else:
                 data[tag] = elt.get('VALUE')
         return data
+
+    def get_fips_status(self):
+        """Is the FIPS-mandated AES/3DESencryption enforcement in place"""
+        return self._info_tag('RIB_INFO', 'GET_FIPS_STATUS')
 
     def get_fw_version(self):
         """Get the iLO firmware version"""
