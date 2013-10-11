@@ -1204,6 +1204,25 @@ class Ilo(object):
                     for x in vars if vars[x] is not None]
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
 
+    def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
+            user_reset_server_priv=None, user_virtual_media_priv=None,
+            user_config_ilo_priv=None, user_admin_priv=None,
+            operator_login_priv=None, operator_remote_cons_priv=None,
+            operator_reset_server_priv=None, operator_virtual_media_priv=None,
+            operator_config_ilo_priv=None, operator_admin_priv=None,
+            administrator_login_priv=None, administrator_remote_cons_priv=None,
+            administrator_reset_server_priv=None, administrator_virtual_media_priv=None,
+            administrator_config_ilo_priv=None, administrator_admin_priv=None):
+        vars = dict(locals())
+        del vars['self']
+        del vars['trust_mode']
+        elements = []
+        if trust_mode is not None:
+            elements.append(etree.Element('TRUST_MODE', attrib={'VALUE': trust_mode}))
+        vars = [(x.upper().split('_', 1), {True: 'Yes', False: 'No'}.get(vars[x], vars[x])) for x in vars if vars[x]]
+        elements += [etree.Element(x[0][0] + '_ROLE', attrib={x[0][1]: x[1]}) for x in vars]
+        return self._control_tag('SSO_INFO', 'MOD_SSO_SETTINGS', elements=elements)
+
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
