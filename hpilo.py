@@ -1402,8 +1402,8 @@ class Ilo(object):
            download and use the latest firmware. As this function may take a
            while, you can get progress notifications by passing a callable in
            the progress parameter. This callable will be called with progress
-           messages. These messages either start with a carriage return ('\r')
-           and an optional ANSI 'clear line' sequence ('\033[K'), or without
+           messages. These messages either start with a carriage return ('\\\\r')
+           and an optional ANSI 'clear line' sequence ('\\\\033[K'), or without
            one. When printing to a terminal, append a newline only to the
            second type of string. When using the data outside a terminal
            environment, make sure you strip off the carriage return and ansi
