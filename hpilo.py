@@ -1243,6 +1243,14 @@ class Ilo(object):
         """Set the server asset tag"""
         return self._control_tag('SERVER_INFO', 'SET_ASSET_TAG', attrib={'VALUE': asset_tag})
 
+    def set_ers_irs_connect(self, ers_destination_url, ers_destination_port):
+        """Connect to an Insight Remote Support server"""
+        elements = [
+            etree.Element('ERS_DESTINATION_URL', attrib={'VALUE': ers_destination_url}),
+            etree.Element('ERS_DESTINATION_PORT', attrib={'VALUE': str(ers_destination_port)}),
+        ]
+        return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
+
     def set_language(self, lang_id):
         """Set the default language"""
         return self._control_tag('RIB_INFO', 'SET_LANGUAGE', attrib={'LANG_ID': lang_id})
