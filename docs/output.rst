@@ -296,6 +296,12 @@ return something.
   >>> pprint(my_ilo.get_persistent_boot())
   ['cdrom', 'floppy', 'usb', 'hdd', 'network']
 
+.. function:: get_pers_mouse_keyboard_enabled()
+  :noindex:
+
+  >>> pprint(my_ilo.get_pers_mouse_keyboard_enabled())
+  False
+
 .. function:: get_power_cap()
   :noindex:
 

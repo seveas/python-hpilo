@@ -978,6 +978,10 @@ class Ilo(object):
             return [x.lower() for x in data]
         return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', ('PERSISTENT_BOOT', 'GET_PERSISTENT_BOOT'), process=process)
 
+    def get_pers_mouse_keyboard_enabled(self):
+        """Returns whether persistent mouse and keyboard are enabled"""
+        return self._info_tag('SERVER_INFO', 'GET_PERS_MOUSE_KEYBOARD_ENABLED', process=lambda data: data['persmouse_enabled'])
+
     def get_power_cap(self):
         """Get the power cap setting"""
         return self._info_tag('SERVER_INFO', 'GET_POWER_CAP', process=lambda data: data['power_cap'])
@@ -1272,6 +1276,11 @@ class Ilo(object):
         """Set persistent boot order, devices should be comma-separated"""
         elements = [etree.Element('DEVICE', VALUE=x.upper()) for x in devices.split(',')]
         return self._control_tag('SERVER_INFO', 'SET_PERSISTENT_BOOT', elements=elements)
+
+    def set_pers_mouse_keyboard_enabled(self, enabled):
+        """Enable/disable persistent mouse and keyboard"""
+        enabled = {True: 'Yes', False: 'No'}.get(enabled,enabled)
+        return self._control_tag('SERVER_INFO', 'SET_PERS_MOUSE_KEYBOARD_ENABLED', attrib={'VALUE': enabled})
 
     def set_pwreg(self, type, threshold=None, duration=None):
         """Set the power alert threshold"""
