@@ -934,6 +934,14 @@ class Ilo(object):
         """Get the list of installed languages - broken because iLO returns invalid XML"""
         return self._info_tag('RIB_INFO', 'GET_ALL_LANGUAGES')
 
+    def get_all_licenses(self):
+        """Get a list of all license types and licenses"""
+        def process(data):
+            if not isinstance(data, list):
+                data = data.values()
+            return [dict([(x[0], x[1]['value']) for x in row]) for row in data]
+        return self._info_tag('RIB_INFO', 'GET_ALL_LICENSES', process=process)
+
     def get_network_settings(self):
         """Get the iLO network settings"""
         return self._info_tag('RIB_INFO', 'GET_NETWORK_SETTINGS')

@@ -15,6 +15,15 @@ return something.
   >>> pprint(my_ilo.get_ahs_status())
   {'ahs_hardware_status': 'ENABLED', 'ahs_status': 'DISABLED'}
 
+.. function:: get_all_licenses()
+  :noindex:
+
+  >>> pprint(my_ilo.get_all_licenses())
+  [{'license_class': 'FQL',
+    'license_install_date': 'Tue Oct  8 22:51:16 2013',
+    'license_key': 'XXXXX-XXXXX-XXXXX-XXXXX-XXXXX',
+    'license_type': 'iLO 4 Advanced'}]
+
 .. function:: get_all_users()
   :noindex:
 
