@@ -1026,6 +1026,10 @@ class Ilo(object):
         """Where does the iLO send SNMP traps to and which traps does it send"""
         return self._info_tag('RIB_INFO', 'GET_SNMP_IM_SETTINGS')
 
+    def get_spatial(self):
+        """Get location information"""
+        return self._info_tag('SERVER_INFO', 'GET_SPATIAL', 'SPATIAL')
+
     def get_sso_settings(self):
         """Get the HP SIM Single Sign-On settings"""
         return self._info_tag('SSO_INFO', 'GET_SSO_SETTINGS')

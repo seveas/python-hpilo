@@ -403,6 +403,27 @@ return something.
    'snmp_passthrough_status': True,
    'web_agent_ip_address': 'example-server.int.kaarsemaker.net'}
 
+.. function:: get_spatial()
+  :noindex:
+
+  >>> pprint(my_ilo.get_spatial())
+  {'bay': 9,
+   'cuuid': '4dc3b42a-3d64-41c9-8832-fce93df1838b',
+   'discovery_data': 'Unknown data',
+   'discovery_rack': 'Not Supported',
+   'enclosure_cuuid': '699b6ec0-d98c-4587-a633-58f33839455d'm
+   'enclosure_sn': 'CZ1234ABCD',
+   'platform': 'BL',
+   'rack_description': 0,
+   'rack_id': 0,
+   'rack_id_pn': 0,
+   'rack_uheight': 0,
+   'tag_version': 0,
+   'uheight': 0,
+   'ulocation': 0,
+   'uoffset': 0,
+   'uposition': 0}
+
 .. function:: get_sso_settings()
   :noindex:
 
