@@ -1245,6 +1245,18 @@ class Ilo(object):
         """Press the power button"""
         return self._control_tag('SERVER_INFO', 'PRESS_PWR_BTN')
 
+    def profile_apply_get_results(self):
+        """Retrieve the results of the last profile_apply"""
+        return self._info_tag('RIB_INFO', 'PROFILE_APPLY_GET_RESULTS')
+
+    def profile_list(self):
+        """List all profile descriptors"""
+        def process(data):
+            if isinstance(data, dict):
+                return data.values()
+            return data
+        return self._info_tag('RIB_INFO', 'PROFILE_LIST', 'PROFILE_DESC_LIST', process=process)
+
     def hold_pwr_btn(self):
         """Press and hold the power button"""
         return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN')
