@@ -1163,8 +1163,15 @@ class Ilo(object):
         # IPv6 addresses may specify prefixlength as /64 (default 64)
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
+        for element in elements:
+            if element.tag == 'IPV6_ADDRESS':
+                addr = element.attrib['VALUE']
+                if '/' in addr:
+                    addr, plen = addr.rsplit('/', 1)
+                    element.attrib.update({'VALUE': addr, 'PREFIXLEN': plen})
+                if 'PREFIXLEN' not in element.attrib:
+                    element.attrib['PREFIXLEN'] = '64'
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
-
 
     def mod_dir_config(self, dir_authentication_enabled=None,
             dir_local_user_acct=None,dir_server_address=None,
