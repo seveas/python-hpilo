@@ -302,6 +302,7 @@ class Ilo(object):
             return sp
 
         self._debug(1, "Connecting to %s port %d" % (self.hostname, self.port))
+        err = None
         for res in socket.getaddrinfo(self.hostname, self.port, 0, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
             sock = None
