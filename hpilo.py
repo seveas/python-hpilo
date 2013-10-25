@@ -301,16 +301,31 @@ class Ilo(object):
             sp.read = sp.stdout.read
             return sp
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(self.timeout)
-        self._debug(1, "Connecting to %s:%d" % (self.hostname, self.port))
-        try:
-            sock.connect((self.hostname, self.port))
-        except socket.timeout:
-            raise IloCommunicationError("Timeout connecting to %s:%d" % (self.hostname, self.port))
-        except socket.error:
-            e = sys.exc_info()[1]
-            raise IloCommunicationError("Error connecting to %s:%d: %s" % (self.hostname, self.port, str(e)))
+        self._debug(1, "Connecting to %s port %d" % (self.hostname, self.port))
+        for res in socket.getaddrinfo(self.hostname, self.port, 0, socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            sock = None
+            try:
+                sock = socket.socket(af, socktype, proto)
+                sock.settimeout(self.timeout)
+                self._debug(2, "Connecting to %s port %d" % sa[:2])
+                sock.connect(sa)
+            except socket.timeout:
+                if sock is not None:
+                    sock.close()
+                err = IloCommunicationError("Timeout connecting to %s port %d" % (self.hostname, self.port))
+            except socket.error:
+                if sock is not None:
+                    sock.close()
+                e = sys.exc_info()[1]
+                err = IloCommunicationError("Error connecting to %s port %d: %s" % (self.hostname, self.port, str(e)))
+
+        if err is not None:
+            raise err
+
+        if not sock:
+            raise IloCommunicationError("Unable to resolve %s" % self.hostname)
+
         try:
             return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
