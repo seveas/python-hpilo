@@ -54,6 +54,10 @@ def main():
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
                  help="show all supported methods")
+    p.add_option('--save-response', dest="save_response", default=None,
+                 help="Store XML output in this file")
+    p.add_option('--read-response', dest="read_response", default=None,
+                 help="Read XML response from this file instead of the iLO")
 
     opts, args = p.parse_args()
     opts.do_write_tests = False
@@ -162,6 +166,8 @@ def main():
     }.get(opts.protocol, None)
     ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1)
     ilo.debug = opts.debug
+    ilo.save_response = opts.save_response
+    ilo.read_response = opts.read_response
     if config.has_option('ilo', 'hponcfg'):
         ilo.hponcfg = config.get('ilo', 'hponcfg')
 

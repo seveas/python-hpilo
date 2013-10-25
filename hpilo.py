@@ -157,6 +157,8 @@ class Ilo(object):
         self._elements = None
         self._processors = []
         self.ssl_version = ssl.PROTOCOL_TLSv1
+        self.save_response = None
+        self.read_response = None
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -174,8 +176,7 @@ class Ilo(object):
     def _request(self, xml, progress=None):
         """Given an ElementTree.Element, serialize it and do the request.
            Returns an ElementTree.Element containing the response"""
-
-        if not self.protocol:
+        if not self.protocol and not self.read_response:
             self._detect_protocol()
 
         # Serialize the XML
@@ -278,6 +279,17 @@ class Ilo(object):
 
     def _get_socket(self):
         """Set up a subprocess or an https connection and do an HTTP/raw socket request"""
+        if self.read_response:
+            class FakeSocket(object):
+                def __init__(self, file):
+                    self.trash = StringIO.StringIO()
+                    self.output = open(file)
+                    self.read = self.output.read
+                    self.write = self.trash.write
+                    self.close = self.output.close
+                shutdown = lambda *args: None
+            return FakeSocket(self.read_response)
+
         if self.protocol == ILO_LOCAL:
             self._debug(1, "Launching hponcfg")
             try:
@@ -384,6 +396,10 @@ class Ilo(object):
         elif sock.shutdown:
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
+        if self.save_response:
+            fd = open(self.save_response, 'a')
+            fd.write(data)
+            fd.close()
 
         # Stript out garbage from hponcfg
         if self.protocol == ILO_LOCAL:
