@@ -534,7 +534,7 @@ class Ilo(object):
                 elif not isinstance(retval[key], list):
                     retval[key] = [retval[key], val]
                 else:
-                    raise ValueError("Don't know how to combine %s and %s" % (type(retval[key]), type(val)))
+                    retval[key].append(val)
             else:
                 retval[key] = val
         return retval
