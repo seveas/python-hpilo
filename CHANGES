@@ -1,0 +1,81 @@
+Version 2.4, 2013-10-27
+
+* Much better ipv6 support 
+
+Version 2.3, 2013-10-11
+
+* Many more functions that were introduced with more recent versions of iLO and
+  with firmware updates
+
+Version 2.2, 2013-09-17
+
+* Clearer errors when calling unsupported funcrions
+* Support for YAML output
+* Support for older SSL versions
+
+Version 2.1, 2013-02-06
+
+* More useful get_embedded_health for iLO3 and iLO4
+* Several bugs fixed
+* Test framwwork fixes
+
+Version 2.0.1, 2013-01-05
+
+* Fixes several regressions in 2.0
+
+Version 2.0, 2012-12-24
+
+* Add a delayed call function so you can call multiple functions in one
+  connection, speeding up total functionality
+* Add mod_dir_config
+* Add callback functionality and clean up code by using them
+
+Version 1.5, 2012-11-08
+
+* Add a small test suite
+* Fixes several bugs
+* hpilo_cli now asks for a username/password if they're now given
+* More consistent get_one_time_boot output
+
+Version 1.4.1, 2012-09-08
+
+* Packaging fixes
+
+Version 1.4, 2012-09-04
+
+* Improved documentation
+* Be compatible with more python versions
+
+Version 1.3, 2012-08-28
+
+* iLO 4 support
+* More python 3 compatibility
+* Now includes autoatic latest firmware downloader
+* Can now talk to the iLO via hponcfg instead of the network
+
+Version 1.2, 2012-06-07
+
+* Python 3 compatibility
+* Don't break base64 data while working around an HP bug
+* Fixes for import_ssh_key
+
+Version 1.1, 2012-03-31
+
+* Handle TLSv1 connections
+
+Version 1.0, 2012-03-10
+
+* Adds certificate handling and a mini-CA
+* Improved documentation
+* Cleanup in some functions
+
+Version 0.5, 2012-03-09
+
+* Add firmware update functionality
+* More functions added
+* Backwards incompatible change in some methods to stick to HP's XML tag names
+* More useful --help output and error messages
+
+Version 0.2, 2012-03-01
+
+* Initial public release, older versions were internal-only
