@@ -1,0 +1,29 @@
+Source: python-hpilo
+Maintainer: Dennis Kaarsemaker <dennis@kaarsemaker.net>
+Section: python
+Priority: optional
+Build-Depends: debhelper, python-all,  python-setuptools, python3-all, python3-setuptools
+Standards-Version: 3.9.3
+X-Python-Version: >= 2.4
+X-Python3-Version: >= 3.0
+Homepage: http://seveas.github.io/python-hpilo
+
+Package: python-hpilo
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Python library and CLI tool to manage HP iLO interfaces
+ This module will make it easy for you to access the Integrated Lights Out
+ management interface of your HP hardware. It supports RILOE II, iLO, iLO 2,
+ iLO 3 and iLO 4. It uses the XML interface or hponcfg to access and change the
+ iLO.
+
+Package: python3-hpilo
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: Comprehensive wrapper around the GitHub v3 API
+ This module will make it easy for you to access the Integrated Lights Out
+ management interface of your HP hardware. It supports RILOE II, iLO, iLO 2,
+ iLO 3 and iLO 4. It uses the XML interface or hponcfg to access and change the
+ iLO.
+ .
+ This package contains the Python 3 version of the library.

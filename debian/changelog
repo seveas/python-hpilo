@@ -1,0 +1,5 @@
+python-hpilo (2.4-1) saucy; urgency=low
+
+  * Initial debian packaging
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Sun, 27 Oct 2013 00:33:40 +0200
