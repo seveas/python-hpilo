@@ -22,6 +22,18 @@ http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run::
 
   python setup.py install
 
+If you use RHEL/Centos, Fedora, Debian or Ubuntu, you can also use my pre-built
+binary packages from Launchpad or Openbuildservice.
+
+Ubuntu users can do the following::
+
+  sudo add-apt-repository ppa:dennis/python
+  sudo apt-get update
+  sudo apt-get install python-hpilo
+
+Others can follow the instructions on `the openbuildservice site`_. 
+
+
 Installing the development version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -31,3 +43,5 @@ edge of development, you can install the latest source from github::
   git clone https://github.com/seveas/python-hpilo.git
   cd python-hpilo
   ./hpilo_cli -h
+
+.. _`the openbuildservice site`: http://software.opensuse.org/download.html?project=home%3Aseveas%3Apython&package=python-hpilo
