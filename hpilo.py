@@ -1144,7 +1144,7 @@ class Ilo(object):
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
             remote_console_acquire=None, brownout_recovery=None,
-            ipmi_dmci_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None):
+            ipmi_dcmi_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
