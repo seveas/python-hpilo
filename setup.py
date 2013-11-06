@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name = "python-hpilo",
-      version = "2.4",
+      version = "2.4.1",
       author = "Dennis Kaarsemaker",
       author_email = "dennis@kaarsemaker.net",
       url = "http://github.com/seveas/python-hpilo",
