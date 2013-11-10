@@ -7,67 +7,131 @@
 # see COPYING for license details
 
 import configparser
+import ftplib
 import glob
 import io
+import optparse
 import os
-import subprocess
 import sys
 import tarfile
 
-root = '/var/tmp'
-ftproot = 'ftp://ftp.hp.com/pub/softlib2/software1/sc-linux-fw-ilo'
-httproot = ftproot.replace('ftp', 'http', 1)
-conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware.conf')
+def main():
+    p = optparse.OptionParser()
+    p.add_option('-v', '--verbose', dest="verbose", action="store_true", default=False,
+                 help="Be more verbose")
+    p.add_option('-q', '--quiet', dest="quiet", action="store_true", default=False,
+                 help="no output except errors")
+    p.add_option('--blank-files', dest='blank_files', action="store_true", default=False,
+                 help="Delete downloaded content after processing")
+    opts, args = p.parse_args()
 
-subprocess.call(['wget', '-q', '--mirror', ftproot], preexec_fn=lambda: os.chdir(root))
+    # Mirror all files and write config
+    ftproot = ('ftp.hp.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
+    conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware.conf')
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware')
 
-parser = configparser.ConfigParser()
-for dir in glob.glob(os.path.join(root, ftproot[6:], '*', '*')):
-    bin = glob.glob(os.path.join(dir, '*.bin'))
-    file = glob.glob(os.path.join(dir, '*.scexe'))
-    if file:
-        file = file[0]
-    if bin:
-        bin = os.path.basename(bin[0])
-    else:
-        if not file:
-            continue
-        with open(file, 'rb') as fd:
-            scexe = fd.read()
+    if not os.path.exists(root):
+        os.mkdir(root)
+    os.chdir(root)
+    ftp = FTP(ftproot[0], conf=conf, verbosity = 0 if opts.quiet else 2 if opts.verbose else 1, blank_files=opts.blank_files)
 
-        # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
-        skip_start = scexe.index(b'_SKIP=') + 6
-        skip_end = scexe.index(b'\n', skip_start)
-        skip = int(scexe[skip_start:skip_end]) - 1
-        tarball = scexe.split(b'\n', skip)[-1]
+    ftp.login('anonymous','anonymous')
+    ftp.cwd(ftproot[1])
+    ftp.mirror()
 
-        # Now uncompress it
-        if tarball[:2] != b'\x1f\x8b':
-            raise ValueError("Downloaded scexe file seems corrupt")
+    for k in sorted(ftp.configparser._sections.keys()):
+        ftp.configparser._sections.move_to_end(k)
+    with open(conf, 'w') as fd:
+        ftp.configparser.write(fd)
 
-        tf = tarfile.open(fileobj=io.BytesIO(tarball), mode='r:gz')
-        for bf in tf.getnames():
-            tf.extract(bf, os.path.dirname(file))
-            if bf.endswith('.bin'):
-                bin = bf.lower()
+class FTP(ftplib.FTP):
+    def __init__(self, *args, **kwargs):
+        conf = kwargs.pop('conf', None)
+        self.verbosity = kwargs.pop('verbosity', None)
+        self.blank_files = kwargs.pop('blank_files', None)
+        super(FTP, self).__init__(*args, **kwargs)
+        self.configparser = configparser.ConfigParser()
+        self.configparser.read(conf)
 
-    if '_' in bin:
-        ilo, version = os.path.splitext(bin.lower())[0].split('_')
-    else:
-        ilo, version = 'ilo', os.path.splitext(bin.lower())[0].replace('ilo', '')
-    version = '%s.%s' % (version[0], version[1:])
+    def log(self, level, msg):
+        if self.verbosity >= level:
+            print(msg)
 
-    if not parser.has_section(ilo):
-        parser.add_section(ilo)
-    if version.endswith('j'):
-        continue
-    if parser.has_option(ilo, 'version') and version < parser.get(ilo, 'version'):
-        continue
-    parser.set(ilo, 'version', version)
-    parser.set(ilo, 'url', 'http:/%s' % file.replace(root, ''))
-    parser.set(ilo, 'file', bin)
+    def mirror(self):
+        lines = []
+        self.retrlines('LIST', lines.append)
+        for line in lines:
+            if line.startswith('total'):
+                continue
+            mode, _, _, _, _, _, _, _, name = line.split(None, 8)
+            if name in ('.', '..'):
+                continue
+            if mode.startswith('d'):
+                self.log(1, "Mirroring %s" % name)
+                if os.path.exists(name) and name.startswith('v'):
+                    os.chdir(name)
+                    if glob.glob('*scexe'):
+                        self.extract(glob.glob('*.scexe')[0])
+                    if self.blank_files:
+                        for file in os.listdir('.'):
+                            if os.path.isfile(file):
+                                open(file, 'w').close()
+                    os.chdir('..')
+                    continue
+                if not os.path.exists(name):
+                    os.mkdir(name)
+                os.chdir(name)
+                self.cwd(name)
+                self.mirror()
+                if self.blank_files:
+                    for file in os.listdir('.'):
+                        if os.path.isfile(file):
+                            open(file, 'w').close()
+                self.cwd('..')
+                os.chdir('..')
+            else:
+                if not os.path.exists(name):
+                    self.log(1, "Downloading %s" % name)
+                    with open(name, 'wb') as fd:
+                        self.retrbinary('RETR %s' % name, fd.write)
+                if name.endswith('.scexe'):
+                    self.extract(name)
 
-for k in sorted(parser._sections.keys()):
-    parser._sections.move_to_end(k)
-with open(conf, 'w') as fd:
-    parser.write(fd)
+    def extract(self, name):
+        self.log(2, "Processing %s" % name)
+        if not glob.glob('*.xml'):
+            with open(name, 'rb') as fd:
+                scexe = fd.read()
+            # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
+            skip_start = scexe.index(b'_SKIP=') + 6
+            skip_end = scexe.index(b'\n', skip_start)
+            skip = int(scexe[skip_start:skip_end]) - 1
+            tarball = scexe.split(b'\n', skip)[-1]
+
+            # Now uncompress it
+            if tarball[:2] != b'\x1f\x8b':
+                raise ValueError("Downloaded scexe file %s seems corrupt" % name)
+
+            tf = tarfile.open(fileobj=io.BytesIO(tarball), mode='r:gz')
+            for bf in tf.getnames():
+                self.log(2, " Extracting %s" % bf)
+                tf.extract(bf, '.')
+        bin = glob.glob('*.bin')[0].lower()
+        if '_' in bin:
+            ilo, version = os.path.splitext(bin)[0].split('_')
+        else:
+            ilo, version = 'ilo', os.path.splitext(bin)[0].replace('ilo', '')
+        version = '%s.%s' % (version[0], version[1:])
+        if version.endswith('j'):
+            return
+        if not self.configparser.has_section(ilo):
+            self.configparser.add_section(ilo)
+        if self.configparser.has_option(ilo, 'version') and version <= self.configparser.get(ilo, 'version'):
+            return
+        url = os.path.abspath(name).replace(root, ftproot[1])
+        self.log(1, "New %s firmware version: %s (%s)" % (ilo, version, url))
+        self.configparser.set(ilo, 'version', version)
+        self.configparser.set(ilo, 'url', 'http://%s%s' % (ftproot[0], url))
+        self.configparser.set(ilo, 'file', bin)
+
+main()
