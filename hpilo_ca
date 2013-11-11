@@ -135,7 +135,7 @@ def main():
                 print("Waiting a minute to let the iLO reset itself")
                 time.sleep(60)
 
-        elif fw_version['management_processor'] == 'iLO3':
+        elif re.match(r'^iLO{3-9}$', fw_version['management_processor']):
             cn = ilo.get_network_settings()['dns_name']
             if cn != hostname[:hostname.find('.')]:
                 print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
@@ -144,7 +144,7 @@ def main():
                 time.sleep(60)
 
         else:
-            print("hpilo_ca cannot manage certificates for %s, only iLO2 and iLO3 are supported" % (fw_version['management_processor'], hostname))
+            print("hpilo_ca cannot manage certificates for %s, only iLO2 and newer are supported" % (fw_version['management_processor'], hostname))
             continue
 
         print("(2/5) Retrieving certificate signing request")
