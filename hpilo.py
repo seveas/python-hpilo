@@ -249,6 +249,10 @@ class Ilo(object):
                 fwlen = len(part)
                 while sent < fwlen:
                     written = sock.write(part[sent:sent+pkglen])
+                    if written is None:
+                        plen = len(part[sent:sent+pkglen])
+                        raise IloCommunicationError("Unexpected EOF while sending %d bytes (%d of %d sent before)" % (plen, sent, fwlen))
+
                     sent += written
                     if callable(progress):
                         progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
