@@ -1462,9 +1462,6 @@ class Ilo(object):
         if not self.protocol:
             self._detect_protocol()
 
-        if self.protocol == 'ILO_LOCAL':
-            raise ValueError("Cannot update iLO firmware using hponcfg")
-
         if filename == 'latest':
             config = hpilo_fw.config()
             current = self.get_fw_version()
@@ -1493,7 +1490,9 @@ class Ilo(object):
         root, inner = self._root_element('RIB_INFO', MODE='write')
         etree.SubElement(inner, 'TPM_ENABLED', VALUE='Yes')
         inner = etree.SubElement(inner, 'UPDATE_RIB_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(fwlen))
-        if self.protocol == ILO_RAW:
+        if self.protocol == ILO_LOCAL:
+            return self._request(root, progress_)[1]
+        elif self.protocol == ILO_RAW:
             inner.tail = '$EMBED:%s$' % filename
             return self._request(root, progress_)[1]
         else:
