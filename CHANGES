@@ -1,3 +1,16 @@
+Version 2.5, 2013-11-28
+
+* hponcfg can update firmware, so make the ILO_LOCAL support in hpilo.py
+  support this as well
+
+Version 2.4.2, 2013-11-11
+
+* hpilo_ca supports ilo4+ as well
+
+Version 2.4.1, 2013-11-06
+
+* Bugfix in mod_network_settings
+
 Version 2.4, 2013-10-27
 
 * Much better ipv6 support 
