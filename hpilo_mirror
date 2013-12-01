@@ -30,34 +30,31 @@ def main():
     conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware.conf')
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware')
 
-    if not os.path.exists(root):
-        os.mkdir(root)
-    os.chdir(root)
     ftp = FTP(ftproot[0], conf=conf, verbosity = 0 if opts.quiet else 2 if opts.verbose else 1, blank_files=opts.blank_files)
 
     ftp.login('anonymous','anonymous')
-    ftp.cwd(ftproot[1])
-    ftp.mirror()
-
-    for k in sorted(ftp.configparser._sections.keys()):
-        ftp.configparser._sections.move_to_end(k)
-    with open(conf, 'w') as fd:
-        ftp.configparser.write(fd)
+    ftp.mirror(ftproot[1], root)
 
 class FTP(ftplib.FTP):
     def __init__(self, *args, **kwargs):
-        conf = kwargs.pop('conf', None)
+        self.host = args[0]
+        self.conf = kwargs.pop('conf', None)
         self.verbosity = kwargs.pop('verbosity', None)
         self.blank_files = kwargs.pop('blank_files', None)
         super(FTP, self).__init__(*args, **kwargs)
         self.configparser = configparser.ConfigParser()
-        self.configparser.read(conf)
+        self.configparser.read(self.conf)
 
     def log(self, level, msg):
         if self.verbosity >= level:
             print(msg)
 
-    def mirror(self):
+    def mirror(self, remote, local):
+        if not os.path.exists(local):
+            os.mkdir(local)
+        os.chdir(local)
+        self.cwd(remote)
+
         lines = []
         self.retrlines('LIST', lines.append)
         for line in lines:
@@ -72,17 +69,14 @@ class FTP(ftplib.FTP):
                     os.chdir(name)
                     if glob.glob('*scexe'):
                         self.extract(glob.glob('*.scexe')[0])
+                        self.add_version(name, remote, local)
                     if self.blank_files:
                         for file in os.listdir('.'):
                             if os.path.isfile(file):
                                 open(file, 'w').close()
                     os.chdir('..')
                     continue
-                if not os.path.exists(name):
-                    os.mkdir(name)
-                os.chdir(name)
-                self.cwd(name)
-                self.mirror()
+                self.mirror(os.path.join(remote, name), os.path.join(local, name))
                 if self.blank_files:
                     for file in os.listdir('.'):
                         if os.path.isfile(file):
@@ -96,26 +90,34 @@ class FTP(ftplib.FTP):
                         self.retrbinary('RETR %s' % name, fd.write)
                 if name.endswith('.scexe'):
                     self.extract(name)
+                    self.add_version(name, remote, local)
+        for k in sorted(self.configparser._sections.keys()):
+            self.configparser._sections.move_to_end(k)
+        with open(self.conf, 'w') as fd:
+            self.configparser.write(fd)
 
     def extract(self, name):
         self.log(2, "Processing %s" % name)
-        if not glob.glob('*.xml'):
-            with open(name, 'rb') as fd:
-                scexe = fd.read()
-            # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
-            skip_start = scexe.index(b'_SKIP=') + 6
-            skip_end = scexe.index(b'\n', skip_start)
-            skip = int(scexe[skip_start:skip_end]) - 1
-            tarball = scexe.split(b'\n', skip)[-1]
+        if glob.glob('*.xml'):
+            return
+        with open(name, 'rb') as fd:
+            scexe = fd.read()
+        # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
+        skip_start = scexe.index(b'_SKIP=') + 6
+        skip_end = scexe.index(b'\n', skip_start)
+        skip = int(scexe[skip_start:skip_end]) - 1
+        tarball = scexe.split(b'\n', skip)[-1]
 
-            # Now uncompress it
-            if tarball[:2] != b'\x1f\x8b':
-                raise ValueError("Downloaded scexe file %s seems corrupt" % name)
+        # Now uncompress it
+        if tarball[:2] != b'\x1f\x8b':
+            raise ValueError("Downloaded scexe file %s seems corrupt" % name)
 
-            tf = tarfile.open(fileobj=io.BytesIO(tarball), mode='r:gz')
-            for bf in tf.getnames():
-                self.log(2, " Extracting %s" % bf)
-                tf.extract(bf, '.')
+        tf = tarfile.open(fileobj=io.BytesIO(tarball), mode='r:gz')
+        for bf in tf.getnames():
+            self.log(2, " Extracting %s" % bf)
+            tf.extract(bf, '.')
+
+    def add_version(self, name, remote, local):
         bin = glob.glob('*.bin')[0].lower()
         if '_' in bin:
             ilo, version = os.path.splitext(bin)[0].split('_')
@@ -128,10 +130,10 @@ class FTP(ftplib.FTP):
             self.configparser.add_section(ilo)
         if self.configparser.has_option(ilo, 'version') and version <= self.configparser.get(ilo, 'version'):
             return
-        url = os.path.abspath(name).replace(root, ftproot[1])
+        url = os.path.abspath(name).replace(local, remote)
         self.log(1, "New %s firmware version: %s (%s)" % (ilo, version, url))
         self.configparser.set(ilo, 'version', version)
-        self.configparser.set(ilo, 'url', 'http://%s%s' % (ftproot[0], url))
+        self.configparser.set(ilo, 'url', 'http://%s%s' % (self.host, url))
         self.configparser.set(ilo, 'file', bin)
 
 main()
