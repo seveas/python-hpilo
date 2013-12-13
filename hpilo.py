@@ -1499,6 +1499,35 @@ class Ilo(object):
             self._upload_file(filename, progress_)
             return self._request(root, progress_)[1]
 
+    def xmldata(self):
+        """Get basic discovery data which all iLO versions expose over
+           unauthenticated URL"""
+        if PY3:
+            import urllib.request as urllib2
+        else:
+            import urllib2
+        url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+        req = urllib2.urlopen(url)
+        data = req.read()
+        self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+        message = etree.fromstring(data)
+        def process(element):
+            retval = {}
+            for elt in element:
+                key = elt.tag.lower()
+                if elt.text and elt.text.strip():
+                    retval[key] = self._coerce(elt.text)
+                elif list(elt):
+                    sk = [x.tag.lower() for x in elt]
+                    if len(sk) != len(set(sk)):
+                        retval[key] = [process(x) for x in elt]
+                    else:
+                        retval[key] = process(elt)
+                else:
+                    retval[key] = None
+            return retval
+        return process(message)
+
 # TODO
 # - All the profile functions page 111-116
 # - sso_server / delete_server
