@@ -1184,6 +1184,11 @@ class Ilo(object):
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
         for element in elements:
+            if 'STATIC_ROUTE_' in element.tag:
+                value = vars[element.tag.lower()]
+                element.attrib.clear()
+                element.attrib.update({'DEST': value[0], 'MASK': value[1], 'GATEWAY': value[2]})
+
             if element.tag == 'IPV6_ADDRESS':
                 addr = element.attrib['VALUE']
                 if '/' in addr:
