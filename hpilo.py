@@ -1175,15 +1175,25 @@ class Ilo(object):
             ipv6_default_gateway=None, ipv6_preferred_protocol=None, ipv6_addr_autocfg=None,
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None):
-        """Configure the network settings for the iLO card"""
+        """Configure the network settings for the iLO card. The static route arguments require
+           hashes with the keys specified in the HP documentation."""
         vars = dict(locals())
         del vars['self']
 
-        # For the ipv4 route elements, use "dest gateway" or (dest, gateway) or {'dest': XXX, 'gateway': XXX}
+        # For the ipv4 route elements, {'dest': XXX, 'gateway': XXX}
         # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
         # IPv6 addresses may specify prefixlength as /64 (default 64)
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+                    for x in vars if vars[x] is not None and 'static_route' not in x]
+        for key in vars:
+            if 'static_route' not in key or not vars[key]:
+                continue
+            val = vars[key]
+            # Uppercase all keys
+            for key_ in val.keys():
+                val[key_.upper()] = val.pop(key_)
+            elements.append(etree.Element(key.upper(), **val))
+
         for element in elements:
             if element.tag == 'IPV6_ADDRESS':
                 addr = element.attrib['VALUE']
@@ -1193,6 +1203,8 @@ class Ilo(object):
                 if 'PREFIXLEN' not in element.attrib:
                     element.attrib['PREFIXLEN'] = '64'
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
+    mod_network_settings.requires_hash = [ 'static_route_1', 'static_route_2', 'static_route_3',
+        'ipv6_static_route_1', 'ipv6_static_route2', 'ipv6_static_route_3']
 
     def mod_dir_config(self, dir_authentication_enabled=None,
             dir_local_user_acct=None,dir_server_address=None,
