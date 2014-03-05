@@ -1263,6 +1263,11 @@ class Ilo(object):
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None]
+        for element in elements:
+            if 'TRAPCOMMUNITY' in element.tag:
+                value = vars[element.tag.lower()]
+                element.attrib.clear()
+                element.attrib.update({'VERSION': value[0], 'VALUE': value[1]})
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
