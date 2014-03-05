@@ -1143,7 +1143,7 @@ class Ilo(object):
             remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
             alertmail_enable=None, alertmail_email_address=None,
             alertmail_sender_domain=None, alertmail_smtp_server=None,
-            min_password=None, enfoce_aes=None, authentication_failure_logging=None,
+            min_password=None, enforce_aes=None, authentication_failure_logging=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
