@@ -1156,7 +1156,7 @@ class Ilo(object):
                     for x in vars if vars[x] is not None]
         for element in elements:
             if element.tag == 'SNMP_ACCESS_ENABLED':
-                element.attrib.update({'VALUE': 'Y' if element.attrib == 'Yes' else 'N' })
+                element.attrib.update({'VALUE': 'Y' if element.attrib['VALUE'] == 'Yes' else 'N' })
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_network_settings(self, enable_nic=None, reg_ddns_server=None,
