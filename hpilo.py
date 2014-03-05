@@ -1258,11 +1258,19 @@ class Ilo(object):
             snmp_v1_traps=None, cim_security_mask=None, snmp_sys_location=None, snmp_sys_contact=None,
             agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None):
         # FIXME SNMP User profiles
-        """Configure the SNMP and Insight Manager integration settings"""
+        """Configure the SNMP and Insight Manager integration settings."""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+                    for x in vars if vars[x] is not None and 'trapcommunity' not in x]
+        for key in vars:
+            if 'trapcommunity' not in key or not vars[key]:
+                continue
+            val = vars[key]
+            # Uppercase all keys
+            for key_ in val.keys():
+                val[key_.upper()] = val.pop(key_)
+            elements.append(etree.Element(key.upper(), **val))
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
