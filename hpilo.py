@@ -297,7 +297,7 @@ class Ilo(object):
         if self.protocol == ILO_LOCAL:
             self._debug(1, "Launching hponcfg")
             try:
-                sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
+                sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except OSError:
                 e = sys.exc_info()[1]
                 raise IloCommunicationError("Cannot run %s: %s" % (self.hponcfg, str(e)))
@@ -447,6 +447,8 @@ class Ilo(object):
             header = None
 
         elif not data.startswith('<?xml'):
+            if protocol == ILO_LOCAL:
+                raise IloError(sock.stderr.read().strip())
             raise IloError("Remote returned bogus data, maybe it's not an iLO")
 
         else:
