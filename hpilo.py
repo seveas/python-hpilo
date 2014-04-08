@@ -937,6 +937,10 @@ class Ilo(object):
         """Get the ERS Insight Remote Support settings"""
         return self._info_tag('RIB_INFO', 'GET_ERS_SETTINGS')
 
+    def get_federation_multicast(self):
+        """Get the iLO federation mulicast settings"""
+        return self._info_tag('RIB_INFO', 'GET_FEDERATION_MULTICAST')
+
     def get_fips_status(self):
         """Is the FIPS-mandated AES/3DESencryption enforcement in place"""
         return self._info_tag('RIB_INFO', 'GET_FIPS_STATUS')
@@ -1364,6 +1368,19 @@ class Ilo(object):
             etree.Element('ERS_DESTINATION_PORT', attrib={'VALUE': str(ers_destination_port)}),
         ]
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
+
+    def set_federation_multicast(self, multicast_discovery_enabled=True, multicast_announcement_interval=600,
+                                    ipv6_multicast_scope="Site", multicast_ttl=5):
+        """Set the Federation multicast configuration"""
+        multicast_discovery_enabled = {True: 'Yes', False: 'No'}[multicast_discovery_enabled]
+        elements = [
+            etree.Element('MULTICAST_DISCOVERY_ENABLED', attrib={'VALUE': multicast_discovery_enabled}),
+            etree.Element('MULTICAST_ANNOUNCEMENT_INTERVAL', attrib={'VALUE': str(multicast_announcement_interval)}),
+            etree.Element('IPV6_MULTICAST_SCOPE', attrib={'VALUE': str(ipv6_multicast_scope)}),
+            etree.Element('MULTICAST_TTL', attrib={'VALUE': str(multicast_ttl)}),
+        ]
+        return self._control_tag('RIB_INFO', 'SET_FEDERATION_MULTICAST', elements=elements)
+
 
     def set_language(self, lang_id):
         """Set the default language. Only EN, JA and ZH are supported"""
