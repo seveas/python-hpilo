@@ -127,6 +127,15 @@ return something.
    'ers_web_proxy_url': '',
    'ers_web_proxy_username': ''}
 
+.. function:: get_federation_multicast()
+  :noindex:
+
+  >>> pprint(my_ilo.get_federation_multicast())
+  {'ipv6_multicast_scope': 'Site',
+   'multicast_announcement_interval': 'Disabled',
+   'multicast_discovery_enabled': 'No',
+   'multicast_ttl': 5}
+
 .. function:: get_fips_status()
   :noindex:
 
