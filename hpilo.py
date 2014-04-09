@@ -1061,6 +1061,10 @@ class Ilo(object):
             return data
         return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG', process=process)
 
+    def get_server_fqdn(self):
+        """Get the fqdn of the server this iLO is managing"""
+        return self._info_tag('SERVER_INFO', 'GET_SERVER_FQDN', 'SERVER_FQDN', process=lambda fqdn: fqdn['value'])
+
     def get_server_name(self):
         """Get the name of the server this iLO is managing"""
         return self._info_tag('SERVER_INFO', 'GET_SERVER_NAME', 'SERVER_NAME', process=lambda name: name['value'])
@@ -1440,6 +1444,10 @@ class Ilo(object):
            random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
+
+    def set_server_fqdn(self, fqdn):
+        """Set the fqdn of the server"""
+        return self._control_tag('SERVER_INFO', 'SERVER_FQDN', attrib={"VALUE": fqdn})
 
     def set_server_name(self, name):
         """Set the name of the server"""
