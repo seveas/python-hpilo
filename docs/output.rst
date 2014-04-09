@@ -387,6 +387,12 @@ return something.
     'last_update': '05/05/2011 00:25',
     'severity': 'Caution'}]
 
+.. function:: get_server_fqdn()
+  :noindex:
+
+  >>> pprint(my_ilo.get_server_fqdn())
+  example-server.int.kaarsemaker.net
+
 .. function:: get_server_name()
   :noindex:
 
