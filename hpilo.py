@@ -1194,9 +1194,9 @@ class Ilo(object):
         # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
         # IPv6 addresses may specify prefixlength as /64 (default 64)
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None and 'static_route' not in x]
+                    for x in vars if vars[x] is not None and 'static_route_' not in x]
         for key in vars:
-            if 'static_route' not in key or not vars[key]:
+            if 'static_route_' not in key or not vars[key]:
                 continue
             val = vars[key]
             # Uppercase all keys
