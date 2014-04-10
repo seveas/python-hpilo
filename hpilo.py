@@ -1152,7 +1152,7 @@ class Ilo(object):
             snmp_access_enabled=None, snmp_port=None, snmp_trap_port=None,
             remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
             alertmail_enable=None, alertmail_email_address=None,
-            alertmail_sender_domain=None, alertmail_smtp_server=None,
+            alertmail_sender_domain=None, alertmail_smtp_server=None, alertmail_smtp_port=None,
             min_password=None, enforce_aes=None, authentication_failure_logging=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
