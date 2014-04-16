@@ -1,3 +1,9 @@
+python-hpilo (2.6-1) saucy; urgency=low
+
+  * New upstream release
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Wed, 16 Apr 2014 21:53:17 +0200
+
 python-hpilo (2.5-1) saucy; urgency=low
 
   * New upstream release
