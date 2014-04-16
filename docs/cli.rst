@@ -40,7 +40,7 @@ arguments. A full example config file is shipped with the hpilo distribution.
 
 To pass arguments to method calls, pass :attr:`key=value` pairs on the
 command-line. These can reference arbitrary configuration variables using
-:attr:`key='$section.option'`
+:attr:`key='$section.option'`.
 
 You can also call multiple methds at once by separating them with a :data:`+`
 
@@ -68,6 +68,11 @@ Displaying help for the :func:`get_host_data` method::
   Get SMBIOS records that describe the host. By default only the ones
   where human readable information is available are returned. To get
   all records pass decoded_only=False
+
+Methods like :func:`mod_network_data` method require hashes as arguments, you
+can use the following syntax::
+
+  $ hpilo_cli example-server.int.kaarsemaker.net mod_network_settings static_route_1.dest=1.2.3.4 static_route_1.gateway=10.10.10.254
 
 Calling multiple methods::
 

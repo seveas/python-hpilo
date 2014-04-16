@@ -297,7 +297,7 @@ class Ilo(object):
         if self.protocol == ILO_LOCAL:
             self._debug(1, "Launching hponcfg")
             try:
-                sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None)
+                sp = subprocess.Popen([self.hponcfg, '--input', '--xmlverbose'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except OSError:
                 e = sys.exc_info()[1]
                 raise IloCommunicationError("Cannot run %s: %s" % (self.hponcfg, str(e)))
@@ -447,6 +447,8 @@ class Ilo(object):
             header = None
 
         elif not data.startswith('<?xml'):
+            if protocol == ILO_LOCAL:
+                raise IloError(sock.stderr.read().strip())
             raise IloError("Remote returned bogus data, maybe it's not an iLO")
 
         else:
@@ -935,6 +937,10 @@ class Ilo(object):
         """Get the ERS Insight Remote Support settings"""
         return self._info_tag('RIB_INFO', 'GET_ERS_SETTINGS')
 
+    def get_federation_multicast(self):
+        """Get the iLO federation mulicast settings"""
+        return self._info_tag('RIB_INFO', 'GET_FEDERATION_MULTICAST')
+
     def get_fips_status(self):
         """Is the FIPS-mandated AES/3DESencryption enforcement in place"""
         return self._info_tag('RIB_INFO', 'GET_FIPS_STATUS')
@@ -1055,6 +1061,10 @@ class Ilo(object):
             return data
         return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG', process=process)
 
+    def get_server_fqdn(self):
+        """Get the fqdn of the server this iLO is managing"""
+        return self._info_tag('SERVER_INFO', 'GET_SERVER_FQDN', 'SERVER_FQDN', process=lambda fqdn: fqdn['value'])
+
     def get_server_name(self):
         """Get the name of the server this iLO is managing"""
         return self._info_tag('SERVER_INFO', 'GET_SERVER_NAME', 'SERVER_NAME', process=lambda name: name['value'])
@@ -1142,13 +1152,14 @@ class Ilo(object):
             snmp_access_enabled=None, snmp_port=None, snmp_trap_port=None,
             remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
             alertmail_enable=None, alertmail_email_address=None,
-            alertmail_sender_domain=None, alertmail_smtp_server=None,
-            min_password=None, enfoce_aes=None, authentication_failure_logging=None,
+            alertmail_sender_domain=None, alertmail_smtp_server=None, alertmail_smtp_port=None,
+            min_password=None, enforce_aes=None, authentication_failure_logging=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
             remote_console_acquire=None, brownout_recovery=None,
-            ipmi_dcmi_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None):
+            ipmi_dcmi_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None,
+            propagate_time_to_host=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
@@ -1174,15 +1185,25 @@ class Ilo(object):
             ipv6_default_gateway=None, ipv6_preferred_protocol=None, ipv6_addr_autocfg=None,
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None):
-        """Configure the network settings for the iLO card"""
+        """Configure the network settings for the iLO card. The static route arguments require
+           hashes with the keys specified in the HP documentation."""
         vars = dict(locals())
         del vars['self']
 
-        # For the ipv4 route elements, use "dest gateway" or (dest, gateway) or {'dest': XXX, 'gateway': XXX}
+        # For the ipv4 route elements, {'dest': XXX, 'gateway': XXX}
         # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
         # IPv6 addresses may specify prefixlength as /64 (default 64)
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+                    for x in vars if vars[x] is not None and 'static_route_' not in x]
+        for key in vars:
+            if 'static_route_' not in key or not vars[key]:
+                continue
+            val = vars[key]
+            # Uppercase all keys
+            for key_ in val.keys():
+                val[key_.upper()] = val.pop(key_)
+            elements.append(etree.Element(key.upper(), **val))
+
         for element in elements:
             if element.tag == 'IPV6_ADDRESS':
                 addr = element.attrib['VALUE']
@@ -1192,6 +1213,8 @@ class Ilo(object):
                 if 'PREFIXLEN' not in element.attrib:
                     element.attrib['PREFIXLEN'] = '64'
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
+    mod_network_settings.requires_hash = [ 'static_route_1', 'static_route_2', 'static_route_3',
+        'ipv6_static_route_1', 'ipv6_static_route2', 'ipv6_static_route_3']
 
     def mod_dir_config(self, dir_authentication_enabled=None,
             dir_local_user_acct=None,dir_server_address=None,
@@ -1245,11 +1268,19 @@ class Ilo(object):
             snmp_v1_traps=None, cim_security_mask=None, snmp_sys_location=None, snmp_sys_contact=None,
             agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None):
         # FIXME SNMP User profiles
-        """Configure the SNMP and Insight Manager integration settings"""
+        """Configure the SNMP and Insight Manager integration settings."""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+                    for x in vars if vars[x] is not None and 'trapcommunity' not in x]
+        for key in vars:
+            if 'trapcommunity' not in key or not vars[key]:
+                continue
+            val = vars[key]
+            # Uppercase all keys
+            for key_ in val.keys():
+                val[key_.upper()] = val.pop(key_)
+            elements.append(etree.Element(key.upper(), **val))
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
@@ -1342,6 +1373,19 @@ class Ilo(object):
         ]
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
 
+    def set_federation_multicast(self, multicast_discovery_enabled=True, multicast_announcement_interval=600,
+                                    ipv6_multicast_scope="Site", multicast_ttl=5):
+        """Set the Federation multicast configuration"""
+        multicast_discovery_enabled = {True: 'Yes', False: 'No'}[multicast_discovery_enabled]
+        elements = [
+            etree.Element('MULTICAST_DISCOVERY_ENABLED', attrib={'VALUE': multicast_discovery_enabled}),
+            etree.Element('MULTICAST_ANNOUNCEMENT_INTERVAL', attrib={'VALUE': str(multicast_announcement_interval)}),
+            etree.Element('IPV6_MULTICAST_SCOPE', attrib={'VALUE': str(ipv6_multicast_scope)}),
+            etree.Element('MULTICAST_TTL', attrib={'VALUE': str(multicast_ttl)}),
+        ]
+        return self._control_tag('RIB_INFO', 'SET_FEDERATION_MULTICAST', elements=elements)
+
+
     def set_language(self, lang_id):
         """Set the default language. Only EN, JA and ZH are supported"""
         return self._control_tag('RIB_INFO', 'SET_LANGUAGE', attrib={'LANG_ID': lang_id})
@@ -1400,6 +1444,10 @@ class Ilo(object):
            random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
+
+    def set_server_fqdn(self, fqdn):
+        """Set the fqdn of the server"""
+        return self._control_tag('SERVER_INFO', 'SERVER_FQDN', attrib={"VALUE": fqdn})
 
     def set_server_name(self, name):
         """Set the name of the server"""
@@ -1498,6 +1546,35 @@ class Ilo(object):
         else:
             self._upload_file(filename, progress_)
             return self._request(root, progress_)[1]
+
+    def xmldata(self):
+        """Get basic discovery data which all iLO versions expose over
+           unauthenticated URL"""
+        if PY3:
+            import urllib.request as urllib2
+        else:
+            import urllib2
+        url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+        req = urllib2.urlopen(url)
+        data = req.read()
+        self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+        message = etree.fromstring(data)
+        def process(element):
+            retval = {}
+            for elt in element:
+                key = elt.tag.lower()
+                if elt.text and elt.text.strip():
+                    retval[key] = self._coerce(elt.text)
+                elif list(elt):
+                    sk = [x.tag.lower() for x in elt]
+                    if len(sk) != len(set(sk)):
+                        retval[key] = [process(x) for x in elt]
+                    else:
+                        retval[key] = process(elt)
+                else:
+                    retval[key] = None
+            return retval
+        return process(message)
 
 # TODO
 # - All the profile functions page 111-116

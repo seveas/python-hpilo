@@ -114,7 +114,12 @@ def main():
             if '=' not in arg:
                 hpilo_help(None, None, method, None)
             param, val = arg.split('=', 1)
-            if param not in argnames:
+            # Do we expect structured data?
+            keys = param.split('.')
+            if (len(keys) > 1) != (keys[0] in getattr(func, 'requires_hash', {})):
+                hpilo_help(None, None, method, None)
+
+            if keys[0] not in argnames:
                 hpilo_help(None, None, method, None)
 
             # Optionally extract values from the config
@@ -128,7 +133,13 @@ def main():
                 val = int(val)
             else:
                 val = {'true': True, 'false': False}.get(val.lower(), val)
-            params[param] = val
+            params_ = params
+            for key in keys[:-1]:
+                if key not in params_:
+                    params_[key] = {}
+                params_ = params_[key]
+
+            params_[keys[-1]] = val
 
         for name in argnames:
             if name not in params and name not in args_with_defaults:
