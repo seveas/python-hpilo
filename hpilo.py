@@ -1127,8 +1127,13 @@ class Ilo(object):
             key.decode('base64')
         except Exception:
             raise ValueError("Invalid SSH key")
-        key = "-----BEGIN SSH KEY-----\r\n%s\r\n%s\r\n%s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
-        return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key)
+        key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s\r\n%s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
+        try:
+            return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
+        except IloError:
+            # Firmware 1.50 of iLO 4 changed the expected input
+            key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s %s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
+            return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
 
     # Not sure how this would work, and I have no relevant hardware
     #def insert_virtual_floppy(self, device, image_location):
