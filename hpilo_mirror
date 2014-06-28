@@ -14,16 +14,30 @@ import optparse
 import os
 import sys
 import tarfile
+from whelk import Shell
+try:
+    git = Shell(redirect=False).git
+except AttributeError:
+    git = lambda *args: True
 
 def main():
     p = optparse.OptionParser()
     p.add_option('-v', '--verbose', dest="verbose", action="store_true", default=False,
                  help="Be more verbose")
-    p.add_option('-q', '--quiet', dest="quiet", action="store_true", default=False,
-                 help="no output except errors")
+    p.add_option('-q', '--quiet', dest="quiet", action="count", default=0,
+                 help="no output except errors and updates. Repeat to get only errors")
     p.add_option('--blank-files', dest='blank_files', action="store_true", default=False,
                  help="Delete downloaded content after processing")
     opts, args = p.parse_args()
+
+    repo = os.path.abspath(os.path.dirname(__file__))
+    os.chdir(repo)
+
+    # Abort if there are local changes
+    if not git('diff', '--quiet', '--exit-code', '--', 'firmware.conf'):
+        print("Local changes to firmware.conf, aborting")
+        return
+
 
     # Mirror all files and write config
     ftproot = ('ftp.hp.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
@@ -34,6 +48,12 @@ def main():
 
     ftp.login('anonymous','anonymous')
     ftp.mirror(ftproot[1], root)
+
+    os.chdir(repo)
+    result = git('diff', '--quiet', '--exit-code', '--', 'firmware.conf')
+    if not result:
+        git('--no-pager', 'diff', '--color=never', '--', 'firmware.conf')
+        git('checkout', '--', 'firmware.conf')
 
 class FTP(ftplib.FTP):
     def __init__(self, *args, **kwargs):
