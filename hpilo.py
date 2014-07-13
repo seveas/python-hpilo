@@ -685,7 +685,7 @@ class Ilo(object):
         root, inner = self._elements
         header, message = self._request(root)
         ret = []
-        if message:
+        if message is not None:
             if not isinstance(message, list):
                 message = [message]
             for message, processor in zip(message, self._processors):
