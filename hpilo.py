@@ -278,7 +278,14 @@ class Ilo(object):
 
         self._debug(1, "Received %d bytes" % len(data))
         self._debug(2, data)
-        self.cookie = re.search('Set-Cookie: *(.*)', data).groups(1)
+        if 'Set-Cookie:' not in data:
+            # Seen on ilo3 with corrupt filesystem
+            body = re.search('<body>(.*)</body>', data, flags=re.DOTALL).group(1)
+            body = re.sub('<[^>]*>', '', body).strip()
+            body = re.sub('Return to last page', '', body).strip()
+            body = re.sub('\s+', ' ', body).strip()
+            raise IloError(body)
+        self.cookie = re.search('Set-Cookie: *(.*)', data).group(1)
         self._debug(2, "Cookie: %s" % self.cookie)
 
     def _get_socket(self):
