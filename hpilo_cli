@@ -54,9 +54,9 @@ def main():
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
                  help="show all supported methods")
-    p.add_option('--save-response', dest="save_response", default=None,
+    p.add_option('--save-response', dest="save_response", default=None, metavar='FILE',
                  help="Store XML output in this file")
-    p.add_option('--read-response', dest="read_response", default=None,
+    p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
 
     opts, args = p.parse_args()

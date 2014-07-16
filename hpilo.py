@@ -13,12 +13,14 @@ import hpilo_fw
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
+    import urllib.request as urllib2
     import io as StringIO
     b = lambda x: bytes(x, 'ascii')
     class Bogus(Exception): pass
     socket.sslerror = Bogus
     basestring = str
 else:
+    import urllib2
     import cStringIO as StringIO
     b = lambda x: x
 
@@ -1557,14 +1559,19 @@ class Ilo(object):
     def xmldata(self):
         """Get basic discovery data which all iLO versions expose over
            unauthenticated URL"""
-        if PY3:
-            import urllib.request as urllib2
+        if self.read_response:
+            fd = open(self.read_response)
+            data = fd.read()
+            fd.close()
         else:
-            import urllib2
-        url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
-        req = urllib2.urlopen(url)
-        data = req.read()
-        self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+            url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+            req = urllib2.urlopen(url)
+            data = req.read()
+            self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+        if self.save_response:
+            fd = open(self.save_response, 'a')
+            fd.write(data)
+            fd.close()
         message = etree.fromstring(data)
         def process(element):
             retval = {}
