@@ -149,6 +149,12 @@ class FTP(ftplib.FTP):
         version = '%s.%s' % (version[0], version[1:])
         if version.endswith('j'):
             return
+        vsection = '%s %s' % (ilo, version)
+        if not self.configparser.has_section(vsection):
+            self.configparser.add_section(vsection)
+            self.configparser.set(vsection, 'version', version)
+            self.configparser.set(vsection, 'url', 'http://%s%s/%s' % (self.host, remote, scexe))
+            self.configparser.set(vsection, 'file', bin)
         if not self.configparser.has_section(ilo):
             self.configparser.add_section(ilo)
         if self.configparser.has_option(ilo, 'version') and version <= self.configparser.get(ilo, 'version'):
