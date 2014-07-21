@@ -1565,7 +1565,8 @@ class Ilo(object):
             fd.close()
         else:
             url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
-            req = urllib2.urlopen(url, None, self.timeout)
+            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            req = opener.open(url, None, self.timeout)
             data = req.read()
             self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
         if self.save_response:
