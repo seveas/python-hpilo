@@ -1,3 +1,30 @@
+Version 2.7, 2014-07-23
+
+* update_rib_firmware now accepts firmware version numbers and will install the
+  specified version
+* xmldata now respects timeouts and refuses to use a proxy
+* Several small bugfixes
+
+Backward incompatibility note: update_rib_firmware accepts a callback that gets
+called with progress updates. The messages this callback gets have been
+simplified an no longer contain LF or ANSI characters, all responsibility for
+correct presentation now lies with the progress callback.
+
+Version 2.6.2, 2014-06-16
+
+* Deal with backwards incompatibility in import_ssh_key
+
+Version 2.6.1, 2014-04-16
+
+* Brown paper bag release, 2.6 did not update the version
+
+Version 2.6, 2014-04-16
+
+* Add an xmldata call, which is not actually using the XML api but parses what
+  a request to /xmldata?item=all returns.
+* Support for structured arguments in the command-line tool
+* Several bugfixes and new calls and new arguments to existing calls
+
 Version 2.5, 2013-11-28
 
 * hponcfg can update firmware, so make the ILO_LOCAL support in hpilo.py
