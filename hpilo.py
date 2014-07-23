@@ -849,12 +849,12 @@ class Ilo(object):
                             health[key].update(val)
                     data[category] = health
                     continue
-                elif isinstance(data[category], list):
+                elif isinstance(data[category], list) and data[category]:
                     for tag in ('label', 'location'):
                         if tag in data[category][0]:
                             data[category] = dict([(x[tag], x) for x in data[category]])
                             break
-                elif data[category] == '':
+                elif data[category] in ['', []]:
                     data[category] = None
             return data
         return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
