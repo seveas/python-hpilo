@@ -14,16 +14,30 @@ import optparse
 import os
 import sys
 import tarfile
+from whelk import Shell
+try:
+    git = Shell(redirect=False).git
+except AttributeError:
+    git = lambda *args: True
 
 def main():
     p = optparse.OptionParser()
     p.add_option('-v', '--verbose', dest="verbose", action="store_true", default=False,
                  help="Be more verbose")
-    p.add_option('-q', '--quiet', dest="quiet", action="store_true", default=False,
-                 help="no output except errors")
+    p.add_option('-q', '--quiet', dest="quiet", action="count", default=0,
+                 help="no output except errors and updates. Repeat to get only errors")
     p.add_option('--blank-files', dest='blank_files', action="store_true", default=False,
                  help="Delete downloaded content after processing")
     opts, args = p.parse_args()
+
+    repo = os.path.abspath(os.path.dirname(__file__))
+    os.chdir(repo)
+
+    # Abort if there are local changes
+    if not git('diff', '--quiet', '--exit-code', '--', 'firmware.conf'):
+        print("Local changes to firmware.conf, aborting")
+        return
+
 
     # Mirror all files and write config
     ftproot = ('ftp.hp.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
@@ -34,6 +48,12 @@ def main():
 
     ftp.login('anonymous','anonymous')
     ftp.mirror(ftproot[1], root)
+
+    os.chdir(repo)
+    result = git('diff', '--quiet', '--exit-code', '--', 'firmware.conf')
+    if not result:
+        git('--no-pager', 'diff', '--color=never', '--', 'firmware.conf')
+        git('checkout', '--', 'firmware.conf')
 
 class FTP(ftplib.FTP):
     def __init__(self, *args, **kwargs):
@@ -68,8 +88,10 @@ class FTP(ftplib.FTP):
                 if os.path.exists(name) and name.startswith('v'):
                     os.chdir(name)
                     if glob.glob('*scexe'):
-                        self.extract(glob.glob('*.scexe')[0])
-                        self.add_version(name, remote, local)
+                        scexe = glob.glob('*.scexe')[0]
+                        self.extract(scexe)
+                        bin = glob.glob('*.bin')[0]
+                        self.add_version("%s/%s" % (remote, name), scexe, bin)
                     if self.blank_files:
                         for file in os.listdir('.'):
                             if os.path.isfile(file):
@@ -90,7 +112,8 @@ class FTP(ftplib.FTP):
                         self.retrbinary('RETR %s' % name, fd.write)
                 if name.endswith('.scexe'):
                     self.extract(name)
-                    self.add_version(name, remote, local)
+                    bin = glob.glob('*.bin')[0]
+                    self.add_version(remote, name, bin)
         for k in sorted(self.configparser._sections.keys()):
             self.configparser._sections.move_to_end(k)
         with open(self.conf, 'w') as fd:
@@ -117,8 +140,8 @@ class FTP(ftplib.FTP):
             self.log(2, " Extracting %s" % bf)
             tf.extract(bf, '.')
 
-    def add_version(self, name, remote, local):
-        bin = glob.glob('*.bin')[0].lower()
+    def add_version(self, remote, scexe, bin):
+        bin = bin.lower()
         if '_' in bin:
             ilo, version = os.path.splitext(bin)[0].split('_')
         else:
@@ -126,14 +149,19 @@ class FTP(ftplib.FTP):
         version = '%s.%s' % (version[0], version[1:])
         if version.endswith('j'):
             return
+        vsection = '%s %s' % (ilo, version)
+        if not self.configparser.has_section(vsection):
+            self.configparser.add_section(vsection)
+            self.configparser.set(vsection, 'version', version)
+            self.configparser.set(vsection, 'url', 'http://%s%s/%s' % (self.host, remote, scexe))
+            self.configparser.set(vsection, 'file', bin)
         if not self.configparser.has_section(ilo):
             self.configparser.add_section(ilo)
         if self.configparser.has_option(ilo, 'version') and version <= self.configparser.get(ilo, 'version'):
             return
-        url = os.path.abspath(name).replace(local, remote)
-        self.log(1, "New %s firmware version: %s (%s)" % (ilo, version, url))
+        self.log(1, "New %s firmware version: %s (%s/%s)" % (ilo, version, remote, scexe))
         self.configparser.set(ilo, 'version', version)
-        self.configparser.set(ilo, 'url', 'http://%s%s' % (self.host, url))
+        self.configparser.set(ilo, 'url', 'http://%s%s/%s' % (self.host, remote, scexe))
         self.configparser.set(ilo, 'file', bin)
 
 main()

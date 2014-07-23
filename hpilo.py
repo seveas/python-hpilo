@@ -13,12 +13,14 @@ import hpilo_fw
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
+    import urllib.request as urllib2
     import io as StringIO
     b = lambda x: bytes(x, 'ascii')
     class Bogus(Exception): pass
     socket.sslerror = Bogus
     basestring = str
 else:
+    import urllib2
     import cStringIO as StringIO
     b = lambda x: x
 
@@ -255,14 +257,7 @@ class Ilo(object):
 
                     sent += written
                     if callable(progress):
-                        progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                    else:
-                        self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                if callable(progress):
-                    progress("")
-                else:
-                    self._debug(2, "")
-
+                        progress("Sending request %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
 
         data = ''
         try:
@@ -278,7 +273,14 @@ class Ilo(object):
 
         self._debug(1, "Received %d bytes" % len(data))
         self._debug(2, data)
-        self.cookie = re.search('Set-Cookie: *(.*)', data).groups(1)
+        if 'Set-Cookie:' not in data:
+            # Seen on ilo3 with corrupt filesystem
+            body = re.search('<body>(.*)</body>', data, flags=re.DOTALL).group(1)
+            body = re.sub('<[^>]*>', '', body).strip()
+            body = re.sub('Return to last page', '', body).strip()
+            body = re.sub('\s+', ' ', body).strip()
+            raise IloError(body)
+        self.cookie = re.search('Set-Cookie: *(.*)', data).group(1)
         self._debug(2, "Cookie: %s" % self.cookie)
 
     def _get_socket(self):
@@ -372,13 +374,7 @@ class Ilo(object):
                 written = sock.write(fw[sent:sent+pkglen])
                 sent += written
                 if callable(progress):
-                    progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                else:
-                    self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-            if callable(progress):
-                progress("")
-            else:
-                self._debug(2, "")
+                    progress("Sending request %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
             sock.write(post.strip())
         else:
             sock.write(xml)
@@ -399,10 +395,14 @@ class Ilo(object):
                     while '<?xml' in d:
                         end = d.find('<?xml', 5)
                         if end == -1:
-                            progress(self._parse_message(d, include_inform=True))
+                            msg = self._parse_message(d, include_inform=True)
+                            if msg:
+                                progress(msg)
                             break
                         else:
-                            progress(self._parse_message(d[:end], include_inform=True))
+                            msg = self._parse_message(d[:end], include_inform=True)
+                            if msg:
+                                progress(msg)
                             d = d[end:]
         except socket.sslerror: # Connection closed
             e = sys.exc_info()[1]
@@ -685,7 +685,7 @@ class Ilo(object):
         root, inner = self._elements
         header, message = self._request(root)
         ret = []
-        if message:
+        if message is not None:
             if not isinstance(message, list):
                 message = [message]
             for message, processor in zip(message, self._processors):
@@ -840,12 +840,12 @@ class Ilo(object):
                             health[key].update(val)
                     data[category] = health
                     continue
-                elif isinstance(data[category], list):
+                elif isinstance(data[category], list) and data[category]:
                     for tag in ('label', 'location'):
                         if tag in data[category][0]:
                             data[category] = dict([(x[tag], x) for x in data[category]])
                             break
-                elif data[category] == '':
+                elif data[category] in ['', []]:
                     data[category] = None
             return data
         return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
@@ -1127,13 +1127,8 @@ class Ilo(object):
             key.decode('base64')
         except Exception:
             raise ValueError("Invalid SSH key")
-        key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s\r\n%s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
-        try:
-            return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
-        except IloError:
-            # Firmware 1.50 of iLO 4 changed the expected input
-            key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s %s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
-            return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
+        key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s %s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
+        return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
 
     # Not sure how this would work, and I have no relevant hardware
     #def insert_virtual_floppy(self, device, image_location):
@@ -1498,71 +1493,84 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
-    def update_rib_firmware(self, filename, progress=None):
-        """Upload new RIB firmware, use "latest" as filename to automatically
-           download and use the latest firmware. As this function may take a
-           while, you can get progress notifications by passing a callable in
-           the progress parameter. This callable will be called with progress
-           messages. These messages either start with a carriage return ('\\\\r')
-           and an optional ANSI 'clear line' sequence ('\\\\033[K'), or without
-           one. When printing to a terminal, append a newline only to the
-           second type of string. When using the data outside a terminal
-           environment, make sure you strip off the carriage return and ansi
-           sequence"""
+    def update_rib_firmware(self, filename=None, version=None, progress=None):
+        """Upload new RIB firmware, either specified by filename (.bin or
+           .scexe) or version number. Use "latest" as version number to
+           download and use the latest available firmware.
+
+           API note:
+
+           As this function may take a while, you can choose to receive
+           progress messages by passing a callable in the progress parameter.
+           This callable will be called many times to inform you about upload
+           and flash progress."""
+
         if self.delayed:
             raise IloError("Cannot run firmware update in delayed mode")
 
         if not self.protocol:
             self._detect_protocol()
 
+        # Backwards compatibility
         if filename == 'latest':
-            config = hpilo_fw.config()
-            current = self.get_fw_version()
-            ilo = current['management_processor'].lower()
-            if ilo not in config:
-                raise IloError("Cannot update %s to the latest version automatically" % ilo)
-            if current['firmware_version'] >= config[ilo]['version']:
-                return "Already up-to-date"
-            hpilo_fw.download(ilo)
-            filename = config[ilo]['file']
+            version = 'latest'
+            filename = None
 
-        if progress:
-            def progress_(data):
-                if data is None:
-                    return
-                elif isinstance(data, basestring):
-                    if '%' in data:
-                        data = '\r\033[K' + data
-                    progress(data)
-                else:
-                    raise RuntimeError("Unknown progress message")
+        if filename and version:
+            raise ValueError("Supply a filename or a version number, not both")
+
+        if not (filename or version):
+            raise ValueError("Supply a filename or a version number")
+
+        current_version = self.get_fw_version()
+        ilo = current_version['management_processor'].lower()
+
+        if not filename:
+            config = hpilo_fw.config()
+            if version == 'latest':
+                if ilo not in config:
+                    raise IloError("Cannot update %s to the latest version automatically" % ilo)
+                version = config[ilo]['version']
+            iversion = '%s %s' % (ilo, version)
+            if iversion not in config:
+                raise ValueError("Unknown firmware version: %s" % version)
+            if current_version['firmware_version'] >= version:
+                return "Already up-to-date"
+            hpilo_fw.download(iversion, progress=progress)
+            filename = config[iversion]['file']
         else:
-            progress_ = None
+            filename = hpilo_fw.parse(filename, ilo)
 
         fwlen = os.path.getsize(filename)
         root, inner = self._root_element('RIB_INFO', MODE='write')
         etree.SubElement(inner, 'TPM_ENABLED', VALUE='Yes')
         inner = etree.SubElement(inner, 'UPDATE_RIB_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(fwlen))
         if self.protocol == ILO_LOCAL:
-            return self._request(root, progress_)[1]
+            return self._request(root, progress)[1]
         elif self.protocol == ILO_RAW:
             inner.tail = '$EMBED:%s$' % filename
-            return self._request(root, progress_)[1]
+            return self._request(root, progress)[1]
         else:
-            self._upload_file(filename, progress_)
-            return self._request(root, progress_)[1]
+            self._upload_file(filename, progress)
+            return self._request(root, progress)[1]
 
     def xmldata(self):
         """Get basic discovery data which all iLO versions expose over
            unauthenticated URL"""
-        if PY3:
-            import urllib.request as urllib2
+        if self.read_response:
+            fd = open(self.read_response)
+            data = fd.read()
+            fd.close()
         else:
-            import urllib2
-        url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
-        req = urllib2.urlopen(url)
-        data = req.read()
-        self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+            url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            req = opener.open(url, None, self.timeout)
+            data = req.read()
+            self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+        if self.save_response:
+            fd = open(self.save_response, 'a')
+            fd.write(data)
+            fd.close()
         message = etree.fromstring(data)
         def process(element):
             retval = {}

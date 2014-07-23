@@ -38,31 +38,41 @@ def config():
                 _config[section][option] = parser.get(section, option)
     return _config
 
-def _download(url):
+def download(ilo, path=None, progress = lambda txt: None):
+    if not path:
+        path = os.getcwd()
+    conf = config()
+    if not os.path.exists(os.path.join(path, conf[ilo]['file'])):
+        msg  = "Downloading %s firmware version %s" % (ilo.split()[0], conf[ilo]['version'])
+        progress(msg)
+        scexe = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
+        _parse(scexe, path, conf[ilo]['file'])
+
+def parse(fwfile, ilo):
+    fd = open(fwfile)
+    data = fd.read()
+    fd.close()
+    if '_SKIP=' in data:
+        # scexe file
+        fwfile = _parse(data, os.getcwd())
+    return fwfile
+
+def _download(url, progress=lambda txt: None):
     req = urllib2.urlopen(url)
     size = int(req.headers['Content-Length'])
-    if size < 4096:
+    if size < 16384:
         return req.read()
     downloaded = 0
     data = b('')
     while downloaded < size:
-        new = req.read(4096)
+        new = req.read(16384)
         data += new
         downloaded += len(new)
-        sys.stdout.write('\r\033[K%d/%d (%d%%)' % (downloaded, size, downloaded*100.0/size))
+        progress('%d/%d bytes (%d%%)' % (downloaded, size, downloaded*100.0/size))
         sys.stdout.flush()
-    print("")
     return data
 
-def download(ilo, path=None):
-    if not path:
-        path = os.getcwd()
-    conf = config()
-    if os.path.exists(os.path.join(path, conf[ilo]['file'])):
-        return
-    print("Downloading %s firmware version %s" % (ilo, conf[ilo]['version']))
-    scexe = _download(conf[ilo]['url'])
-
+def _parse(scexe, path, filename=None):
     # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
     skip_start = scexe.index(b('_SKIP=')) + 6
     skip_end = scexe.index(b('\n'), skip_start)
@@ -71,14 +81,14 @@ def download(ilo, path=None):
 
     # Now uncompress it
     if tarball[:2] != GZIP_CONSTANT:
-        raise ValueError("Downloaded scexe file seems corrupt")
+        raise ValueError("scexe file seems corrupt")
 
     tf = tarfile.open(name="bogus_name_for_old_python_versions", fileobj=BytesIO(tarball), mode='r:gz')
-    tf.extract(conf[ilo]['file'], path)
+    if not filename:
+        filenames = [x for x in tf.getnames() if x.endswith('.bin')]
+        if len(filenames) != 1:
+            raise ValueError("scexe file seems corrupt")
+        filename = filenames[0]
 
-if __name__ == '__main__':
-    path = os.getcwd()
-    if len(sys.argv) > 1:
-        path =  sys.argv[1]
-    conf = config()
-    [download(x, path) for x in conf]
+    tf.extract(filename, path)
+    return filename

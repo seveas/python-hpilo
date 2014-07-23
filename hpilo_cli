@@ -54,9 +54,9 @@ def main():
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
                  help="show all supported methods")
-    p.add_option('--save-response', dest="save_response", default=None,
+    p.add_option('--save-response', dest="save_response", default=None, metavar='FILE',
                  help="Store XML output in this file")
-    p.add_option('--read-response', dest="read_response", default=None,
+    p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
 
     opts, args = p.parse_args()
@@ -192,6 +192,8 @@ def main():
         if method == 'update_rib_firmware':
             params['progress'] = print_progress
         results = [getattr(ilo, method)(**params)]
+        if 'progress' in params:
+            params.pop('progress')("")
 
     if len(calls) > 1:
         results = ilo.call_delayed()
@@ -236,12 +238,15 @@ def hpilo_help(option, opt_str, value, parser):
                 args = code.co_varnames[:code.co_argcount]
                 defaults = func.func_defaults or []
                 args = ["%s=%s" % (x, x.upper()) for x in args[:len(args)-len(defaults)]] + \
-                       ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults)]
+                       ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults) if x != 'progress']
                 args = ' ' + ' '.join(args[1:])
 
-            print("Ilo.%s%s:" % (value, args))
+            print(textwrap.fill("Ilo.%s%s:" % (value, args), 80))
             doc = getattr(hpilo.Ilo, value).__doc__ or "No documentation"
             doc = re.sub(r':[a-z]+:`(.*?)`', r'\1', doc)
+            if 'API note' in doc:
+                doc = doc[:doc.find('API note')].strip()
+            doc = re.sub('\s+', ' ', doc)
             print(textwrap.fill(doc, 80))
         else:
             print("No such method: %s" % value)
@@ -256,11 +261,8 @@ def hpilo_help_methods(option, opt_str, value, parser):
     parser.exit()
 
 def print_progress(text):
-    if text.startswith('\r'):
-        sys.stdout.write(text)
-        sys.stdout.flush()
-    else:
-        print(text)
+    sys.stdout.write('\r\033[K' + text)
+    sys.stdout.flush()
 
 def list_split(lst, sep):
     ret = []
