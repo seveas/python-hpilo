@@ -4,5 +4,6 @@ build
 dist
 MANIFEST
 hp
+firmware
 *.bin
 *.scexe
