@@ -257,14 +257,7 @@ class Ilo(object):
 
                     sent += written
                     if callable(progress):
-                        progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                    else:
-                        self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                if callable(progress):
-                    progress("")
-                else:
-                    self._debug(2, "")
-
+                        progress("Sending request %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
 
         data = ''
         try:
@@ -381,13 +374,7 @@ class Ilo(object):
                 written = sock.write(fw[sent:sent+pkglen])
                 sent += written
                 if callable(progress):
-                    progress("\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-                else:
-                    self._debug(2, "\r\033[KSent %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
-            if callable(progress):
-                progress("")
-            else:
-                self._debug(2, "")
+                    progress("Sending request %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
             sock.write(post.strip())
         else:
             sock.write(xml)
@@ -408,10 +395,14 @@ class Ilo(object):
                     while '<?xml' in d:
                         end = d.find('<?xml', 5)
                         if end == -1:
-                            progress(self._parse_message(d, include_inform=True))
+                            msg = self._parse_message(d, include_inform=True)
+                            if msg:
+                                progress(msg)
                             break
                         else:
-                            progress(self._parse_message(d[:end], include_inform=True))
+                            msg = self._parse_message(d[:end], include_inform=True)
+                            if msg:
+                                progress(msg)
                             d = d[end:]
         except socket.sslerror: # Connection closed
             e = sys.exc_info()[1]
@@ -1504,15 +1495,14 @@ class Ilo(object):
 
     def update_rib_firmware(self, filename, progress=None):
         """Upload new RIB firmware, use "latest" as filename to automatically
-           download and use the latest firmware. As this function may take a
-           while, you can get progress notifications by passing a callable in
-           the progress parameter. This callable will be called with progress
-           messages. These messages either start with a carriage return ('\\\\r')
-           and an optional ANSI 'clear line' sequence ('\\\\033[K'), or without
-           one. When printing to a terminal, append a newline only to the
-           second type of string. When using the data outside a terminal
-           environment, make sure you strip off the carriage return and ansi
-           sequence"""
+           download and use the latest firmware.
+
+           API note:
+
+           As this function may take a while, you can choose to receive
+           progress messages by passing a callable in the progress parameter.
+           This callable will be called many times to inform you about upload
+           and flash progress."""
         if self.delayed:
             raise IloError("Cannot run firmware update in delayed mode")
 
@@ -1530,31 +1520,20 @@ class Ilo(object):
             hpilo_fw.download(ilo)
             filename = config[ilo]['file']
 
-        if progress:
-            def progress_(data):
-                if data is None:
-                    return
-                elif isinstance(data, basestring):
-                    if '%' in data:
-                        data = '\r\033[K' + data
-                    progress(data)
-                else:
-                    raise RuntimeError("Unknown progress message")
         else:
-            progress_ = None
 
         fwlen = os.path.getsize(filename)
         root, inner = self._root_element('RIB_INFO', MODE='write')
         etree.SubElement(inner, 'TPM_ENABLED', VALUE='Yes')
         inner = etree.SubElement(inner, 'UPDATE_RIB_FIRMWARE', IMAGE_LOCATION=filename, IMAGE_LENGTH=str(fwlen))
         if self.protocol == ILO_LOCAL:
-            return self._request(root, progress_)[1]
+            return self._request(root, progress)[1]
         elif self.protocol == ILO_RAW:
             inner.tail = '$EMBED:%s$' % filename
-            return self._request(root, progress_)[1]
+            return self._request(root, progress)[1]
         else:
-            self._upload_file(filename, progress_)
-            return self._request(root, progress_)[1]
+            self._upload_file(filename, progress)
+            return self._request(root, progress)[1]
 
     def xmldata(self):
         """Get basic discovery data which all iLO versions expose over
