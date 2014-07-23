@@ -1493,9 +1493,10 @@ class Ilo(object):
             raise ValueError("uid should be Yes or No")
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
-    def update_rib_firmware(self, filename, progress=None):
-        """Upload new RIB firmware, use "latest" as filename to automatically
-           download and use the latest firmware.
+    def update_rib_firmware(self, filename=None, version=None, progress=None):
+        """Upload new RIB firmware, either specified by filename (.bin or
+           .scexe) or version number. Use "latest" as version number to
+           download and use the latest available firmware.
 
            API note:
 
@@ -1503,24 +1504,42 @@ class Ilo(object):
            progress messages by passing a callable in the progress parameter.
            This callable will be called many times to inform you about upload
            and flash progress."""
+
         if self.delayed:
             raise IloError("Cannot run firmware update in delayed mode")
 
         if not self.protocol:
             self._detect_protocol()
 
+        # Backwards compatibility
         if filename == 'latest':
-            config = hpilo_fw.config()
-            current = self.get_fw_version()
-            ilo = current['management_processor'].lower()
-            if ilo not in config:
-                raise IloError("Cannot update %s to the latest version automatically" % ilo)
-            if current['firmware_version'] >= config[ilo]['version']:
-                return "Already up-to-date"
-            hpilo_fw.download(ilo)
-            filename = config[ilo]['file']
+            version = 'latest'
+            filename = None
 
+        if filename and version:
+            raise ValueError("Supply a filename or a version number, not both")
+
+        if not (filename or version):
+            raise ValueError("Supply a filename or a version number")
+
+        current_version = self.get_fw_version()
+        ilo = current_version['management_processor'].lower()
+
+        if not filename:
+            config = hpilo_fw.config()
+            if version == 'latest':
+                if ilo not in config:
+                    raise IloError("Cannot update %s to the latest version automatically" % ilo)
+                version = config[ilo]['version']
+            iversion = '%s %s' % (ilo, version)
+            if iversion not in config:
+                raise ValueError("Unknown firmware version: %s" % version)
+            if current_version['firmware_version'] >= version:
+                return "Already up-to-date"
+            hpilo_fw.download(iversion, progress=progress)
+            filename = config[iversion]['file']
         else:
+            filename = hpilo_fw.parse(filename, ilo)
 
         fwlen = os.path.getsize(filename)
         root, inner = self._root_element('RIB_INFO', MODE='write')

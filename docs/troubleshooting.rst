@@ -44,3 +44,12 @@ Unexpected errors after a login failure
 If you use the wrong credentials to access the XML interface, some iLO's get
 into some weird state. Call :func:`get_fw_version` a few times to clear this
 state and recover.
+
+Failure to update iLO3 firmware
+-------------------------------
+The early firmware versions of iLO3 had quite a few issues. To update from
+anything older than 1.28 to 1.50 or newer, you need to update in two steps:
+first update to 1.28 and then update to a later version::
+
+  hpilo_cli your.ilo3.ip.here update_rib_firmware version=1.28
+  hpilo_cli your.ilo3.ip.here update_rib_firmware version=latest
