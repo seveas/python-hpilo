@@ -47,6 +47,8 @@ def download(ilo, path=None, progress = lambda txt: None):
         progress(msg)
         scexe = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
         _parse(scexe, path, conf[ilo]['file'])
+        return True
+    return False
 
 def parse(fwfile, ilo):
     fd = open(fwfile)

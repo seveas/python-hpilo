@@ -12,6 +12,7 @@ try:
 except NameError:
     basestring = str
 import hpilo
+import hpilo_fw
 try:
     input = raw_input
 except NameError:
@@ -25,7 +26,9 @@ import sys
 ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.islower()])
 
 def main():
-    usage = """%prog [options] hostname method [args...]"""
+    usage = """
+  %prog [options] hostname method [args...]
+  %prog download_rib_firmware ilotype version [version...] """
 
     p = optparse.OptionParser(usage=usage, add_help_option=False)
     p.add_option("-l", "--login", dest="login", default=None,
@@ -70,6 +73,8 @@ def main():
     # Did we get correct arguments?
     if len(args) < 2:
         p.error("Not enough arguments")
+    if args[0] == 'download_rib_firmware':
+        return download(args[1], args[2:])
     if args[1] == '_test_writes':
         args[1] = '_test'
         opts.do_write_tests = True
@@ -275,6 +280,33 @@ def list_split(lst, sep):
         ret.append(lst[:pos])
         lst = lst[pos+1:]
     return ret
+
+def download(ilotype, versions):
+    ilotype = ilotype.lower()
+    config = hpilo_fw.config()
+    if ilotype == 'all':
+        for ilotype in sorted(config.keys()):
+            if ' ' not in ilotype:
+                _download(config, ilotype)
+    else:
+        if not versions:
+            _download(config, ilotype)
+        elif versions == ['all']:
+            for key in sorted(config.keys()):
+                if key.startswith(ilotype + ' '):
+                    _download(config, key)
+        else:
+            for version in versions:
+                _download(config, '%s %s' % (ilotype, version))
+
+def _download(config, key):
+    if key not in config:
+        sys.stderr.write("Unkown ilo/firmware version: %s\n" % key)
+        sys.exit(1)
+    if hpilo_fw.download(key, progress=print_progress):
+        print("")
+    else:
+        print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
 
 if __name__ == '__main__':
     main()
