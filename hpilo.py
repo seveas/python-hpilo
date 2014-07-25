@@ -141,7 +141,7 @@ class Ilo(object):
     XML_HEADER = b('<?xml version="1.0"?>\r\n')
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
-    BLOCK_SIZE = 4096
+    BLOCK_SIZE = 64 * 1024
     hponcfg = "/sbin/hponcfg"
     if platform.system() == 'Windows':
         hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
@@ -242,17 +242,16 @@ class Ilo(object):
         self._debug(2, self.HTTP_UPLOAD_HEADER % (total_bytes, boundary.decode('ascii')))
         sock.write(b(self.HTTP_UPLOAD_HEADER % (total_bytes, boundary.decode('ascii'))))
         for part in parts:
-            if len(part) < 2048:
+            if len(part) < self.BLOCK_SIZE:
                 self._debug(2, part)
                 sock.write(part)
             else:
                 sent = 0
-                pkglen = 2048
                 fwlen = len(part)
                 while sent < fwlen:
-                    written = sock.write(part[sent:sent+pkglen])
+                    written = sock.write(part[sent:sent+self.BLOCK_SIZE])
                     if written is None:
-                        plen = len(part[sent:sent+pkglen])
+                        plen = len(part[sent:sent+self.BLOCK_SIZE])
                         raise IloCommunicationError("Unexpected EOF while sending %d bytes (%d of %d sent before)" % (plen, sent, fwlen))
 
                     sent += written
@@ -369,9 +368,8 @@ class Ilo(object):
             sent = 0
             fwlen = os.path.getsize(name)
             fw = open(name, 'rb').read()
-            pkglen = 2048
             while sent < fwlen:
-                written = sock.write(fw[sent:sent+pkglen])
+                written = sock.write(fw[sent:sent+self.BLOCK_SIZE])
                 sent += written
                 if callable(progress):
                     progress("Sending request %d/%d bytes (%d%%)" % (sent, fwlen, 100.0*sent/fwlen))
