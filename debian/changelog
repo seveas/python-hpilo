@@ -1,4 +1,10 @@
-python-hpilo (2.7-1) UNRELEASED; urgency=medium
+python-hpilo (2.8-1) trusty; urgency=medium
+
+  * New upstream release
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Fri, 08 Aug 2014 15:33:16 +0200
+
+python-hpilo (2.7-1) trusty; urgency=medium
 
   * New upstream release
 
