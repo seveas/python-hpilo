@@ -82,11 +82,11 @@ etree._escape_attrib = _escape_attrib
 # Python 2.7 and 3
 if hasattr(etree, '_serialize_xml'):
     etree._original_serialize_xml = etree._serialize_xml
-    def _serialize_xml(write, elem, *args):
+    def _serialize_xml(write, elem, *args, **kwargs):
         if elem.tag == '![CDATA[':
             write("\n<%s%s]]>\n" % (elem.tag, elem.text))
             return
-        return etree._original_serialize_xml(write, elem, *args)
+        return etree._original_serialize_xml(write, elem, *args, **kwargs)
     etree._serialize_xml = etree._serialize['xml'] = _serialize_xml
 # Python 2.5-2.6, and non-stdlib ElementTree
 elif hasattr(etree.ElementTree, '_write'):
