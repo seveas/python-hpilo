@@ -60,11 +60,24 @@ except ImportError:
     import elementtree.ElementTree as etree
 
 # Oh the joys of monkeypatching...
-# We need a CDATA element in set_security_msg, but ElementTree doesn't support it
+# - We need a CDATA element in set_security_msg, but ElementTree doesn't support it
+# - We need to disable escaping of the PASSWORD attribute, because iLO doesn't
+#   unescape it properly
 def CDATA(text=None):
     element = etree.Element('![CDATA[')
     element.text = text
     return element
+
+class DoNotEscapeMe(str):
+    pass
+
+etree._original_escape_attrib = etree._escape_attrib
+def _escape_attrib(text, *args, **kwargs):
+    if isinstance(text, DoNotEscapeMe):
+        return str(text)
+    else:
+        return etree._original_escape_attrib(text, *args, **kwargs)
+etree._escape_attrib = _escape_attrib
 
 # Python 2.7 and 3
 if hasattr(etree, '_serialize_xml'):
@@ -85,7 +98,7 @@ elif hasattr(etree.ElementTree, '_write'):
             self._orig_write(file, node, encoding, namespaces)
     etree.ElementTree._write = _write
 else:
-    raise RuntimeError("Don't know how to monkeypatch CDATA support. Please report a bug at https://github.com/seveas/python-hpilo")
+    raise RuntimeError("Don't know how to monkeypatch XML serializer workarounds. Please report a bug at https://github.com/seveas/python-hpilo")
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -463,7 +476,7 @@ class Ilo(object):
         """Create a basic XML structure for a message. Return root and innermost element"""
         if not self.delayed or not self._elements:
             root = etree.Element('RIBCL', VERSION="2.0")
-            login = etree.SubElement(root, 'LOGIN', USER_LOGIN=self.login, PASSWORD=self.password)
+            login = etree.SubElement(root, 'LOGIN', USER_LOGIN=self.login, PASSWORD=DoNotEscapeMe(self.password))
         if self.delayed:
             if self._elements:
                 root, login = self._elements
@@ -713,7 +726,7 @@ class Ilo(object):
             elements.append(etree.Element(attribute.upper(), VALUE=val))
 
         return self._control_tag('USER_INFO', 'ADD_USER', elements=elements,
-                attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': password})
+                attrib={'USER_LOGIN': user_login, 'USER_NAME': user_name, 'PASSWORD': DoNotEscapeMe(password)})
 
     def ahs_clear_data(self):
         """Clears Active Health System information log"""
@@ -1311,9 +1324,10 @@ class Ilo(object):
 
         attrs = locals()
         elements = []
-        for attribute in ('user_name', 'password'):
-            if attrs[attribute] is not None:
-                elements.append(etree.Element(attribute.upper(), VALUE=attrs[attribute]))
+        if attrs['user_name'] is not None:
+            elements.append(etree.Element('USER_NAME', VALUE=attrs['user_name']))
+        if attrs['password'] is not None:
+            elements.append(etree.Element('PASSWORD', VALUE=DoNotEscapeMe(attrs['password'])))
         for attribute in [x for x in attrs.keys() if x.endswith('_priv')]:
             if attrs[attribute] is not None:
                 val = ['No', 'Yes'][bool(attrs[attribute])]
