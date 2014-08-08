@@ -1410,9 +1410,38 @@ class Ilo(object):
         """Press the power button"""
         return self._control_tag('SERVER_INFO', 'PRESS_PWR_BTN')
 
+    def profile_apply(self, desc_name, action):
+        """Apply a deployment profile"""
+        elements = [
+            etree.Element('PROFILE_DESC_NAME', attrs={'VALUE': desc_name}),
+            etree.Element('PROFILE_OPTIONS', attrs={'VALUE': 'none'}), # Currently unused
+            etree.Element('PROFILE_ACTION', attrs={'VALUE': action}),
+        ]
+        return self._control_tag('RIB_INFO', 'PROFILE_APPLY', elements=elements)
+
     def profile_apply_get_results(self):
         """Retrieve the results of the last profile_apply"""
         return self._info_tag('RIB_INFO', 'PROFILE_APPLY_GET_RESULTS')
+
+    def profile_delete(self, desc_name):
+        """Delet the specified deployment profile"""
+        return self._control_tag('RIB_INFO', 'PROFILE_DELETE', elements=[etree.Element('PROFILE_DESC_NAME', attrib={'VALUE': desc_name})])
+
+    def profile_desc_download(self, desc_name, name, description, blob_namespace=None, blob_name=None, url=None):
+        """Make the iLO download a blob and create a deployment profile"""
+        elements = [
+            etree.Element('PROFILE_DESC_NAME', attrs={'VALUE': desc_name}),
+            etree.Element('PROFILE_NAME', attrs={'VALUE': name}),
+            etree.Element('PROFILE_DESCRIPTION', attrs={'VALUE': description}),
+            etree.Element('PROFILE_SCHEMA', attrs={'VALUE': 'intelligentprovisioning.1.0.0'}),
+        ]
+        if blob_namespace:
+            elements.append(etree.Element('BLOB_NAMESPACE', attrs={'VALUE': blob_namespace}))
+        if blob_name:
+            elements.append(etree.Element('BLOB_NAME', attrs={'VALUE': blob_name}))
+        if url:
+            elements.append(etree.Element('PROFILE_URL', attrs={'VALUE': url}))
+        return self._control_tag('RIB_INFO', 'PROFILE_DESC_DOWNLOAD', elements=elements)
 
     def profile_list(self):
         """List all profile descriptors"""
