@@ -717,6 +717,19 @@ class Ilo(object):
         license = etree.Element('ACTIVATE', KEY=key)
         return self._control_tag('RIB_INFO', 'LICENSE', elements=[license])
 
+    def add_federation_group(self, group_name, group_key, admin_priv=False,
+            remote_cons_priv=True, reset_server_priv=False,
+            virtual_media_priv=False, config_ilo_priv=True, login_priv=False):
+        """Add a new federation group"""
+        attrs = locals()
+        elements = []
+        for attribute in [x for x in attrs.keys() if x.endswith('_priv')]:
+            val = ['No', 'Yes'][bool(attrs[attribute])]
+            elements.append(etree.Element(attribute.upper(), VALUE=val))
+
+        return self._control_tag('RIB_INFO', 'ADD_FEDERATION_GROUP', elements=elements,
+                attrib={'GROUP_NAME': group_name, 'GROUP_KEY': group_key})
+
     def add_user(self, user_login, user_name, password, admin_priv=False,
             remote_cons_priv=True, reset_server_priv=False,
             virtual_media_priv=False, config_ilo_priv=True):
@@ -771,6 +784,10 @@ class Ilo(object):
         if computer_lock_key:
             elements.append(etree.Element('COMPUTER_LOCK_KEY', VALUE=computer_lock_key))
         return self._control_tag('RIB_INFO', 'COMPUTER_LOCK_CONFIG', elements=elements)
+
+    def delete_federation_group(self, group_name):
+        """Delete the specified federation group membership"""
+        return self._control_tag('RIB_INFO', 'DELETE_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name})
 
     def delete_user(self, user_login):
         """Delete the specified user from the ilo"""
@@ -954,6 +971,29 @@ class Ilo(object):
     def get_ers_settings(self):
         """Get the ERS Insight Remote Support settings"""
         return self._info_tag('RIB_INFO', 'GET_ERS_SETTINGS')
+
+    def get_federation_all_groups(self):
+        """Get all federation group names"""
+        def process(data):
+            if isinstance(data, dict):
+                data = data.values()
+            return data
+        return self._info_tag('RIB_INFO', 'GET_FEDERATION_ALL_GROUPS', process=process)
+
+    def get_federation_all_groups_info(self):
+        """Get all federation group names and associated privileges"""
+        def process(data):
+            if isinstance(data, dict):
+                data = data.values()
+            data = [dict([(key, {'yes': True, 'no': False}.get(val['value'].lower(), val['value'])) for (key, val) in group]) for group in data]
+            return dict([(x['group_name'], x) for x in data])
+        return self._info_tag('RIB_INFO', 'GET_FEDERATION_ALL_GROUPS_INFO', process=process)
+
+    def get_federation_group(self, group_name):
+        """Get privileges for a specific federation group"""
+        def process(data):
+            return dict([(key, {'yes': True, 'no': False}.get(val['value'].lower(), val['value'])) for (key, val) in data.values()[0]])
+        return self._info_tag('RIB_INFO', 'GET_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name}, process=process)
 
     def get_federation_multicast(self):
         """Get the iLO federation mulicast settings"""
@@ -1156,6 +1196,24 @@ class Ilo(object):
         """Insert a virtual floppy or CDROM. Note that you will also need to
            use :func:`set_vm_status` to connect the media"""
         return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
+
+    def mod_federation_group(self, group_name, new_group_name=None, group_key=None,
+            admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
+            virtual_media_priv=None, config_ilo_priv=None, login_priv=None):
+        """Set attributes for a federation group, only specified arguments will
+           be changed.  All arguments except group_name, new_group_name and
+           group_key should be boolean"""
+        attrs = locals()
+        elements = []
+        if attrs['new_group_name'] is not None:
+            elements.append(etree.Element('GROUP_NAME', VALUE=attrs['new_group_name']))
+        if attrs['group_key'] is not None:
+            elements.append(etree.Element('PASSWORD', VALUE=attrs['group_key']))
+        for attribute in [x for x in attrs.keys() if x.endswith('_priv')]:
+            if attrs[attribute] is not None:
+                val = ['No', 'Yes'][bool(attrs[attribute])]
+                elements.append(etree.Element(attribute.upper(), VALUE=val))
+        return self._control_tag('RIB_INFO', 'MOD_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name}, elements=elements)
 
     def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
             f8_login_required=None, lock_configuration=None, ilo_funct_enabled=None,
