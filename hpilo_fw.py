@@ -1,6 +1,6 @@
 # Downloader / extracter for latest iLO2 / iLO3 / iLO4 firmware
 #
-# (c) 2011-2013 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2014 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import tarfile
@@ -47,6 +47,8 @@ def download(ilo, path=None, progress = lambda txt: None):
         progress(msg)
         scexe = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
         _parse(scexe, path, conf[ilo]['file'])
+        return True
+    return False
 
 def parse(fwfile, ilo):
     fd = open(fwfile)

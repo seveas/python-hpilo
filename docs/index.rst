@@ -34,6 +34,7 @@ Contents:
    ilo
    output
    cli
+   firmware
    ca
    troubleshooting
    contributing

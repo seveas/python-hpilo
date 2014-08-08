@@ -5,7 +5,9 @@ The commandline interface allows you to make calls from your shell or scripts
 written in another language than python. It supports all methods that the
 library has and is used as follows::
 
-  Usage: hpilo_cli [options] hostname method [args...]
+  Usage:
+    hpilo_cli [options] hostname method [args...]
+    hpilo_cli download_rib_firmware ilotype version [version...] """
 
   Options:
     -l LOGIN, --login=LOGIN
