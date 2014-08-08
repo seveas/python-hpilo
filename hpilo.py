@@ -975,6 +975,10 @@ class Ilo(object):
                 data[tag] = elt.get('VALUE')
         return data
 
+    def get_encrypt_settings(self):
+        """Get the iLO encryption settings"""
+        return self._info_tag('RIB_INFO', 'GET_ENCRYPT_SETTINGS')
+
     def get_ers_settings(self):
         """Get the ERS Insight Remote Support settings"""
         return self._info_tag('RIB_INFO', 'GET_ERS_SETTINGS')
@@ -1011,7 +1015,7 @@ class Ilo(object):
         return self._info_tag('RIB_INFO', 'GET_FIPS_STATUS')
 
     def get_fw_version(self):
-        """Get the iLO firmware version"""
+        """Get the iLO type and firmware version, use get_product_name to get the server model"""
         return self._info_tag('RIB_INFO', 'GET_FW_VERSION')
 
     def get_global_settings(self):
@@ -1063,6 +1067,9 @@ class Ilo(object):
             return [dict([(x[0], x[1]['value']) for x in row]) for row in data]
         return self._info_tag('RIB_INFO', 'GET_ALL_LICENSES', process=process)
 
+    def get_hotkey_config(self):
+        return self.info_tag('RIB_INFO', 'GET_HOTKEY_CONFIG')
+
     def get_network_settings(self):
         """Get the iLO network settings"""
         return self._info_tag('RIB_INFO', 'GET_NETWORK_SETTINGS')
@@ -1106,6 +1113,10 @@ class Ilo(object):
         """Get current, min, max and average power readings"""
         return self._info_tag('SERVER_INFO', 'GET_POWER_READINGS')
 
+    def get_product_name(self):
+        """Get the model name of the server, use get_fw_version to get the iLO model"""
+        return self._info_tag('SERVER_INFO', 'GET_PRODUCT_NAME', process=lambda data: data['product_name'])
+
     def get_pwreg(self):
         """Get the power and power alert threshold settings"""
         return self._info_tag('SERVER_INFO', 'GET_PWREG')
@@ -1142,6 +1153,10 @@ class Ilo(object):
         """How many minutes ago has the server been powered on"""
         return self._info_tag('SERVER_INFO', 'GET_SERVER_POWER_ON_TIME', 'SERVER_POWER_ON_MINUTES', process=lambda data: int(data['value']))
 
+    def get_smh_fqdn(self):
+        """Get the fqdn of the HP System Management Homepage"""
+        return self._info_tag('SERVER_INFO', 'GET_SMH_FQDN', 'SMH_FQDN', process=lambda fqdn: fqdn['value'])
+
     def get_snmp_im_settings(self):
         """Where does the iLO send SNMP traps to and which traps does it send"""
         return self._info_tag('RIB_INFO', 'GET_SNMP_IM_SETTINGS')
@@ -1156,6 +1171,10 @@ class Ilo(object):
 
     def get_supported_boot_mode(self):
         return self._info_tag('SERVER_INFO', 'GET_SUPPORTED_BOOT_MODE', process=lambda data: data['supported_boot_mode'])
+
+    def get_tpm_status(self):
+        """Get the status of the Trusted Platform Module"""
+        return self._info_tag('SERVER_INFO', 'GET_TPM_STATUS')
 
     def get_twofactor_settings(self):
         """Get two-factor authentication settings"""
