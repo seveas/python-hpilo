@@ -161,6 +161,7 @@ class Ilo(object):
         self.ssl_version = ssl.PROTOCOL_TLSv1
         self.save_response = None
         self.read_response = None
+        self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -169,7 +170,9 @@ class Ilo(object):
         if message.__class__.__name__ == 'bytes':
             message = message.decode('latin-1')
         if self.debug >= level:
-            sys.stderr.write(re.sub(r'PASSWORD=".*?"', 'PASSWORD="********"', message))
+            if self._protect_passwords:
+                message = re.sub(r'PASSWORD=".*?"', 'PASSWORD="********"', message)
+            sys.stderr.write(message)
             if message.startswith('\r'):
                 sys.stderr.flush()
             else:
