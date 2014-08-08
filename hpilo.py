@@ -861,6 +861,10 @@ class Ilo(object):
         """Get ssl certificate subject information"""
         return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO', 'CSR_CERT_SETTINGS')
 
+    def get_current_boot_mode(self):
+        """Get the current boot mode (legaci or uefi)"""
+        return self._info_tag('SERVER_INFO', 'GET_CURRENT_BOOT_MODE', process=lambda data: data['boot_mode'])
+
     def get_dir_config(self):
         """Get directory authentication configuration"""
         return self._info_tag('DIR_INFO', 'GET_DIR_CONFIG')
@@ -1076,6 +1080,10 @@ class Ilo(object):
             return data['boot_type'].lower()
         return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'), process=process)
 
+    def get_pending_boot_mode(self):
+        """Get the pending boot mode (legaci or uefi)"""
+        return self._info_tag('SERVER_INFO', 'GET_PENDING_BOOT_MODE', process=lambda data: data['boot_mode'])
+
     def get_persistent_boot(self):
         """Get the boot order of the host"""
         def process(data):
@@ -1145,6 +1153,9 @@ class Ilo(object):
     def get_sso_settings(self):
         """Get the HP SIM Single Sign-On settings"""
         return self._info_tag('SSO_INFO', 'GET_SSO_SETTINGS')
+
+    def get_supported_boot_mode(self):
+        return self._info_tag('SERVER_INFO', 'GET_SUPPORTED_BOOT_MODE', process=lambda data: data['supported_boot_mode'])
 
     def get_twofactor_settings(self):
         """Get two-factor authentication settings"""
@@ -1506,6 +1517,10 @@ class Ilo(object):
            RBSU (Boots into the system RBSU)"""
 
         return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device.upper()})
+
+    def set_pending_boot_mode(self, boot_mode):
+        """Set the boot mode for the next boot to UEFI or legacy"""
+        return self._control_tag('SERVER_INFO', 'SET_PENDING_BOOT_MODE', attrib={'VALUE': boot_mode.upper()})
 
     def set_persistent_boot(self, devices):
         """Set persistent boot order, devices should be comma-separated"""
