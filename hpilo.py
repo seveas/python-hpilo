@@ -68,6 +68,9 @@ def CDATA(text=None):
     element.text = text
     return element
 
+# Adding this tag to RIBCL scripts should make this hack unnecessary in newer
+# iLO firmware versions. TODO: Check compatibility.
+# <?ilo entity-processing="standard"?>
 class DoNotEscapeMe(str):
     pass
 
@@ -506,6 +509,7 @@ class Ilo(object):
                             return None
                         return child.text
                 # RESPONE with status 0 also adds no value
+                # Maybe start adding <?xmlilo output-format="xml"?> to requests. TODO: check compatibility
                 elif child.tag == 'RESPONSE' and int(child.get('STATUS'), 16) == 0:
                     if child.get('MESSAGE') != 'No error':
                         warnings.warn(child.get('MESSAGE'), IloWarning)
@@ -1144,11 +1148,6 @@ class Ilo(object):
         key_ = "-----BEGIN SSH KEY-----\r\n%s\r\n%s %s\r\n-----END SSH KEY-----\r\n" % (algo, key, user_login)
         return self._control_tag('RIB_INFO', 'IMPORT_SSH_KEY', text=key_)
 
-    # Not sure how this would work, and I have no relevant hardware
-    #def insert_virtual_floppy(self, device, image_location):
-    #    """Insert a virtual floppy"""
-    #    return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_FLOPPY', attrib={'IMAGE_LOCATION': image_location})
-
     def delete_ssh_key(self, user_login):
         """Delete a users SSH key"""
         return self._control_tag('USER_INFO', 'MOD_USER', attrib={'USER_LOGIN': user_login}, elements=[etree.Element('DEL_USERS_SSH_KEY')])
@@ -1603,49 +1602,6 @@ class Ilo(object):
                     retval[key] = None
             return retval
         return process(message)
-
-# TODO
-# - All the profile functions page 111-116
-# - sso_server / delete_server
-# - mod_twofactor_settings / import_2factor_cert
-
-##############################################################################################
-#### All functions below require hardware I don't have access to
-
-    @untested
-    def get_all_cables_status(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_ALL_CABLES_STATUS', {}))
-
-    @untested
-    def get_diagport(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_DIAGPORT_SETTINGS', {}))
-
-    @untested
-    def get_enclosure_ip_settings(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('RACK_INFO', {'MODE': 'READ'}), ('GET_ENCLOSURE_IP_SETTINGS', {}))
-
-    @untested
-    def get_host_power_reg_info(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_HOST_POWER_REG_INFO', {}))
-
-    @untested
-    def get_topology(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_TOPOLOGY', {}))
-
-    @untested
-    def get_vpb_capable_status(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._raw(('SERVER_INFO', {'MODE': 'READ'}), ('GET_VPB_CAPABLE_STATUS', {}))
-
-    @untested
-    def get_vf_status(self):
-        """FIXME: I have no relevant hardware. Please report sample output"""
-        return self._info_tag('RIB_INFO', 'GET_VF_STATUS')
 
 ###############################################################################
 # Testsuite, safe to run on all iLO versions. Reports of failures of the
