@@ -1317,7 +1317,7 @@ class Ilo(object):
                 if 'PREFIXLEN' not in element.attrib:
                     element.attrib['PREFIXLEN'] = '64'
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
-    mod_network_settings.requires_hash = [ 'static_route_1', 'static_route_2', 'static_route_3',
+    mod_network_settings.requires_dict = ['static_route_1', 'static_route_2', 'static_route_3',
         'ipv6_static_route_1', 'ipv6_static_route2', 'ipv6_static_route_3']
 
     def mod_dir_config(self, dir_authentication_enabled=None,

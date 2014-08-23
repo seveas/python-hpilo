@@ -121,7 +121,7 @@ def main():
             param, val = arg.split('=', 1)
             # Do we expect structured data?
             keys = param.split('.')
-            if (len(keys) > 1) != (keys[0] in getattr(func, 'requires_hash', {})):
+            if (len(keys) > 1) != (keys[0] in getattr(func, 'requires_dict', {})):
                 hpilo_help(None, None, method, None)
 
             if keys[0] not in argnames:
