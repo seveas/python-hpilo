@@ -5,3 +5,4 @@ include docs/conf.py
 include ilo.conf.example
 include COPYING
 include CHANGES
+include README.md
