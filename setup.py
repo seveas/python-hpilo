@@ -9,7 +9,7 @@ setup(name = "python-hpilo",
       url = "http://github.com/seveas/python-hpilo",
       description = "iLO automation from python or shell",
       py_modules = ["hpilo", "hpilo_fw"],
-      scripts = ["hpilo_cli", "hpilo_ca"],
+      scripts = ["hpilo_cli"],
       classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
