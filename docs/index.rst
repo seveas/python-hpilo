@@ -1,42 +1,113 @@
-Accessing HP iLO interfaces from python
-=======================================
+iLO automation from python or shell
+===================================
 
-This module will make it easy for you to access the Integrated Lights Out
-management interface of your HP hardware. It supports RILOE II, iLO, iLO 2, iLO
-3 and iLO 4. It uses the XML interface or hponcfg to access and change the iLO.
+HP servers come with a powerful out of band management interface called
+Integrated Lights out, or iLO. It has an extensive web interface and
+commercially available tools for centrally managing iLO devices and their
+servers.
 
-The complete API is described in the :doc:`iLO class API reference </ilo>`. All
-functions return structured data based on the XML returned by the iLO. See
-:doc:`the output reference </output>` for example return values.
+But if you want to built your own tooling, integrate iLO management to your
+existing procedures or simply want to manage iLOs using a command-line
+interface, you're stuck manually creating XML files and using a perl hack HP
+ships called locfg.pl.
 
-A command line interface to this module, :doc:`hpilo_cli </cli>` makes accessing iLO
-interfaces almost trivial and easy to integrate with non-python scripts.
+Enter python-hpilo!
 
-To make managing SSL certificates for iLO boards easier, you can use
-:doc:`hpilo_ca </ca>`.
+Using the same XML interface as HP's own management tools, here is a python
+library and command-line tool that make it a lot easier to do all the above. No
+manual XML writing, just call functions from either python or your
+shell(script).
 
-HP, Integrated Lights out and iLO are trademarks of HP, with whom the author of
-this software is not affiliated in any way other than using some of their
-hardware.
+Quick usage examples
+====================
+Full usage documentation can be found following the links below, but here are
+some examples to wet your appetite:
 
-See also
---------
-More information about interacting with the iLO XML interface can be found in
-the sample XML files provided by HP on their `TechSupport site`_.
+Getting the chassis IP of a blade server, from python::
 
-Contents:
-=========
+    >>> ilo = hpilo.Ilo('example-server.int.kaarsemaker.net')
+    >>> chassis = ilo.get_oa_info()
+    >>> print chassis['ipaddress']
+    10.42.128.101
+
+Entering a license key and creating a user, from the shell:
+
+.. code-block:: console
+
+    $ hpilo_cli example-server.int.kaarsemaker.net activate_license key=$mykey
+    $ hpilo_cli example-server.int.kaarsemaker.net add_user user_login=dennis \
+                password=hunter2 admin_priv=true
+
+This package also ships examples of more complete applications in the examples
+directory. This include an automated CA for managing SSL certificates, tooling
+to centralize iLO informatin in elastic search and an automated firmware
+updater. All of which are used in production by the author or other
+contributors.
+
+Compatibility
+=============
+This module is written with compatibility as main priority. Currently supported
+are:
+
+* All RILOE II/iLO versions up to and including iLO 4
+* Python 2.4-2.7 and python 3.2 and newer
+* Any operating system Python runs on
+
+iLOs can be managed both locally using `hponcfg` or remotely using the iLO's
+built-in webserver. In the latter case, the requirements above concern the
+machine you run this code on, not the managed server.
+
+Available functionality
+=======================
 
 .. toctree::
    :maxdepth: 1
 
    install
-   ilo
-   output
-   cli
+   python
+   shell
+   info
+   network
+   authentication
+   security
+   license
+   health
+   power
+   boot
+   media
+   snmp
    firmware
+   xmldata
+   log
+   ahs
+   ers
+   profile
+
+Example applications
+====================
+.. toctree::
+   :maxdepth: 1
+
    ca
+   elasticsearch
+   autofirmware
+
+Development information
+=======================
+.. toctree::
+   :maxdepth: 1
+
    troubleshooting
    contributing
 
-.. _`TechSupport site`:  http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&cc=us&prodTypeId=18964&prodSeriesId=4154735&swItem=MTX-9ded60bd746942e18651211f51&prodNameId=4154847&swEnvOID=4004&swLang=8&taskId=135&mode=5
+Author and license
+==================
+This software is (c) 2011-2014 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+HP, Integrated Lights out and iLO are trademarks of HP, with whom the author of
+this software is not affiliated in any way.
