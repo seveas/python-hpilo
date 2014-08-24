@@ -27,7 +27,7 @@ ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.i
 
 def main():
     usage = """
-  %prog [options] hostname method [args...]
+  %prog [options] hostname method [args...] [ + method [args...]...]
   %prog download_rib_firmware ilotype version [version...] """
 
     p = optparse.OptionParser(usage=usage, add_help_option=False)
