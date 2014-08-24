@@ -1,0 +1,9 @@
+{'dir_authentication_enabled': False,
+ 'dir_enable_grp_acct': False,
+ 'dir_local_user_acct': True,
+ 'dir_object_dn': '',
+ 'dir_server_address': '',
+ 'dir_server_port': 636,
+ 'dir_user_context_1': '',
+ 'dir_user_context_2': '',
+ 'dir_user_context_3': ''}

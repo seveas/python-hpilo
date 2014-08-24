@@ -1,0 +1,23 @@
+{'fans': {'Fan 1': {'label': 'Fan 1',
+                    'speed': (13, 'Percentage'),
+                    'status': 'OK',
+                    'zone': 'System'},
+         (Additional fans removed from sample output)
+                                    },
+ 'health_at_a_glance': {'fans': {'redundancy': 'REDUNDANT', 'status': 'OK'},
+                        'power_supplies': {'redundancy': 'REDUNDANT',
+                                           'status': 'OK'},
+                        'temperature': {'status': 'OK'}},
+ 'power_supplies': {'Power Supply 1': {'label': 'Power Supply 1',
+                                       'status': 'OK'},
+                    'Power Supply 2': {'label': 'Power Supply 2',
+                                       'status': 'OK'}},
+ 'temperature': {'Ambient': {'caution': (41, 'Celsius'),
+                             'critical': (45, 'Celsius'),
+                             'currentreading': (23, 'Celsius'),
+                             'label': 'Temp 1',
+                             'location': 'Ambient',
+                             'status': 'OK'},
+                (Additional temperature readings removed from sample output)
+                                           },
+ 'vrm': None}

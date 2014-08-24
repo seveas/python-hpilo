@@ -1,0 +1,3 @@
+{'efficiency_mode': 2,
+ 'get_host_power': {'host_power': 'ON'},
+ 'pcap': {'mode': 'OFF'}}
