@@ -759,8 +759,9 @@ class Ilo(object):
         """Get a certificate signing request from the iLO"""
         vars = locals()
         del vars['self']
-        vars = dict([('CSR_' + x.upper(), vars[x]) for x in vars if vars[x]])
-        return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST')
+        vars = [('CSR_' + x.upper(), vars[x]) for x in vars if vars[x]]
+        elements = map(lambda x: etree.Element(x[0], attrib={'VALUE': str(x[1])}), vars)
+        return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST', elements=elements)
 
     def clear_ilo_event_log(self):
         """Clears the iLO event log"""
