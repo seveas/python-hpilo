@@ -28,6 +28,8 @@ def main():
                  help="no output except errors and updates. Repeat to get only errors")
     p.add_option('--blank-files', dest='blank_files', action="store_true", default=False,
                  help="Delete downloaded content after processing")
+    p.add_option('--keep', dest='keep', action="store_true", default=False,
+                 help="Keep changes")
     opts, args = p.parse_args()
 
     repo = os.path.abspath(os.path.dirname(__file__))
@@ -53,7 +55,8 @@ def main():
     result = git('diff', '--quiet', '--exit-code', '--', 'firmware.conf')
     if not result:
         git('--no-pager', 'diff', '--color=never', '--', 'firmware.conf')
-        git('checkout', '--', 'firmware.conf')
+        if not opts.keep:
+            git('checkout', '--', 'firmware.conf')
 
 class FTP(ftplib.FTP):
     def __init__(self, *args, **kwargs):
