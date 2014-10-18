@@ -759,8 +759,9 @@ class Ilo(object):
         """Get a certificate signing request from the iLO"""
         vars = locals()
         del vars['self']
-        vars = dict([('CSR_' + x.upper(), vars[x]) for x in vars if vars[x]])
-        return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST')
+        vars = [('CSR_' + x.upper(), vars[x]) for x in vars if vars[x]]
+        elements = map(lambda x: etree.Element(x[0], attrib={'VALUE': str(x[1])}), vars)
+        return self._control_tag('RIB_INFO', 'CERTIFICATE_SIGNING_REQUEST', elements=elements)
 
     def clear_ilo_event_log(self):
         """Clears the iLO event log"""
@@ -933,8 +934,10 @@ class Ilo(object):
         ret = {}
         for elt in element:
             data = self._element_children_to_dict(elt)
-            ret[data['network_port']] = data
-        return {element.tag.lower(): ret}
+            ret['%s %s' % (elt.tag, data['network_port'])] = data
+        return {'nic_information': ret}
+    # Can you notice the misspelling?Yes, this is an actual bug in the HP firmware, seen in at least ilo3 1.70
+    _parse_get_embedded_health_data_nic_infomation = _parse_get_embedded_health_data_nic_information
 
     def _parse_get_embedded_health_data_firmware_information(self, element):
         ret = {}
@@ -1317,7 +1320,7 @@ class Ilo(object):
                 if 'PREFIXLEN' not in element.attrib:
                     element.attrib['PREFIXLEN'] = '64'
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
-    mod_network_settings.requires_hash = [ 'static_route_1', 'static_route_2', 'static_route_3',
+    mod_network_settings.requires_dict = ['static_route_1', 'static_route_2', 'static_route_3',
         'ipv6_static_route_1', 'ipv6_static_route2', 'ipv6_static_route_3']
 
     def mod_dir_config(self, dir_authentication_enabled=None,
@@ -1370,22 +1373,26 @@ class Ilo(object):
             snmp_port=None, snmp_trap_port=None, snmp_v3_engine_id=None, snmp_passthrough_status=None,
             trap_source_identifier=None, os_traps=None, rib_traps=None, cold_start_trap_broadcast=None,
             snmp_v1_traps=None, cim_security_mask=None, snmp_sys_location=None, snmp_sys_contact=None,
-            agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None):
-        # FIXME SNMP User profiles
+            agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None,
+            snmp_user_profile_1=None, snmp_user_profile_2=None, snmp_user_profile_3=None):
         """Configure the SNMP and Insight Manager integration settings."""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None and 'trapcommunity' not in x]
+                    for x in vars if vars[x] is not None and 'trapcommunity' not in x and 'snmp_user_profile' not in x]
         for key in vars:
-            if 'trapcommunity' not in key or not vars[key]:
-                continue
-            val = vars[key]
-            # Uppercase all keys
-            for key_ in val.keys():
-                val[key_.upper()] = val.pop(key_)
-            elements.append(etree.Element(key.upper(), **val))
+            if 'trapcommunity' in key and vars[key]:
+                val = vars[key]
+                for key_ in val.keys():
+                    val[key_.upper()] = str(val.pop(key_))
+                elements.append(etree.Element(key.upper(), **val))
+            elif 'snmp_user_profile' in key and vars[key]:
+                elt = etree.Element(key[:-2].upper(), {'INDEX': key[-1]})
+                for key, val in vars[key].items():
+                    etree.SubElement(elt, key.upper(), VALUE=str(val))
+                elements.append(elt)
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
+    mod_snmp_im_settings.requires_dict = ['snmp_user_profile_1', 'snmp_user_profile_2', 'snmp_user_profile_3']
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
             user_reset_server_priv=None, user_virtual_media_priv=None,
