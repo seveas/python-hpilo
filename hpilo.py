@@ -355,11 +355,12 @@ class Ilo(object):
             return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
             e = sys.exc_info()[1]
+            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(message)
             # Some ancient iLO's don't support TLSv1, retry with SSLv3
-            if 'wrong version number' in (e.message or str(e)) and self.sslversion == ssl.PROTOCOL_TLSv1:
+            if 'wrong version number' in msg and self.sslversion == ssl.PROTOCOL_TLSv1:
                 self.ssl_version = ssl.PROTOCOL_SSLv3
                 return self._get_socket()
-            raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
+            raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, msg))
 
     def _communicate(self, xml, protocol, progress=None):
         sock = self._get_socket()
