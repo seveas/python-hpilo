@@ -948,8 +948,12 @@ class Ilo(object):
         return {element.tag.lower(): ret}
 
     def _parse_get_embedded_health_data_storage(self, element):
-        ret = []
+        key = element.tag.lower()
+        ret = {key: []}
         for ctrl in element:
+            if ctrl.tag == 'DISCOVERY_STATUS':
+                ret['%s_%s' % (key, ctrl.tag.lower())] = self._element_children_to_dict(ctrl)['status']
+                continue
             data = {}
             for elt in ctrl:
                 tag = elt.tag.lower()
@@ -963,8 +967,8 @@ class Ilo(object):
                         data[tag].append(self._parse_logical_drive(elt))
                 else:
                     data[tag] = elt.get('VALUE')
-            ret.append(data)
-        return {element.tag.lower(): ret}
+            ret[key].append(data)
+        return ret
 
     def _parse_logical_drive(self, element):
         data = {}
