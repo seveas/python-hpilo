@@ -983,6 +983,17 @@ class Ilo(object):
                 data[tag] = elt.get('VALUE')
         return data
 
+    def _parse_get_embedded_health_data_power_supplies(self, element):
+        key = element.tag.lower()
+        ret = {key: {}}
+        for elt in element:
+            data = self._element_children_to_dict(elt)
+            if 'label' in data:
+                ret[key][data['label']] = data
+            else:
+                ret[elt.tag.lower()] = data
+        return ret
+
     def get_encrypt_settings(self):
         """Get the iLO encryption settings"""
         return self._info_tag('RIB_INFO', 'GET_ENCRYPT_SETTINGS')
