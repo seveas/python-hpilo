@@ -1,3 +1,9 @@
+python-hpilo (2.10-1) utopic; urgency=medium
+
+  * New upstream release
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Sun, 21 Dec 2014 20:19:07 +0100
+
 python-hpilo (2.9-1) trusty; urgency=medium
 
   * New upstream release
