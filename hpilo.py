@@ -355,11 +355,12 @@ class Ilo(object):
             return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
             e = sys.exc_info()[1]
+            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(message)
             # Some ancient iLO's don't support TLSv1, retry with SSLv3
-            if 'wrong version number' in (e.message or str(e)) and self.sslversion == ssl.PROTOCOL_TLSv1:
+            if 'wrong version number' in msg and self.sslversion == ssl.PROTOCOL_TLSv1:
                 self.ssl_version = ssl.PROTOCOL_SSLv3
                 return self._get_socket()
-            raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, e.message or str(e)))
+            raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, msg))
 
     def _communicate(self, xml, protocol, progress=None):
         sock = self._get_socket()
@@ -947,8 +948,12 @@ class Ilo(object):
         return {element.tag.lower(): ret}
 
     def _parse_get_embedded_health_data_storage(self, element):
-        ret = []
+        key = element.tag.lower()
+        ret = {key: []}
         for ctrl in element:
+            if ctrl.tag == 'DISCOVERY_STATUS':
+                ret['%s_%s' % (key, ctrl.tag.lower())] = self._element_children_to_dict(ctrl)['status']
+                continue
             data = {}
             for elt in ctrl:
                 tag = elt.tag.lower()
@@ -962,8 +967,8 @@ class Ilo(object):
                         data[tag].append(self._parse_logical_drive(elt))
                 else:
                     data[tag] = elt.get('VALUE')
-            ret.append(data)
-        return {element.tag.lower(): ret}
+            ret[key].append(data)
+        return ret
 
     def _parse_logical_drive(self, element):
         data = {}
@@ -977,6 +982,17 @@ class Ilo(object):
             else:
                 data[tag] = elt.get('VALUE')
         return data
+
+    def _parse_get_embedded_health_data_power_supplies(self, element):
+        key = element.tag.lower()
+        ret = {key: {}}
+        for elt in element:
+            data = self._element_children_to_dict(elt)
+            if 'label' in data:
+                ret[key][data['label']] = data
+            else:
+                ret[elt.tag.lower()] = data
+        return ret
 
     def get_encrypt_settings(self):
         """Get the iLO encryption settings"""
