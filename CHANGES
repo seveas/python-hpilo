@@ -1,3 +1,21 @@
+Version 2.11, 2015-01-12
+
+* set_server_name now works around a bug in some iLO versions
+
+Version 2.10, 2014-12-21
+
+* Fixes to get_embedded_health
+* Restore python 2.4 compatibility
+
+Version 2.9, 2014-10-18
+
+* Work around an iLO bug in the get_embedded_health output
+* Bugfix in certificate_signing_request
+
+Version 2.8, 2014-08-08
+
+* Adds several new functions for iLO4 support
+
 Version 2.7, 2014-07-23
 
 * update_rib_firmware now accepts firmware version numbers and will install the
