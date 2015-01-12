@@ -1635,7 +1635,13 @@ class Ilo(object):
 
     def set_server_name(self, name):
         """Set the name of the server"""
-        return self._control_tag('SERVER_INFO', 'SERVER_NAME', attrib={"VALUE": name})
+        try:
+            return self._control_tag('SERVER_INFO', 'SERVER_NAME', attrib={"VALUE": name})
+        except IloError:
+            # In their infinite wisdom, HP decided that only this tag should use value
+            # instead of VALUE. And only for certain hardware/firmware combinations.
+            # slowclap.mp3
+            return self._control_tag('SERVER_INFO', 'SERVER_NAME', attrib={"value": name})
 
     def set_vf_status(self, boot_option="boot_once", write_protect=True):
         """Set the parameters of the RILOE virtual floppy specified virtual
