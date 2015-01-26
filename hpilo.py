@@ -886,7 +886,7 @@ class Ilo(object):
                     continue
                 elif isinstance(data[category], list) and data[category]:
                     for tag in ('label', 'location'):
-                        if tag in data[category][0]:
+                        if tag in data[category]:
                             data[category] = dict([(x[tag], x) for x in data[category]])
                             break
                 elif data[category] in ['', []]:
