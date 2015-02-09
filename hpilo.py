@@ -1408,7 +1408,8 @@ class Ilo(object):
                     etree.SubElement(elt, key.upper(), VALUE=str(val))
                 elements.append(elt)
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
-    mod_snmp_im_settings.requires_dict = ['snmp_user_profile_1', 'snmp_user_profile_2', 'snmp_user_profile_3']
+    mod_snmp_im_settings.requires_dict = ['snmp_user_profile_1', 'snmp_user_profile_2', 'snmp_user_profile_3'
+            'snmp_address_1_trapcommunity', 'snmp_address_2_trapcommunity', 'snmp_address_3_trapcommunity']
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
             user_reset_server_priv=None, user_virtual_media_priv=None,
