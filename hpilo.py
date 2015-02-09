@@ -1402,8 +1402,9 @@ class Ilo(object):
                     vals = { 'VALUE': vars[key] }  
                     vals['VERSION']=''
                 else:  # A dict
-                    for key_ in val.keys():
-                       vals[key_.upper()] = str(val.pop(key_))
+                    vals = vars[key]
+                    for key_ in vals.keys():
+                       vals[key_.upper()] = str(vals.pop(key_))
                 elements.append(etree.Element(key.upper(), **vals))
             elif 'snmp_user_profile' in key and vars[key]:
                 elt = etree.Element(key[:-2].upper(), {'INDEX': key[-1]})
