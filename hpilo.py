@@ -145,7 +145,7 @@ class IloTestWarning(Warning):
     pass
 
 class Ilo(object):
-    """Represents an iLO/iLO2/iLO3/RILOE II management interface on a
+    """Represents an iLO/iLO2/iLO3/iLO4/RILOE II management interface on a
         specific host. A new connection using the specified login, password and
         timeout will be made for each API call. The library will detect which
         protocol to use, but you can override this by setting protocol to
