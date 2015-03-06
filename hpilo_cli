@@ -155,9 +155,16 @@ def main():
     # Do we have login information
     login = None
     password = None
+    needs_login = bool(opts.read_response)
+    for m, _ in calls:
+        if m != 'xmldata':
+            needs_login = True
+            break
+
     if hostname == 'localhost':
         opts.protocol = 'local'
-    if opts.protocol != 'local':
+        needs_login = False
+    if needs_login:
         if config.has_option('ilo', 'login'):
             login = config.get('ilo', 'login')
         if config.has_option('ilo', 'password'):
