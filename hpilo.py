@@ -2,6 +2,7 @@
 # see COPYING for license details
 
 import os
+import errno
 import platform
 import random
 import re
@@ -434,8 +435,8 @@ class Ilo(object):
         elif sock.shutdown:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
-            except socket.error:
-                if platform.system() == "Darwin":
+            except socket.error as e:
+                if e.errno == errno.ENOTCONN:
                     pass
                 else:
                     raise
