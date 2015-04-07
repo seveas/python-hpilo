@@ -1,7 +1,8 @@
-# (c) 2011-2014 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import os
+import errno
 import platform
 import random
 import re
@@ -145,7 +146,7 @@ class IloTestWarning(Warning):
     pass
 
 class Ilo(object):
-    """Represents an iLO/iLO2/iLO3/RILOE II management interface on a
+    """Represents an iLO/iLO2/iLO3/iLO4/RILOE II management interface on a
         specific host. A new connection using the specified login, password and
         timeout will be made for each API call. The library will detect which
         protocol to use, but you can override this by setting protocol to
@@ -178,6 +179,7 @@ class Ilo(object):
         self.save_response = None
         self.read_response = None
         self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
+        self.firmware_mirror = None
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -432,7 +434,15 @@ class Ilo(object):
             sock.stdout.close()
             sock.wait()
         elif sock.shutdown:
-            sock.shutdown(socket.SHUT_RDWR)
+            # On OSX this may cause an ENOTCONN, Linux/Windows ignore that situation
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except socket.error:
+                exc = sys.exc_info()[1]:
+                if exc.errno == errno.ENOTCONN:
+                    pass
+                else:
+                    raise
             sock.close()
         if self.save_response:
             fd = open(self.save_response, 'a')
@@ -617,7 +627,7 @@ class Ilo(object):
             if val.isdigit():
                 val = int(val)
             else:
-                val = {'Y': True, 'N': False}.get(val, val)
+                val = {'Y': True, 'N': False, 'true': True, 'false': False}.get(val, val)
         return val
 
     def _raw(self, *tags):
@@ -1408,7 +1418,8 @@ class Ilo(object):
                     etree.SubElement(elt, key.upper(), VALUE=str(val))
                 elements.append(elt)
         return self._control_tag('RIB_INFO', 'MOD_SNMP_IM_SETTINGS', elements=elements)
-    mod_snmp_im_settings.requires_dict = ['snmp_user_profile_1', 'snmp_user_profile_2', 'snmp_user_profile_3']
+    mod_snmp_im_settings.requires_dict = ['snmp_user_profile_1', 'snmp_user_profile_2', 'snmp_user_profile_3'
+            'snmp_address_1_trapcommunity', 'snmp_address_2_trapcommunity', 'snmp_address_3_trapcommunity']
 
     def mod_sso_settings(self, trust_mode=None, user_remote_cons_priv=None,
             user_reset_server_priv=None, user_virtual_media_priv=None,
@@ -1586,8 +1597,9 @@ class Ilo(object):
            EMB-HPSUM-AUTO (Boots HPSUM in automatic update mode), EMB-DIAGS
            (Launches Insight Diagnostics for Linux in interactive mode) and
            RBSU (Boots into the system RBSU)"""
-
-        return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device.upper()})
+        if not device.lower().startswith('boot'):
+            device = device.upper()
+        return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device})
 
     def set_pending_boot_mode(self, boot_mode):
         """Set the boot mode for the next boot to UEFI or legacy"""
@@ -1595,7 +1607,11 @@ class Ilo(object):
 
     def set_persistent_boot(self, devices):
         """Set persistent boot order, devices should be comma-separated"""
-        elements = [etree.Element('DEVICE', VALUE=x.upper()) for x in devices.split(',')]
+        elements = []
+        for device in devices.split(','):
+            if not device.lower().startswith('boot'):
+                device = device.upper()
+            elements.append(etree.Element('DEVICE', VALUE=device))
         return self._control_tag('SERVER_INFO', 'SET_PERSISTENT_BOOT', elements=elements)
 
     def set_pers_mouse_keyboard_enabled(self, enabled):
@@ -1716,7 +1732,7 @@ class Ilo(object):
         ilo = current_version['management_processor'].lower()
 
         if not filename:
-            config = hpilo_fw.config()
+            config = hpilo_fw.config(self.firmware_mirror)
             if version == 'latest':
                 if ilo not in config:
                     raise IloError("Cannot update %s to the latest version automatically" % ilo)

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# (c) 2011-2013 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 try:
@@ -73,17 +73,21 @@ def main():
     # Did we get correct arguments?
     if len(args) < 2:
         p.error("Not enough arguments")
-    if args[0] == 'download_rib_firmware':
-        return download(args[1], args[2:])
+
     if args[1] == '_test_writes':
         args[1] = '_test'
         opts.do_write_tests = True
-    if args[1] not in ilo_methods and args[1] != '_test':
+    if args[1] not in ilo_methods and args[1] != '_test' and args[0] != 'download_rib_firmware':
         p.error("Unknown method: %s" % args[1])
 
     config = ConfigParser.ConfigParser()
     if os.path.exists(os.path.expanduser(opts.config)):
         config.read(os.path.expanduser(opts.config))
+
+    if args[0] == 'download_rib_firmware':
+        if config.has_option('firmware', 'mirror'):
+            hpilo_fw.config(mirror=config.get('firmware', 'mirror'))
+        return download(args[1], args[2:])
 
     hostname = args.pop(0)
 
@@ -155,9 +159,16 @@ def main():
     # Do we have login information
     login = None
     password = None
+    needs_login = bool(opts.read_response)
+    for m, _ in calls:
+        if m != 'xmldata':
+            needs_login = True
+            break
+
     if hostname == 'localhost':
         opts.protocol = 'local'
-    if opts.protocol != 'local':
+        needs_login = False
+    if needs_login:
         if config.has_option('ilo', 'login'):
             login = config.get('ilo', 'login')
         if config.has_option('ilo', 'password'):
@@ -186,6 +197,8 @@ def main():
     ilo.read_response = opts.read_response
     if config.has_option('ilo', 'hponcfg'):
         ilo.hponcfg = config.get('ilo', 'hponcfg')
+    if config.has_option('firmware', 'mirror'):
+        ilo.firmware_mirror = config.get('firmware', 'mirror')
 
     def _q(val):
         if isinstance(val, basestring):

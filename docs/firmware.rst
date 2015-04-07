@@ -56,3 +56,41 @@ Of course the firmware downloader can be used from the API as well::
     import hpilo_fw
     hpilo_fw.download('ilo4', path='/var/cache/ilo_fw/', progress=print_progress)
     hpilo_fw.download('ilo3 1.28', path='/var/cache/ilo_fw', progress=print_progress)
+
+Using a local firmware mirror
+-----------------------------
+The firmware download functions connect to the internet to download firmware.
+While they can be made to use a proxy, using the standard :data:`https_proxy`
+and :data:`http_proxy` variables, it may be desirable to only download data
+from inside your network.
+
+To do this, you can set a variable in ilo.conf for the cli::
+
+    [firmware]
+    mirror = http://buildserver.example.com/ilo-firmware/
+
+Or if you use the API, configure the firmware downloader, both the downloader
+and the updater will then use your mirror::
+
+    import hpilo, hpilo_fw
+    hpilo_fw.config(mirror='http://buildserver.example.com/ilo-firmware/')
+
+    ilo = hpilo.Ilo(hostname, login, password)
+    ilo.update_rib_firmware(version='latest', progress=print_progress)
+    print("")
+
+    hpilo_fw.download('ilo4', progress=print_progress)
+
+Your mirror should contain both :file:`firmware.conf`, and the :data:`.bin`
+files for all firmware versions you want to support. You can create (and
+auto-update via cron) such a mirror with a simple shellscript::
+
+    #!/bin/sh
+
+    cd /var/www/html/ilo-firmware
+    wget -q https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf
+    hpilo_cli -c /dev/null download_rib_firmware ilo3
+    hpilo_cli -c /dev/null download_rib_firmware ilo4
+
+This will download and extract the necessary files to
+:file:`/var/www/html/ilo-firmware`.

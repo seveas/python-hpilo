@@ -1,3 +1,11 @@
+Version 2.12, 2015-04-07
+
+* Proliant gen9 compatibility fixes
+* Fix to trapcommunity parameters in mod_snmp_im_settings
+* Don't ask for login data when they are not needed
+* Ignore ENOTCONN when closing connections
+* Support local firmware mirrors
+
 Version 2.11, 2015-01-12
 
 * set_server_name now works around a bug in some iLO versions

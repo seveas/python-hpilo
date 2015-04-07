@@ -1,6 +1,6 @@
 # Downloader / extracter for latest iLO2 / iLO3 / iLO4 firmware
 #
-# (c) 2011-2014 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import tarfile
@@ -23,10 +23,13 @@ else:
     GZIP_CONSTANT = '\x1f\x8b'
 
 _config = None
-def config():
+def config(mirror=None):
     global _config
     if not _config:
-        conf = _download('https://raw.github.com/seveas/python-hpilo/master/firmware.conf')
+        if mirror:
+            conf = _download(mirror + 'firmware.conf')
+        else:
+            conf = _download('https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf')
         if PY3:
             conf = conf.decode('ascii')
         parser = ConfigParser.ConfigParser()
@@ -36,6 +39,9 @@ def config():
             _config[section] = {}
             for option in parser.options(section):
                 _config[section][option] = parser.get(section, option)
+    if mirror:
+        for section in _config:
+            _config[section]['url'] = mirror + _config[section]['file']
     return _config
 
 def download(ilo, path=None, progress = lambda txt: None):
@@ -45,8 +51,13 @@ def download(ilo, path=None, progress = lambda txt: None):
     if not os.path.exists(os.path.join(path, conf[ilo]['file'])):
         msg  = "Downloading %s firmware version %s" % (ilo.split()[0], conf[ilo]['version'])
         progress(msg)
-        scexe = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
-        _parse(scexe, path, conf[ilo]['file'])
+        data = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
+        if conf[ilo]['url'].endswith('.bin'):
+            fd = open(os.path.join(path, conf[ilo]['file']), 'w')
+            fd.write(data)
+            fd.close()
+        else:
+            _parse(data, path, conf[ilo]['file'])
         return True
     return False
 
