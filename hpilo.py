@@ -438,7 +438,7 @@ class Ilo(object):
             try:
                 sock.shutdown(socket.SHUT_RDWR)
             except socket.error:
-                exc = sys.exc_info()[1]:
+                exc = sys.exc_info()[1]
                 if exc.errno == errno.ENOTCONN:
                     pass
                 else:
