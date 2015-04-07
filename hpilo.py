@@ -1597,8 +1597,9 @@ class Ilo(object):
            EMB-HPSUM-AUTO (Boots HPSUM in automatic update mode), EMB-DIAGS
            (Launches Insight Diagnostics for Linux in interactive mode) and
            RBSU (Boots into the system RBSU)"""
-
-        return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device.upper()})
+        if not device.lower().startswith('boot'):
+            device = device.upper()
+        return self._control_tag('SERVER_INFO', 'SET_ONE_TIME_BOOT', attrib={'VALUE': device})
 
     def set_pending_boot_mode(self, boot_mode):
         """Set the boot mode for the next boot to UEFI or legacy"""
@@ -1606,7 +1607,11 @@ class Ilo(object):
 
     def set_persistent_boot(self, devices):
         """Set persistent boot order, devices should be comma-separated"""
-        elements = [etree.Element('DEVICE', VALUE=x.upper()) for x in devices.split(',')]
+        elements = []
+        for device in devices.split(','):
+            if not device.lower().startswith('boot'):
+                device = device.upper()
+            elements.append(etree.Element('DEVICE', VALUE=device))
         return self._control_tag('SERVER_INFO', 'SET_PERSISTENT_BOOT', elements=elements)
 
     def set_pers_mouse_keyboard_enabled(self, enabled):
