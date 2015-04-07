@@ -617,7 +617,7 @@ class Ilo(object):
             if val.isdigit():
                 val = int(val)
             else:
-                val = {'Y': True, 'N': False}.get(val, val)
+                val = {'Y': True, 'N': False, 'true': True, 'false': False}.get(val, val)
         return val
 
     def _raw(self, *tags):
