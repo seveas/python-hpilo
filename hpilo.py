@@ -2,6 +2,7 @@
 # see COPYING for license details
 
 import os
+import errno
 import platform
 import random
 import re
@@ -433,7 +434,13 @@ class Ilo(object):
             sock.stdout.close()
             sock.wait()
         elif sock.shutdown:
-            sock.shutdown(socket.SHUT_RDWR)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except socket.error as e:
+                if e.errno == errno.ENOTCONN:
+                    pass
+                else:
+                    raise
             sock.close()
         if self.save_response:
             fd = open(self.save_response, 'a')
