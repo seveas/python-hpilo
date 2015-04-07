@@ -178,6 +178,7 @@ class Ilo(object):
         self.save_response = None
         self.read_response = None
         self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
+        self.firmware_mirror = None
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -1717,7 +1718,7 @@ class Ilo(object):
         ilo = current_version['management_processor'].lower()
 
         if not filename:
-            config = hpilo_fw.config()
+            config = hpilo_fw.config(self.firmware_mirror)
             if version == 'latest':
                 if ilo not in config:
                     raise IloError("Cannot update %s to the latest version automatically" % ilo)
