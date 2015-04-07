@@ -3,7 +3,7 @@
 # Mirror the iLO firmware directory and create firmware.conf for the hpilo
 # repository. Not meant to be used by end users.
 #
-# (c) 2011-2013 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
 import configparser
