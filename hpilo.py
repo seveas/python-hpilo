@@ -159,9 +159,6 @@ class Ilo(object):
     HTTP_HEADER = "POST /ribcl HTTP/1.1\r\nHost: localhost\r\nContent-Length: %d\r\nConnection: Close%s\r\n\r\n"
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 64 * 1024
-    hponcfg = "/sbin/hponcfg"
-    if platform.system() == 'Windows':
-        hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
 
     def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False):
         self.hostname = hostname
@@ -180,6 +177,16 @@ class Ilo(object):
         self.read_response = None
         self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
         self.firmware_mirror = None
+        self.hponcfg = "/sbin/hponcfg"
+        hponcfg = 'hponcfg'
+        if platform.system() == 'Windows':
+            self.hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
+            hponcfg = 'cpqlocfg.exe'
+        for path in os.environ.get('PATH','').split(os.pathsep):
+            maybe = os.path.join(path, hponcfg)
+            if os.path.access(maybe, os.X_OK):
+                self.hponcfg = maybe
+                break
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
