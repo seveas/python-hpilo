@@ -571,7 +571,9 @@ class Ilo(object):
                 # HP is not best friends with consistency. Sometimes there are
                 # attributes, sometimes child tags and sometimes text nodes. Oh
                 # well, deal with it :)
-                if elt.attrib and list(elt):
+                if element.tag.lower() == 'rimp' or elt.tag.lower() in self.xmldata_ectd.get(element.tag.lower(), []) or elt.tag.lower() == 'temps':
+                    val = self._element_children_to_dict(elt)
+                elif elt.attrib and list(elt):
                     val = self._element_to_dict(elt)
                 elif list(elt):
                     val = self._element_to_list(elt)
@@ -1653,7 +1655,7 @@ class Ilo(object):
 
     def set_server_auto_pwr(self, setting):
         """Set the automatic power on delay setting. Valid settings are False,
-           True (for minumum delay), 15, 30, 45 60 (for that amount of delay) 
+           True (for minumum delay), 15, 30, 45 60 (for that amount of delay)
            or random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
@@ -1776,6 +1778,9 @@ class Ilo(object):
     def xmldata(self):
         """Get basic discovery data which all iLO versions expose over
            unauthenticated URL"""
+        if self.delayed:
+            raise IloError("xmldata is not compatible with delayed mode")
+
         if self.read_response:
             fd = open(self.read_response)
             data = fd.read()
@@ -1790,23 +1795,80 @@ class Ilo(object):
             fd = open(self.save_response, 'a')
             fd.write(data)
             fd.close()
-        message = etree.fromstring(data)
-        def process(element):
-            retval = {}
-            for elt in element:
-                key = elt.tag.lower()
-                if elt.text and elt.text.strip():
-                    retval[key] = self._coerce(elt.text)
-                elif list(elt):
-                    sk = [x.tag.lower() for x in elt]
-                    if len(sk) != len(set(sk)):
-                        retval[key] = [process(x) for x in elt]
-                    else:
-                        retval[key] = process(elt)
-                else:
-                    retval[key] = None
-            return retval
-        return process(message)
+        return self._element_children_to_dict(etree.fromstring(data))
+
+    def _parse_infra2_XXXX(self, element, key, ctag):
+        ret = {key: []}
+        for elt in element:
+            tag = elt.tag.lower()
+            if tag == 'bays':
+                ret['bays'] = self._element_to_list(elt)
+            elif tag == ctag:
+                ret[key].append(self._element_children_to_dict(elt))
+            else:
+                ret[tag] = elt.text
+        return {key: ret}
+
+    _parse_infra2_blades = lambda self, element: self._parse_infra2_XXXX(element, 'blades', 'blade')
+    _parse_infra2_switches = lambda self, element: self._parse_infra2_XXXX(element, 'switches', 'switch')
+    _parse_infra2_managers = lambda self, element: self._parse_infra2_XXXX(element, 'managers', 'manager')
+    _parse_infra2_lcds = lambda self, element: self._parse_infra2_XXXX(element, 'lcds', 'lcd')
+    _parse_infra2_fans = lambda self, element: self._parse_infra2_XXXX(element, 'fans', 'fan')
+
+    def _parse_infra2_power(self, element):
+        ret = self._parse_infra2_XXXX(element, 'power', 'powersupply')
+        ret['power']['powersupply'] = ret['power'].pop('power')
+        return ret
+
+    def _parse_blade_portmap(self, element):
+        ret = {'mezz': []}
+        for elt in element:
+            if elt.tag.lower() == 'mezz':
+                ret['mezz'].append(self._element_children_to_dict(elt))
+            elif elt.tag.lower() == 'status':
+                ret[elt.tag.lower()] = elt.text.strip()
+        return {'portmap': ret}
+
+    def _parse_mezz_slot(self, element):
+        ret = {'port': []}
+        for elt in element:
+            if elt.tag.lower() == 'port':
+                ret['port'].append(self._element_children_to_dict(elt))
+            elif elt.tag.lower() == 'type':
+                ret[elt.tag.lower()] = elt.text.strip()
+        return {'slot': ret}
+
+    _parse_portmap_slot = _parse_mezz_slot
+
+    def _parse_mezz_device(self, element):
+        ret = {'port': []}
+        for elt in element:
+            if elt.tag.lower() == 'port':
+                ret['port'].append(self._element_children_to_dict(elt))
+            else:
+                ret[elt.tag.lower()] = elt.text.strip()
+        return {'device': ret}
+
+    def _parse_temps_temp(self, element):
+        ret = {'thresholds': []}
+        for elt in element:
+            if elt.tag.lower() == 'threshold':
+                ret['thresholds'].append(self._element_children_to_dict(elt))
+            else:
+                ret[elt.tag.lower()] = elt.text
+        return ret
+
+    xmldata_ectd = {
+        'hsi': ('virtual',),
+        'bladesystem': ('manager',),
+        'infra2': ('diag', 'dim', 'vcm', 'vm'),
+        'blade': ('bay', 'diag', 'portmap', 'power', 'vmstat'),
+        'switch': ('bay', 'diag', 'portmap', 'power'),
+        'manager': ('bay', 'diag', 'power'),
+        'lcd': ('bay', 'diag'),
+        'fan': ('bay',),
+        'powersupply': ('bay', 'diag'),
+    }
 
 ###############################################################################
 # Testsuite, safe to run on all iLO versions. Reports of failures of the
