@@ -805,6 +805,8 @@ class Ilo(object):
         return self._control_tag('RIB_INFO', 'COMPUTER_LOCK_CONFIG', elements=elements)
 
     def dc_registration_complete(self):
+        """Complete the ERS registration of your device after calling
+           set_ers_direct_connect"""
         return self._control_tag('RIB_INFO', 'DC_REGISTRATION_COMPLETE')
 
     def delete_federation_group(self, group_name):
@@ -1104,14 +1106,15 @@ class Ilo(object):
         return self._info_tag('RIB_INFO', 'GET_ALL_LICENSES', process=process)
 
     def get_hotkey_config(self):
-        return self.info_tag('RIB_INFO', 'GET_HOTKEY_CONFIG')
+        """Retrieve hotkeys available for use in remote console sessions"""
+        return self._info_tag('RIB_INFO', 'GET_HOTKEY_CONFIG')
 
     def get_network_settings(self):
         """Get the iLO network settings"""
         return self._info_tag('RIB_INFO', 'GET_NETWORK_SETTINGS')
 
     def get_oa_info(self):
-        """Get information about the OA of the enclosing chassis"""
+        """Get information about the Onboard Administrator of the enclosing chassis"""
         return self._info_tag('BLADESYSTEM_INFO', 'GET_OA_INFO')
 
     def get_one_time_boot(self):
@@ -1230,7 +1233,7 @@ class Ilo(object):
 
     def hotkey_config(self, ctrl_t=None, ctrl_u=None, ctrl_v=None, ctrl_w=None,
                       ctrl_x=None, ctrl_y=None):
-        """Change a set of shortcuts"""
+        """Change remote console hotkeys"""
         vars = locals()
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=vars[x]) for x in vars if vars[x] is not None]
@@ -1326,7 +1329,8 @@ class Ilo(object):
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None):
         """Configure the network settings for the iLO card. The static route arguments require
-           hashes with the keys specified in the HP documentation."""
+           dicts as arguments. The necessary keys in these dicts are dest,
+           gateway and mask all in dotted-quad form"""
         vars = dict(locals())
         del vars['self']
 
@@ -1408,7 +1412,9 @@ class Ilo(object):
             snmp_v1_traps=None, cim_security_mask=None, snmp_sys_location=None, snmp_sys_contact=None,
             agentless_management_enable=None, snmp_system_role=None, snmp_system_role_detail=None,
             snmp_user_profile_1=None, snmp_user_profile_2=None, snmp_user_profile_3=None):
-        """Configure the SNMP and Insight Manager integration settings."""
+        """Configure the SNMP and Insight Manager integration settings. The
+           trapcommunity settings must be dicts with keys value (the name of
+           the community) and version (1 or 2c)"""
         vars = dict(locals())
         del vars['self']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
@@ -1647,8 +1653,8 @@ class Ilo(object):
 
     def set_server_auto_pwr(self, setting):
         """Set the automatic power on delay setting. Valid settings are False,
-           True (for minumum delay), 15, 30, 45 60 (for that amount of delay or
-           random (for a random delay of up to 60 seconds.)"""
+           True (for minumum delay), 15, 30, 45 60 (for that amount of delay) 
+           or random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
 

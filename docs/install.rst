@@ -6,7 +6,7 @@ convenience of users of major linux distributions, I also ship packages that
 you can install with the standard package manager.
 
 Dependencies
-============
+------------
 
 Always needed:
 
@@ -28,7 +28,7 @@ Sometimes needed:
 
 
 Installing the latest release
-=============================
+-----------------------------
 
 When using Ubuntu, Debian, Fedora, CentOS or RHEL, it is advisable to use the
 deb or rpm packages I create for every release, so you get automatic updates

@@ -25,7 +25,7 @@ class OutputDirective(Directive):
             content = fd.read()
         if '\n\n' in content:
             params, result = content.split('\n\n')
-            params = ', '.join(params)
+            params = ', '.join(params.split('\n'))
         else:
             params, result = '', content
 

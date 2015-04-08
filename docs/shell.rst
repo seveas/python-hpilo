@@ -6,13 +6,14 @@ your shell or scripts written in another language than python. It supports all
 methods that the library has.
 
 ``hpilo_cli`` usage
-===================
+-------------------
 
 .. highlight:: console
 
 .. code-block:: console
 
     hpilo_cli [options] hostname method [args...] [ + method [args...]...]
+    hpilo_cli download_rib_firmware ilotype version [version...]
 
 Contacts the iLO, calls one or more methods and displays the output as if you
 were using a python console.
@@ -60,7 +61,7 @@ Finally, you can also call multiple methds at once by separating them with a
 :data:`+`
 
 Examples
-========
+--------
 
 As you can see, the :program:`hpilo_cli` program is quite versatile. Some
 examples will make it clearer how to use this application properly.
@@ -122,8 +123,8 @@ Using hponcfg to talk to the local iLO device to reset the password without know
 
   $ hpilo_cli localhost mod_user user_login=Administrator password=NewPassword
 
-If hponcfg is not in the default install location, you can set an alternative
-path in the configuration file.
+If hponcfg is not in the default install location and not in your :data:`$PATH`
+or :data:`%PATH%`, you can set an alternative path in the configuration file.
 
 .. code-block:: ini
 
@@ -131,7 +132,7 @@ path in the configuration file.
   hponcfg = /usr/local/bin/hponcfg
 
 Available methods
-=================
+-----------------
 All methods available to the python API are also available to the command line.
 These methods are documented separately in further pages here and in the `ilo
 scripting guide`_ published by HP.

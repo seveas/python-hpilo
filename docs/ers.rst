@@ -1,2 +1,0 @@
-Insight Remote Support
-======================
