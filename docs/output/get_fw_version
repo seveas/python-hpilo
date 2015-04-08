@@ -1,4 +1,4 @@
-{'firmware_date': 'Aug 26 2011',
- 'firmware_version': '1.26',
- 'license_type': 'iLO 3 Advanced',
- 'management_processor': 'iLO3'}
+{'firmware_date': 'Jan 15 2015',
+ 'firmware_version': '2.10',
+ 'license_type': 'iLO 4 Advanced',
+ 'management_processor': 'iLO4'}

@@ -1,9 +1,9 @@
-{'bay': 9,
- 'cuuid': '4dc3b42a-3d64-41c9-8832-fce93df1838b',
+{'bay': 4,
+ 'cuuid': '30313436-3631-5A43-3334-313534343843',
  'discovery_data': 'Unknown data',
  'discovery_rack': 'Not Supported',
- 'enclosure_cuuid': '699b6ec0-d98c-4587-a633-58f33839455d'm
- 'enclosure_sn': 'CZ1234ABCD',
+ 'enclosure_cuuid': '42473930-3038-3430-4850-523000000000',
+ 'enclosure_sn': 'GB8004HPR0',
  'platform': 'BL',
  'rack_description': 0,
  'rack_id': 0,
