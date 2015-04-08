@@ -184,7 +184,7 @@ class Ilo(object):
             hponcfg = 'cpqlocfg.exe'
         for path in os.environ.get('PATH','').split(os.pathsep):
             maybe = os.path.join(path, hponcfg)
-            if os.path.access(maybe, os.X_OK):
+            if os.access(maybe, os.X_OK):
                 self.hponcfg = maybe
                 break
 
