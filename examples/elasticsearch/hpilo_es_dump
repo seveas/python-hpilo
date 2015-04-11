@@ -1,0 +1,42 @@
+#!/usr/bin/python
+#
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+import optparse
+import elasticsearch
+from pprint import pprint
+import os
+
+def main():
+    usage = """%prog [options]"""
+    p = optparse.OptionParser(usage=usage)
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+
+    opts, args = p.parse_args()
+
+    if args:
+        p.print_help()
+        p.exit(1)
+
+    es = None
+    if os.path.exists(os.path.expanduser(opts.config)):
+        config = ConfigParser.ConfigParser()
+        config.read(os.path.expanduser(opts.config))
+        if config.has_option('elasticsearch', 'host'):
+            es = elasticsearch.Elasticsearch(config.get('elasticsearch', 'host'))
+    if not es:
+        es = elasticsearch.Elasticsearch()
+
+    request = {'query': {'match_all': {}}, 'size': 20000}
+    ilos = es.search(index='hpilo', doc_type='hpilo', body=request)
+    for ilo in ilos['hits']['hits']:
+        pprint(ilo['_source'])
+
+if __name__ == '__main__':
+    main()

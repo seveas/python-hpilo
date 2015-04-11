@@ -1,0 +1,18 @@
+# Since the elasticsearch importer needs to know about all your servers, let's
+# extract that method so you can easily use the elasitcsearch importer. From
+# this function you should query your infrastructure database or do whatever
+# you do to get a list of all servers. The function should return a list of
+# ilo names or ip addresses
+#
+# This example implementation merely returns a static list of hosts.
+
+def get_all_ilos():
+    return [
+         'example-server-1.int.kaarsemaker.net',
+         'example-server-2.int.kaarsemaker.net',
+         'example-server-2.int.kaarsemaker.net',
+         '10.42.128.1',
+         '10.42.128.2',
+         '10.42.128.3',
+         '10.42.128.4',
+    ]
