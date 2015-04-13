@@ -566,7 +566,7 @@ class Ilo(object):
             if hasattr(self, fname):
                 retval.update(getattr(self, fname)(elt))
                 continue
-            key, val, unit = elt.tag.lower(), elt.get('VALUE', elt.get('value', None)), elt.get('UNIT', None)
+            key, val, unit, description = elt.tag.lower(), elt.get('VALUE', elt.get('value', None)), elt.get('UNIT', None), elt.get('DESCRIPTION', None)
             if val is None:
                 # HP is not best friends with consistency. Sometimes there are
                 # attributes, sometimes child tags and sometimes text nodes. Oh
@@ -583,9 +583,10 @@ class Ilo(object):
                     val = self._element_to_dict(elt)
 
             val = self._coerce(val)
-
             if unit:
                 val = (val, unit)
+            if description:
+                val = (val, description)
             if isinstance(retval, list):
                 retval.append(val)
             elif key in retval:
@@ -1133,12 +1134,16 @@ class Ilo(object):
         return self._info_tag('SERVER_INFO', 'GET_PENDING_BOOT_MODE', process=lambda data: data['boot_mode'])
 
     def get_persistent_boot(self):
-        """Get the boot order of the host"""
+        """Get the boot order of the host. For uEFI hosts (gen9+), this returns
+           a list of tuples (name, description. For older host it returns a
+           list of names"""
         def process(data):
             if isinstance(data, dict):
                 data = data.items()
                 data.sort(key=lambda x: x[1])
                 return [x[0].lower() for x in data]
+            elif isinstance(data[0], tuple):
+                return data
             return [x.lower() for x in data]
         return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', ('PERSISTENT_BOOT', 'GET_PERSISTENT_BOOT'), process=process)
 
