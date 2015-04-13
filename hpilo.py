@@ -567,6 +567,7 @@ class Ilo(object):
                 retval.update(getattr(self, fname)(elt))
                 continue
             key, val, unit = elt.tag.lower(), elt.get('VALUE', elt.get('value', None)), elt.get('UNIT', None)
+            description = elt.get('DESCRIPTION', None)
             if val is None:
                 # HP is not best friends with consistency. Sometimes there are
                 # attributes, sometimes child tags and sometimes text nodes. Oh
@@ -583,11 +584,13 @@ class Ilo(object):
                     val = self._element_to_dict(elt)
 
             val = self._coerce(val)
-
             if unit:
                 val = (val, unit)
             if isinstance(retval, list):
-                retval.append(val)
+                if description:
+                    retval.append((val, description))
+                else:
+                    retval.append(val)
             elif key in retval:
                 if isinstance(retval[key], dict):
                     retval[key].update(val)
@@ -597,6 +600,7 @@ class Ilo(object):
                     retval[key].append(val)
             else:
                 retval[key] = val
+
         return retval
 
     def _element_to_dict(self, element):
@@ -1133,12 +1137,26 @@ class Ilo(object):
         return self._info_tag('SERVER_INFO', 'GET_PENDING_BOOT_MODE', process=lambda data: data['boot_mode'])
 
     def get_persistent_boot(self):
-        """Get the boot order of the host"""
+        """Get the boot order of the host
+
+            :returns:
+                (LEGACY-BIOS) We return a list of boot items indexed based on
+                    their boot priority.
+                (uEFI) Return a list of tuples containing boot items indexed
+                    based on their boot priority. The tuple contains two
+                    elements. The first element is the boot item name and the
+                    second item is the description of the boot item.
+
+        """
         def process(data):
+            if len(data) == 0:
+                return data
             if isinstance(data, dict):
                 data = data.items()
                 data.sort(key=lambda x: x[1])
                 return [x[0].lower() for x in data]
+            elif isinstance(data[0], tuple):
+                return data
             return [x.lower() for x in data]
         return self._info_tag('SERVER_INFO', 'GET_PERSISTENT_BOOT', ('PERSISTENT_BOOT', 'GET_PERSISTENT_BOOT'), process=process)
 
