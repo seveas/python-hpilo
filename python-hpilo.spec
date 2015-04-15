@@ -1,7 +1,7 @@
 Summary: Accessing HP iLO interfaces from python
 Name: python-hpilo
 Version: 2.13.1
-Release: 1
+Release: 2
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Group: Development/Libraries
@@ -31,9 +31,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %doc docs/*.rst
+%doc docs/output/*
 %doc docs/_static
 %doc docs/conf.py
 %doc docs/Makefile
-%doc README
+%doc README.md
 %doc CHANGES
 %defattr(-,root,root)
