@@ -38,7 +38,7 @@ Entering a license key and creating a user, from the shell:
     $ hpilo_cli example-server.int.kaarsemaker.net add_user user_login=dennis \
                 password=hunter2 admin_priv=true
 
-The available dunctions you can call are all documented in the pages linked
+The available functions you can call are all documented in the pages linked
 below, but for detailed descriptions of all functions and especially their
 arguments, please refer to the `ilo scripting guide`_ as well.
 
