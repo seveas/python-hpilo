@@ -1,0 +1,8 @@
+/home/dennis/code/python-hpilo/hpilo.py:533: IloWarning: ESKM servers are not configured.
+  warnings.warn(child.get('MESSAGE'), IloWarning)
+{'enable_redundancy': True,
+ 'eskm_cert_name': '',
+ 'eskm_primary_server_address': '',
+ 'eskm_primary_server_port': 0,
+ 'eskm_secondary_server_address': '',
+ 'eskm_secondary_server_port': 0}

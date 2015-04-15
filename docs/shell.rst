@@ -1,15 +1,24 @@
-hpilo_cli command-line tool
-===========================
+Access from the shell
+=====================
 
-The commandline interface allows you to make calls from your shell or scripts
-written in another language than python. It supports all methods that the
-library has and is used as follows::
+The commandline interface, :program:`hpilo_cli`,  allows you to make calls from
+your shell or scripts written in another language than python. It supports all
+methods that the library has.
 
-  Usage:
-    hpilo_cli [options] hostname method [args...]
-    hpilo_cli download_rib_firmware ilotype version [version...] """
+``hpilo_cli`` usage
+-------------------
 
-  Options:
+.. highlight:: console
+
+.. code-block:: console
+
+    hpilo_cli [options] hostname method [args...] [ + method [args...]...]
+    hpilo_cli download_rib_firmware ilotype version [version...]
+
+Contacts the iLO, calls one or more methods and displays the output as if you
+were using a python console.
+
+Options:
     -l LOGIN, --login=LOGIN
                           Username to access the iLO
     -p PASSWORD, --password=PASSWORD
@@ -30,23 +39,32 @@ library has and is used as follows::
     -h, --help            show this help message or help for a method
     -H, --help-methods    show all supported methods
 
-The configuration file (by default :file:`~/.ilo.conf` is a simple ini file
-that should look like this::
+:program:`hpilo_cli` will read a config file (by default :file:`~/.ilo.conf`)
+to find login information and any other variable you wish to set. This config
+file is a simple ini file that should look like this
+
+.. code-block:: ini
 
   [ilo]
   login = Administrator
   password = AdminPassword
 
 Using such a file is recommended over using the login/password commandline
-arguments. A full example config file is shipped with the hpilo distribution.
+arguments.
 
-To pass arguments to method calls, pass :attr:`key=value` pairs on the
-command-line. These can reference arbitrary configuration variables using
-:attr:`key='$section.option'`.
+Many methods that can be called requier arguments. These arguments must be
+specified as :data:`key=value` pairs on the command-line. These parameters can
+also point to arbitrary configuration variables using the
+:attr:`key='$section.option'` syntax.
 
-You can also call multiple methds at once by separating them with a :data:`+`
+Finally, you can also call multiple methds at once by separating them with a
+:data:`+`
 
-Some examples will make it clearer, so here are a few:
+Examples
+--------
+
+As you can see, the :program:`hpilo_cli` program is quite versatile. Some
+examples will make it clearer how to use this application properly.
 
 Getting the status of the UID light::
 
@@ -71,8 +89,8 @@ Displaying help for the :func:`get_host_data` method::
   where human readable information is available are returned. To get
   all records pass decoded_only=False
 
-Methods like :func:`mod_network_data` method require hashes as arguments, you
-can use the following syntax::
+Methods like :func:`mod_network_data` method require dicts for some arguments
+(e.g. :data:`static_route_`), you can use the following syntax::
 
   $ hpilo_cli example-server.int.kaarsemaker.net mod_network_settings static_route_1.dest=1.2.3.4 static_route_1.gateway=10.10.10.254
 
@@ -101,10 +119,23 @@ Using hponcfg to talk to the local iLO device to reset the password without know
 
   $ hpilo_cli -P local localhost mod_user user_login=Administrator password=NewPassword
 
--P local is optional when specifying localhost as hostname, so this works too::
+``-P local`` is optional when specifying localhost as hostname, so this works too::
 
   $ hpilo_cli localhost mod_user user_login=Administrator password=NewPassword
 
-If hponcfg is not at :file:`/sbin/hponcfg` or
-:file:`C:\\Program Files\\HP Lights-Out Configuration Utility\\cpqlocfg.exe`, you
-can set an alternative path in the config, see the example config file.
+If hponcfg is not in the default install location and not in your :data:`$PATH`
+or :data:`%PATH%`, you can set an alternative path in the configuration file.
+
+.. code-block:: ini
+
+  [ilo]
+  hponcfg = /usr/local/bin/hponcfg
+
+Available methods
+-----------------
+All methods available to the python API are also available to the command line.
+These methods are documented separately in further pages here and in the `ilo
+scripting guide`_ published by HP.
+
+.. _`hp`: http://www.hp.com/go/ilo
+.. _`ilo scripting guide`: http://www.hp.com/support/ilo4_cli_gde_en

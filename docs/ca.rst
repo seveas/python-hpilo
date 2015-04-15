@@ -2,9 +2,9 @@ Managing SSL certificates
 =========================
 
 When managing large amounts of iLO interfaces, the constant SSL warnings are a
-nuisance. Workarounds like `sslhazard for firefox`_ help, but it's much better
-to hapve proper SSL certificates. This script will make that easy to do for you
-by taking care of all the CA work.
+nuisance, so let's make sure we have proper SSL certificates. This script will
+make that easy to do for you by taking care of all the CA work. All you need to
+do is add the CA's certificate to your browsers trusted CA list.
 
 First thing to do is configure the CA. Add something like the following to your
 :file:`~/.ilo.conf`::
@@ -81,5 +81,3 @@ signed certificate. Here's an example of it at work::
   Data Base Updated
   (4/5) Uploading certificate
   (5/5) Resetting iLO
-
-.. _`sslhazard for firefox`: https://github.com/seveas/sslhazard/

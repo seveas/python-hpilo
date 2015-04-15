@@ -1,0 +1,2 @@
+>>> pprint(my_ilo.get_server_power_on_time())
+185813

@@ -1,47 +1,56 @@
-Installing
-==========
+Installing python-hpilo
+=======================
 
-python-hpilo requires python 2.4 or newer, python 3 is supported as well.
-:file:`hpilo_ca` requires that you have OpenSSL installed. When using python
-2.4, installing cElementTree is required as well. 2.5 and newer have this
-library as part of the standard library.
+This module is easy to install and has very few extra dependencies. For the
+convenience of users of major linux distributions, I also ship packages that
+you can install with the standard package manager.
 
-If you want to use the hpilo.LOCAL protocol, talking directly to the iLO via a
-kernel driver, you must install this driver and the relevant tools from hp.
+Dependencies
+------------
+
+Always needed:
+
+* `Python`_ 2.4 or newer, up to python 3.4
+* When using python 2.4, you need to install the `cElementTree`_ library
+  separately. Python 2.5 or newer already include this library.
+
+Sometimes needed:
+
+* If you want to use the ``LOCAL`` protocol, talking to the iLO from the server
+  it is installed in via a kernel driver, you need to install this driver and
+  the ``hponcfg`` tool from `hp`_
+* Some example applications require additional software. More details about
+  these requirements can be found in the documentation of those examples.
+
+.. _`python`: http://www.python.org
+.. _`cElementTree`: http://effbot.org/zone/celementtree.htm
+.. _`hp`: http://www.hp.com/go/ilo
+
 
 Installing the latest release
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
-Installing the latest released version is as simple as::
+When using Ubuntu, Debian, Fedora, CentOS or RHEL, it is advisable to use the
+deb or rpm packages I create for every release, so you get automatic updates
+whenever a new release is issued.
 
-  pip install python-hpilo
+Users of Ubuntu releases that Canonical still supports can use my launchpad
+PPA:
 
-This downloads it from PyPI and installs it for you. Alternatively, you can
-download the tarball manually from
-http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run::
+.. code-block:: console
 
-  python setup.py install
+   $ sudo add-apt-repository ppa:dennis/python
+   $ sudo apt-get update
+   $ sudo apt-get install python-hpilo
 
-If you use RHEL/Centos, Fedora, Debian or Ubuntu, you can also use my pre-built
-binary packages from Launchpad or Openbuildservice.
+Users of other Ubuntu releases, Debian, Fedora, CentOS or RHEL can use the
+repositories on OpenBuildService, instructions can be found on the `obs site`_
 
-Ubuntu users can do the following::
+If you can not, or do not want to use these packages (for example, if you use
+windows or osx, or if you want to install into a virtualenv) you can download
+the package from `PyPI`_ and install it manually like any other application by
+unpacking it and running ``python setup.py install``. Or use ``pip`` to install
+it: ``pip install python-hpilo``
 
-  sudo add-apt-repository ppa:dennis/python
-  sudo apt-get update
-  sudo apt-get install python-hpilo
-
-Others can follow the instructions on `the openbuildservice site`_. 
-
-
-Installing the development version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you want to tinker around with the source, or simply live on the bleeding
-edge of development, you can install the latest source from github::
-
-  git clone https://github.com/seveas/python-hpilo.git
-  cd python-hpilo
-  ./hpilo_cli -h
-
-.. _`the openbuildservice site`: http://software.opensuse.org/download.html?project=home%3Aseveas%3Apython&package=python-hpilo
+.. _`obs site`: http://software.opensuse.org/download.html?project=home%3Aseveas%3Apython&package=python-hpilo
+.. _`PyPI`: http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run

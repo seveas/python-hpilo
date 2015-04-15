@@ -1,0 +1,3 @@
+/home/dennis/code/python-hpilo/hpilo.py:459: IloWarning: No Asset Tag Information.
+  warnings.warn(child.get('MESSAGE'), IloWarning)
+{'asset_tag': None}

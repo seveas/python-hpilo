@@ -1,0 +1,6 @@
+{'boot_option': 'NO_BOOT',
+ 'device': 'CDROM',
+ 'image_inserted': 'NO',
+ 'image_url': '',
+ 'vm_applet': 'DISCONNECTED',
+ 'write_protect': 'NO'}

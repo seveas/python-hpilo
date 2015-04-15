@@ -1,0 +1,7 @@
+{'DEFAULT': {'admin_priv': False,
+             'config_ilo_priv': False,
+             'group_name': 'DEFAULT',
+             'login_priv': True,
+             'remote_cons_priv': False,
+             'reset_server_priv': False,
+             'virtual_media_priv': False}}

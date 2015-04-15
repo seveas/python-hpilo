@@ -1,0 +1,4 @@
+{'ipv6_multicast_scope': 'Site',
+ 'multicast_announcement_interval': 'Disabled',
+ 'multicast_discovery_enabled': 'No',
+ 'multicast_ttl': 5}

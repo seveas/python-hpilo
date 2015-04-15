@@ -1,0 +1,7 @@
+{'encl': 'chassis-25',
+ 'ipaddress': '10.42.128.101',
+ 'location': 1,
+ 'macaddress': '68:b5:99:bb:dc:85',
+ 'rack': 'chassis-25',
+ 'system_health': 0,
+ 'uidstatus': 'Off'}

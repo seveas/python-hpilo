@@ -1,0 +1,6 @@
+{'bay': 9,
+ 'enclosure_name': 'CHASSIS-225',
+ 'enclosure_sn': 'CZ1234ABCD',
+ 'enclosure_type': 'BladeSystem c7000 Enclosure G2',
+ 'enclosure_uuid': '09CZ1234ABCD',
+ 'rack_name': 'CHASSIS-225'}
