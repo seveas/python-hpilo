@@ -45,7 +45,7 @@ def main():
         p.exit(1)
 
     if not os.path.exists(os.path.expanduser(opts.config)):
-        p.error("COnfiguration file does not exist")
+        p.error("Configuration file '%s' does not exist" % opts.config)
 
     config = ConfigParser.ConfigParser()
     config.read(os.path.expanduser(opts.config))
@@ -54,6 +54,12 @@ def main():
     ca_path = os.path.expanduser(config.get('ca', 'path'))
     os.environ['CA_PATH'] = ca_path
     openssl_cnf = os.path.join(ca_path, 'openssl.cnf')
+
+    country = os.path.expanduser(config.get('ca', 'country'))
+    state = os.path.expanduser(config.get('ca', 'state'))
+    locality = os.path.expanduser(config.get('ca', 'locality'))
+    organization = os.path.expanduser(config.get('ca', 'organization'))
+    organizational_unit = os.path.expanduser(config.get('ca', 'organizational_unit'))
 
     openssl = OpenSSL(opts.openssl_bin, openssl_cnf)
 
@@ -93,14 +99,18 @@ def main():
     if opts.password:
         password = opts.password
     if not login or not password:
-        p.error("No login details provided")
+        p.error("No iLO login details provided")
 
-    for hostname in args[1:]:
-        csr_path = os.path.join(ca_path, 'certs', hostname + '.csr')
-        crt_path = os.path.join(ca_path, 'certs', hostname + '.crt')
-        if os.path.exists(crt_path):
-            print("Certificate already signed, skipping")
-            continue
+    tries_count = 0
+    tries_count_max = 1
+    crt_requests = args[1:]
+    #for tries_count in range(tries_count_max):
+    pending_crt_requests = []
+    print("*"*80)
+    print("%s" % " ".join(crt_requests))
+    print("*"*80)
+
+    for hostname in crt_requests:
 
         ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port)
         ilo.debug = opts.debug
@@ -108,6 +118,19 @@ def main():
             ilo.protocol = hpilo.ILO_HTTP
         elif opts.protocol == 'raw':
             ilo.protocol = hpilo.ILO_RAW
+
+        network_settings = ilo.get_network_settings()
+        dns_name = str(network_settings['dns_name'])
+        domain_name = str(network_settings['domain_name'])
+        ip_address = str(network_settings['ip_address'])
+        os.environ['NSSSLSERVERNAME'] = dns_name
+        os.environ['SUBJECTALTNAMERAW'] = 'DNS:%s,DNS:%s,IP:%s' % (ip_address, dns_name, ip_address)
+
+        csr_path = os.path.join(ca_path, 'certs', dns_name + '.csr')
+        crt_path = os.path.join(ca_path, 'certs', dns_name + '.crt')
+        if os.path.exists(crt_path):
+            print("Certificate already signed for %s, skipping" % hostname)
+            continue
 
         print("(1/5) Checking certificate config of %s" % hostname)
         fw_version = ilo.get_fw_version()
@@ -130,28 +153,37 @@ def main():
             if '.' not in cn:
                 ilo.cert_fqdn(use_fqdn=True)
                 cn = ilo.get_cert_subject_info()['csr_subject_common_name']
-            if cn != hostname:
-                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
-                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print("Waiting a minute to let the iLO reset itself")
-                time.sleep(60)
+            print("CN=%s, hostname=%s" % (cn, hostname))
+            #if cn != hostname:
+            #    print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
+            #    ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
+            #    print("Waiting a minute to let the iLO reset itself")
+            #    time.sleep(60)
 
-        elif re.match(r'^iLO{3-9}$', fw_version['management_processor']):
-            cn = ilo.get_network_settings()['dns_name']
-            if cn != hostname[:hostname.find('.')]:
-                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
-                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print("Waiting a minute to let the iLO reset itself")
-                time.sleep(60)
+        elif re.match(r'^iLO[3-9]$', fw_version['management_processor']):
+            cn = dns_name + '.' + domain_name
+            print("*** CN=%s" % cn)
 
         else:
-            print("hpilo_ca cannot manage certificates for %s, only iLO2 and newer are supported" % (fw_version['management_processor'], hostname))
+            print("hpilo_ca cannot manage certificates for %s %s, only iLO2 and newer are supported" % (
+                fw_version['management_processor'], hostname))
             continue
 
+        # could iterate this upto 15 times and wait a minute between iterations, break when pending iterations is empty
         print("(2/5) Retrieving certificate signing request")
-        csr = ilo.certificate_signing_request()
+        try:
+            # this is a bit poor as I have hardcoded the certificate information, not sure that is works
+            if fw_version['management_processor'] == 'iLO2':
+                csr = ilo.certificate_signing_request()
+            else:
+                csr = ilo.certificate_signing_request(country=country, state=state, locality=locality, organization=organization, organizational_unit=organizational_unit, common_name=cn)
+        except hpilo.IloError as e:
+            print("%s: %s" % (hostname, str(e)))
+            if "The iLO subsystem is currently generating a Certificate Signing Request" in str(e):
+                pending_crt_requests.append(hostname)
+            continue
         if not csr:
-            print("Reveived an empty CSR")
+            print("Received an empty CSR")
             continue
         fd = open(csr_path, 'w')
         fd.write(csr)
@@ -169,6 +201,21 @@ def main():
 
         print("(5/5) Resetting iLO")
         ilo.reset_rib()
+
+
+    #if not crt_requests:
+    #    break
+
+    crt_requests = pending_crt_requests[:]
+    print("*"*80)
+    print("%s" % " ".join(crt_requests))
+    print("*"*80)
+
+    sys.exit(0)
+
+    print("Waiting one minute to let the iLO generate the signing request")
+    time.sleep(60)
+
 
 class OpenSSL(object):
     def __init__(self, openssl_bin, openssl_cnf):
@@ -198,7 +245,7 @@ RANDFILE         = $dir/.rand
 x509_extensions  = usr_cert
 name_opt         = ca_default
 cert_opt         = ca_default
-default_days     = 1825 # 5 years
+default_days     = 1826 # 5 years
 default_crl_days = 30
 default_md       = sha1
 preserve         = no
@@ -240,13 +287,15 @@ commonName_default          = hpilo_ca
 basicConstraints       = CA:FALSE
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer
-nsComment              = "Certificate generated by iLO CA"
+nsComment              = "Certificate by iLO CA"
+nsSslServerName        = $ENV::NSSSLSERVERNAME
+subjectAltName         = $ENV::SUBJECTALTNAMERAW
 
 [ca_cert]
 basicConstraints       = CA:true
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid:always,issuer:always
-nsComment              = "Certificate generated by iLO CA"
+nsComment              = "Generated by iLO CA"
 """
 
 def print_progress(text):
