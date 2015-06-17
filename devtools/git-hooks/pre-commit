@@ -1,0 +1,18 @@
+#!/bin/sh
+
+die() {
+    echo "(pre-commit) $@" >&2
+    exit 1
+}
+
+# Mistakes I commonly make:
+# - Not bumping *all* versions
+
+# Gesundheit
+versions=$(git show :setup.py :hpilo.py :docs/conf.py | sed -ne  "s/^ *_*\(version\|release\)_* *= *['\"]\([0-9.]*\)['\"].*/\2/p")
+if [ $(echo $versions | wc -w) != 4 ]; then
+    die "Yikes. Can't find the versions!"
+fi
+if [ $(echo $versions | xargs -n1 echo | uniq | wc -w) != 1 ]; then
+    die "Inconsistent version numbers in setup.py / hpilo.py / docs/conf.py"
+fi

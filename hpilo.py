@@ -1,7 +1,7 @@
 # (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "2.13.2"
+__version__ = "2.13.1"
 
 import os
 import errno
