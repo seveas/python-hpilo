@@ -61,6 +61,7 @@ def main():
                  help="Store XML output in this file")
     p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
+    p.add_option('-v', '--version', action="callback", callback=hpilo_version)
 
     opts, args = p.parse_args()
     opts.do_write_tests = False
@@ -277,6 +278,10 @@ def hpilo_help_methods(option, opt_str, value, parser):
     print("""Supported methods:
 - %s""" % "\n- ".join(ilo_methods))
     parser.exit()
+
+def hpilo_version(option, opt_str, value, parser):
+    print(hpilo.__version__)
+    sys.exit()
 
 def print_progress(text):
     sys.stdout.write('\r\033[K' + text)
