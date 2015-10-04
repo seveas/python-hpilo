@@ -95,6 +95,11 @@ Available functionality
 
 Example applications
 ====================
+There are several example applications in the `examples/` directory. Note that
+while `hpilo.py` and `hpilo_cli` are compatible with python versions as old as
+2.4, some examples may require new versions of python and have additional
+dependencies.
+
 .. toctree::
    :maxdepth: 1
 

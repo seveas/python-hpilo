@@ -81,15 +81,17 @@ def main():
         add_string_property(mapping, "network_settings.nic_speed")
         add_string_property(mapping, "host_data.fields.value")
         add_string_property(mapping, "xmldata.bladesystem.manager.rack")
-        from pprint import pprint
-        pprint(mapping)
         es.indices.put_mapping(index='hpilo', doc_type='hpilo', body={'hpilo': mapping})
 
     # Scan all servers and import data
     ilos = servers.get_all_ilos()
     ilos = [(ilo, login, password, opts.timeout, opts.port,
              opts.protocol, opts.debug, es_host) for ilo in ilos]
-    multiprocessing.Pool(opts.processes).map(scan_ilo, ilos)
+    if opts.processes == 1:
+        for ilo in ilos:
+            scan_ilo(ilo)
+    else:
+        multiprocessing.Pool(opts.processes).map(scan_ilo, ilos)
     # Finally, clean up stale data (older than 7 days)
     limit = (datetime.datetime.now() - datetime.timedelta(7)).strftime('%Y-%m-%dT%H:%M:%s')
     query = { "constant_score": { "filter": { "range": { "last_updated": { "lte": limit } } } } }
