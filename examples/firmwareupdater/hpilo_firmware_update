@@ -1,0 +1,108 @@
+#!/usr/bin/python
+#
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+import hpilo
+import hpilo_fw
+import optparse
+import datetime
+import elasticsearch
+import re
+import os
+import sys
+import syslog
+import azuki
+
+def main():
+    usage = """%prog [options]"""
+    p = optparse.OptionParser(usage=usage)
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+
+    opts, args = p.parse_args()
+
+    if args:
+        p.print_help()
+        p.exit(1)
+
+    if not os.path.exists(os.path.expanduser(opts.config)):
+        p.error("Configuration file does not exist")
+
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.expanduser(opts.config))
+
+    # Do we have login information
+    if not config.has_option('ilo', 'login') or not config.has_option('ilo', 'password'):
+        p.error("No login details provided")
+
+    # Connect to ES
+    if config.has_option('elasticsearch', 'host'):
+        es = elasticsearch.Elasticsearch(config.get('elasticsearch', 'host'))
+    else:
+        es = elasticsearch.Elasticsearch()
+
+    if config.has_option('beanstalkd', 'host'):
+        bs = config.get('beanstalkd', 'host').split(':')
+        azuki.add_beanstalk(bs[0], int(bs[1]))
+    
+    # Fetch all obsolete ilos
+    config = hpilo_fw.config()
+    request = {'query': {'bool': {'should': [
+         {'query_string': {'query':'fw_version.management_processor:\'ilo2\' AND NOT fw_version.firmware_version:%s' % config['ilo2']['version']}},
+         {'query_string': {'query':'fw_version.management_processor:\'ilo3\' AND NOT fw_version.firmware_version:%s' % config['ilo3']['version']}},
+         {'query_string': {'query':'fw_version.management_processor:\'ilo4\' AND NOT fw_version.firmware_version:%s' % config['ilo4']['version']}},
+        ]}}, 'size': 50000}
+    ilos = es.search(index='hpilo', doc_type='hpilo', body=request)
+    for ilo in ilos['hits']['hits']:
+        upgrade_firmware(opts.config, config, ilo['_source'])
+
+def log(message):
+    print message
+    syslog.syslog(message)
+
+def print_progress(message):
+    sys.stdout.write('\r\033[K' + message)
+    sys.stdout.flush()
+
+@azuki.beanstalk('hpilo-upgrades', ttr=1200)
+def upgrade_firmware(ilo_config, firmware_config, ilo):
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.expanduser(ilo_config))
+    if not config.has_option('ilo', 'login') or not config.has_option('ilo', 'password'):
+        p.error("No login details provided")
+    login = config.get('ilo', 'login')
+    password = config.get('ilo', 'password')
+
+    name = '%s.%s' % (ilo['network_settings']['dns_name'], ilo['network_settings']['domain_name'])
+    ip = ilo['network_settings']['ip_address']
+    port = ilo['global_settings']['https_port']
+    ilo_type = ilo['fw_version']['management_processor'].lower()
+    from_version = ilo['fw_version']['firmware_version']
+    to_version = firmware_config[ilo_type]['version']
+
+    log("Upgrading %s (%s) from %s %s to %s %s" % (name, ip, ilo_type, from_version, ilo_type, to_version))
+
+    ilo = hpilo.Ilo(ip, login, password, port=port)
+    version = ilo.get_fw_version()
+    if version['firmware_version'] >= to_version:
+        return
+
+    # iLO3 may need to be upgraded in two steps because older firmware versions were very buggy
+    if version['management_processor'].lower() == 'ilo3' and version['firmware_version'] < '1.28':
+        log("Upgrading %s (%s) from %s %s to %s 1.28 as intermediate step" % (name, ip, ilo_type, from_version, ilo_type))
+        ilo.update_rib_firmware(version='1.28')
+        print("")
+        raise azuki.Reschedule(delay=120)
+
+    ilo.update_rib_firmware(version=to_version, progress=print_progress)
+    print("")
+
+if __name__ == '__main__':
+    main()
