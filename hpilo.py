@@ -1794,7 +1794,13 @@ class Ilo(object):
             fd.close()
         else:
             url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
-            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            if hasattr(ssl, 'create_default_context'):
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}), urllib2.HTTPSHandler(context=ctx))
+            else:
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
             req = opener.open(url, None, self.timeout)
             data = req.read()
             self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
