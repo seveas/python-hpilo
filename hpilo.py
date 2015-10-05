@@ -122,16 +122,33 @@ def untested(meth):
         _untested.append(meth.__name__)
     return meth
 
+class IloErrorMeta(type):
+    def __new__(cls, name, parents, attrs):
+        if 'possible_messages' not in attrs:
+            attrs['possible_messages'] = []
+        if 'possible_codes' not in attrs:
+            attrs['possible_codes'] = []
+        klass = super(IloErrorMeta, cls).__new__(cls, name, parents, attrs)
+        if name != 'IloError':
+            IloError.known_subclasses.append(klass)
+        return klass
+
 class IloError(Exception):
+    __metaclass__ = IloErrorMeta
     def __init__(self, message, errorcode=None):
         if issubclass(IloError, object):
             super(IloError, self).__init__(message)
         else:
             Exception.__init__(self, message)
         self.errorcode = errorcode
+    known_subclasses = []
 
 class IloCommunicationError(IloError):
     pass
+
+class IloGeneratingCSR(IloError):
+    possible_messages = ['The iLO subsystem is currently generating a Certificate Signing Request(CSR), run script after 10 minutes or more to receive the CSR.']
+    possible_codes = [0x0088]
 
 # When we stop supporting ilo 1, 'User login name was not found' and 0x000a can
 # be removed. They should, as they cause IloLoginFailed in cases where login
@@ -139,7 +156,6 @@ class IloCommunicationError(IloError):
 class IloLoginFailed(IloError):
     possible_messages = ['User login name was not found', 'Login failed', 'Login credentials rejected']
     possible_codes = [0x005f, 0x000a]
-    pass
 
 class IloWarning(Warning):
     pass
@@ -543,9 +559,9 @@ class Ilo(object):
                         message = child.get('MESSAGE')
                         if 'syntax error' in message:
                             message += '. You may have tried to use a feature this iLO version or firmware version does not support.'
-                        if status in IloLoginFailed.possible_codes or \
-                                 message in IloLoginFailed.possible_messages:
-                            raise IloLoginFailed(message, status)
+                        for subclass in IloError.known_subclasses:
+                            if status in subclass.possible_codes or message in subclass.possible_messages:
+                                raise subclass(message, status)
                         raise IloError(message, status)
                 # And this type of message is the actual payload.
                 else:
