@@ -1,3 +1,23 @@
+Version 3.0, 2015-10-05
+* Major version bump as we're now dual licensed under GPL 3+ and APL at HP's
+  request, mainly for using hpilo.py with OpenStack
+* Add more example applications: an elasticsearch importer and an automatic
+  firmware updater
+* Modernize the hpilo_ca example
+* hpilo_cli now understands --version, and hpilo.py has a __version__ attribute
+* All development tools are moved to a subdir
+* SSL certificate errors are now ignored under python 2.7.9+ and 3.5+ as well
+* Add 'download_rib_firmware all all' to create a firmware mirror
+
+Version 2.13, 2015-04-13
+
+* We will now find hponcfg on you $PATH
+* Major documentation overhaul
+* hpilo_ca has been moved to examples/
+* the xmldata can now also be used to query chassis onboard administrators
+* get_persistent_boot bow supports uEFI booting
+
+
 Version 2.12, 2015-04-07
 
 * Proliant gen9 compatibility fixes

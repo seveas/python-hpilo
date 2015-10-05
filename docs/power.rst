@@ -2,7 +2,7 @@ Power manipulation
 ==================
 
 The power settings and usage of to the server can be inspected using these
-methods. It is also possible to power the server on and off via the iLO, and to 
+methods. It is also possible to power the server on and off via the iLO, and to
 :doc:`boot documentation </boot>`.
 
 .. py:currentmodule:: hpilo

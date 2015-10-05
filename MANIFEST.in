@@ -2,8 +2,13 @@ include docs/*rst
 include docs/_static/*
 include docs/output/*
 include docs/Makefile
-include docs/conf.py
-include examples/*/*
+include docs/*.py
+include examples/elasticsearch/hpilo_es_import
+include examples/elasticsearch/hpilo_es_dump
+include examples/elasticsearch/servers.py.example
+include examples/elasticsearch/kibana-dashboard.json
+include examples/firmwareupdater/hpilo_firmware_update
+include examples/ca/hpilo_ca
 include ilo.conf.example
 include COPYING
 include CHANGES

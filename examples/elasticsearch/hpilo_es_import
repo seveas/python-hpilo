@@ -1,0 +1,149 @@
+#!/usr/bin/python
+#
+# (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# see COPYING for license details
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+import hpilo
+import optparse
+import datetime
+import elasticsearch
+import multiprocessing
+import re
+import os
+import sys
+
+import servers # If this import fails, look at servers.py.example
+
+def main():
+    usage = """%prog [options]"""
+    p = optparse.OptionParser(usage=usage)
+    p.add_option("-l", "--login", dest="login", default=None,
+                 help="Username to access the iLO")
+    p.add_option("-p", "--password", dest="password", default=None,
+                 help="Password to access the iLO")
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw"), default=None,
+                 help="Use the specified protocol instead of autodetecting")
+    p.add_option("-d", "--debug", dest="debug", action="count", default=0,
+                 help="Output debug information, repeat to see all XML data")
+    p.add_option("-o", "--port", dest="port", type="int", default=443,
+                 help="SSL port to connect to")
+    p.add_option("-x", "--processes", dest="processes", type="int", default=50,
+                 help="How many servers to scan in parallel")
+
+    opts, args = p.parse_args()
+
+    if args:
+        p.print_help()
+        p.exit(1)
+
+    if not os.path.exists(os.path.expanduser(opts.config)):
+        p.error("Configuration file does not exist")
+
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.expanduser(opts.config))
+
+    # Do we have login information
+    login = None
+    password = None
+    if config.has_option('ilo', 'login'):
+        login = config.get('ilo', 'login')
+    if config.has_option('ilo', 'password'):
+        password = config.get('ilo', 'password')
+    if opts.login:
+        login = opts.login
+    if opts.password:
+        password = opts.password
+    if not login or not password:
+        p.error("No login details provided")
+
+    # Connect to ES and create our index
+    es_host = None
+    if config.has_option('elasticsearch', 'host'):
+        es_host = config.get('elasticsearch', 'host')
+    es = elasticsearch.Elasticsearch(es_host)
+    if not es.indices.exists('hpilo'):
+        print "Creating hpilo index"
+        es.indices.create(index='hpilo')
+        mapping = {
+            "_timestamp": { "enabled": True, "path": "last_updated" },
+            "properties": {
+                "status": { "type": "string", "index": "not_analyzed" },
+            }
+        }
+        add_string_property(mapping, "network_settings.nic_speed")
+        add_string_property(mapping, "host_data.fields.value")
+        add_string_property(mapping, "xmldata.bladesystem.manager.rack")
+        es.indices.put_mapping(index='hpilo', doc_type='hpilo', body={'hpilo': mapping})
+
+    # Scan all servers and import data
+    ilos = servers.get_all_ilos()
+    ilos = [(ilo, login, password, opts.timeout, opts.port,
+             opts.protocol, opts.debug, es_host) for ilo in ilos]
+    if opts.processes == 1:
+        for ilo in ilos:
+            scan_ilo(ilo)
+    else:
+        multiprocessing.Pool(opts.processes).map(scan_ilo, ilos)
+    # Finally, clean up stale data (older than 7 days)
+    limit = (datetime.datetime.now() - datetime.timedelta(7)).strftime('%Y-%m-%dT%H:%M:%s')
+    query = { "constant_score": { "filter": { "range": { "last_updated": { "lte": limit } } } } }
+    es.delete_by_query(index='hpilo', doc_type='hpilo', body={'query': query})
+
+def scan_ilo(args):
+    name, login, password, timeout, port, protocol, debug, es_host = args
+    print("Scanning %s" % name)
+    ilo = hpilo.Ilo(name, login, password, timeout, port, delayed=True)
+    ilo.debug = debug
+    if protocol == 'http':
+        ilo.protocol = hpilo.ILO_HTTP
+    elif protocol == 'raw':
+        ilo.protocol = hpilo.ILO_RAW
+
+    data = {'status': 'ok'}
+    try:
+        ilo.get_fw_version()
+        ilo.get_host_data()
+        ilo.get_global_settings()
+        ilo.get_network_settings()
+        ilo.get_all_user_info()
+        data['fw_version'], data['host_data'], data['global_settings'], \
+            data['network_settings'], data['all_user_info'] = ilo.call_delayed()
+
+        ilo.delayed = False
+        try:
+            data['oa_info'] = ilo.get_oa_info()
+        except hpilo.IloError:
+            data['oa_info'] = None
+        data['xmldata'] = ilo.xmldata()
+    except hpilo.IloError:
+        e = sys.exc_info()[1]
+        data['status'] = 'error'
+        data['error'] = str(e)
+
+    now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    es = elasticsearch.Elasticsearch(es_host)
+    try:
+        stored = es.get(index='hpilo', doc_type='hpilo', id=name)
+        es.update(index='hpilo', doc_type='hpilo', id=name, body={'doc': data}, timestamp=now)
+    except elasticsearch.exceptions.NotFoundError:
+        es.index(index='hpilo', doc_type='hpilo', id=name, body=data, timestamp=now)
+
+def add_string_property(mapping, key):
+    rest = key.split('.', 1)
+    mine = rest.pop(0)
+    if rest:
+        mapping["properties"][mine] = {"properties": {}}
+        add_string_property(mapping["properties"][mine], rest[0])
+    else:
+        mapping["properties"][mine] = {"type": "string"}
+
+if __name__ == '__main__':
+    main()

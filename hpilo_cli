@@ -22,6 +22,7 @@ import optparse
 import os
 from pprint import pprint
 import sys
+import urllib2
 
 ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.islower()])
 
@@ -61,6 +62,7 @@ def main():
                  help="Store XML output in this file")
     p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
+    p.add_option('-v', '--version', action="callback", callback=hpilo_version)
 
     opts, args = p.parse_args()
     opts.do_write_tests = False
@@ -278,6 +280,10 @@ def hpilo_help_methods(option, opt_str, value, parser):
 - %s""" % "\n- ".join(ilo_methods))
     parser.exit()
 
+def hpilo_version(option, opt_str, value, parser):
+    print(hpilo.__version__)
+    sys.exit()
+
 def print_progress(text):
     sys.stdout.write('\r\033[K' + text)
     sys.stdout.flush()
@@ -299,7 +305,7 @@ def download(ilotype, versions):
     config = hpilo_fw.config()
     if ilotype == 'all':
         for ilotype in sorted(config.keys()):
-            if ' ' not in ilotype:
+            if (versions == ['all']) == (' ' in ilotype):
                 _download(config, ilotype)
     else:
         if not versions:
@@ -316,10 +322,14 @@ def _download(config, key):
     if key not in config:
         sys.stderr.write("Unkown ilo/firmware version: %s\n" % key)
         sys.exit(1)
-    if hpilo_fw.download(key, progress=print_progress):
-        print("")
-    else:
-        print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
+    try:
+        if hpilo_fw.download(key, progress=print_progress):
+            print("")
+        else:
+            print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
+    except urllib2.HTTPError:
+        e = sys.exc_info()[1]
+        print("\n%s" % str(e))
 
 if __name__ == '__main__':
     main()
