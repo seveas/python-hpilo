@@ -97,11 +97,16 @@ def _parse(scexe, path, filename=None):
         raise ValueError("scexe file seems corrupt")
 
     tf = tarfile.open(name="bogus_name_for_old_python_versions", fileobj=BytesIO(tarball), mode='r:gz')
-    if not filename:
-        filenames = [x for x in tf.getnames() if x.endswith('.bin')]
+    filenames = [x for x in tf.getnames() if x.endswith('.bin')]
+    orig_filename = filename
+    if not filename or filename not in filenames:
         if len(filenames) != 1:
+            raise ValueError("scexe file seems corrupt")
+        if filename and filename.lower() != filenames[0].lower():
             raise ValueError("scexe file seems corrupt")
         filename = filenames[0]
 
     tf.extract(filename, path)
-    return filename
+    if filename != filename.lower():
+        os.rename(filename, filename.lower())
+    return filename.lower()

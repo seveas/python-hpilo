@@ -22,6 +22,7 @@ import optparse
 import os
 from pprint import pprint
 import sys
+import urllib2
 
 ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.islower()])
 
@@ -304,7 +305,7 @@ def download(ilotype, versions):
     config = hpilo_fw.config()
     if ilotype == 'all':
         for ilotype in sorted(config.keys()):
-            if ' ' not in ilotype:
+            if (versions == ['all']) == (' ' in ilotype):
                 _download(config, ilotype)
     else:
         if not versions:
@@ -321,10 +322,14 @@ def _download(config, key):
     if key not in config:
         sys.stderr.write("Unkown ilo/firmware version: %s\n" % key)
         sys.exit(1)
-    if hpilo_fw.download(key, progress=print_progress):
-        print("")
-    else:
-        print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
+    try:
+        if hpilo_fw.download(key, progress=print_progress):
+            print("")
+        else:
+            print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
+    except urllib2.HTTPError:
+        e = sys.exc_info()[1]
+        print("\n%s" % str(e))
 
 if __name__ == '__main__':
     main()
