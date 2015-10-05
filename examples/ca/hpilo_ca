@@ -45,7 +45,7 @@ def main():
         p.exit(1)
 
     if not os.path.exists(os.path.expanduser(opts.config)):
-        p.error("COnfiguration file does not exist")
+        p.error("Configuration file '%s' does not exist" % opts.config)
 
     config = ConfigParser.ConfigParser()
     config.read(os.path.expanduser(opts.config))
@@ -53,32 +53,18 @@ def main():
         p.error("No CA path specified in the config")
     ca_path = os.path.expanduser(config.get('ca', 'path'))
     os.environ['CA_PATH'] = ca_path
-    openssl_cnf = os.path.join(ca_path, 'openssl.cnf')
+    os.environ['SUBJECTALTNAME'] = ''
+    csr_params = {}
+    for key in ('country', 'state', 'locality', 'organization', 'organizational_unit'):
+        if config.has_option('ca', key):
+            csr_params[key] = config.get('ca', key)
 
-    openssl = OpenSSL(opts.openssl_bin, openssl_cnf)
+    openssl = OpenSSL(opts.openssl_bin, ca_path, csr_params)
 
     if args[0] == 'init':
         if len(args) > 2:
             p.error("Too many arguments")
-        if not os.path.exists(ca_path):
-            os.makedirs(ca_path)
-        if not os.path.exists(openssl_cnf):
-            open(openssl_cnf, 'w').write(default_openssl_cnf)
-        for dir in ('ca', 'certs', 'crl', 'archive'):
-            if not os.path.exists(os.path.join(ca_path, dir)):
-                os.mkdir(os.path.join(ca_path, dir))
-        if not os.path.exists(os.path.join(ca_path, 'archive', 'index')):
-            open(os.path.join(ca_path, 'archive', 'index'),'w').close()
-        if not os.path.exists(os.path.join(ca_path, 'archive', 'serial')):
-            fd = open(os.path.join(ca_path, 'archive', 'serial'),'w')
-            fd.write("00\n")
-            fd.close()
-        if not os.path.exists(os.path.join(ca_path, 'ca', 'hpilo_ca.key')):
-            openssl('genrsa', '-out', os.path.join(ca_path, 'ca', 'hpilo_ca.key'), '2048')
-        if not os.path.exists(os.path.join(ca_path, 'ca', 'hpilo_ca.crt')):
-            openssl('req', '-new', '-x509', '-days', '7300', # 20 years should be enough for everyone :-)
-                    '-key', os.path.join(ca_path, 'ca', 'hpilo_ca.key'),
-                    '-out', os.path.join(ca_path, 'ca', 'hpilo_ca.crt'))
+        openssl.init_ca()
         sys.exit(0)
 
     # Do we have login information
@@ -95,10 +81,28 @@ def main():
     if not login or not password:
         p.error("No login details provided")
 
-    for hostname in args[1:]:
-        csr_path = os.path.join(ca_path, 'certs', hostname + '.csr')
-        crt_path = os.path.join(ca_path, 'certs', hostname + '.crt')
-        if os.path.exists(crt_path):
+    todo = args[1:]
+    for host in args[1:]:
+        if re.match(r'\d+(\.\d+){3}', host):
+            p.error("hpilo_ca only accepts fqdns, not IP addresses")
+        if '.' not in host:
+            p.error("hpilo_ca only accepts fqdns, not hostnames")
+    while todo:
+        todo = sign_certificates(todo, openssl, login, password, opts)
+        if todo:
+            print("Waiting a minute before trying %d hosts again" % len(todo))
+            what = "\|/-"
+            for i in range(60):
+                sys.stdout.write("\r%s %-2d" % (what[i%4], 60-i))
+                sys.stdout.flush()
+                time.sleep(1)
+            sys.stdout.write("\r    \r")
+            sys.stdout.flush()
+
+def sign_certificates(hosts, openssl, login, password, opts):
+    todo = []
+    for hostname in hosts:
+        if openssl.signed(hostname):
             print("Certificate already signed, skipping")
             continue
 
@@ -111,77 +115,116 @@ def main():
 
         print("(1/5) Checking certificate config of %s" % hostname)
         fw_version = ilo.get_fw_version()
-        if fw_version['management_processor'] == 'iLO2':
+        network_settings = ilo.get_network_settings()
+        if fw_version['management_processor'].lower() == 'ilo2':
             version = fw_version['firmware_version']
-            i_version = [int(x) for x in version.split('.')]
-            if i_version < [2,6]:
+            if version < '2.06':
                 print("iLO2 firmware version %s is too old" % version)
                 if not opts.upgrade:
                     print("Please upgrade firmware to 2.06 or newer")
                     continue
-                if not config.has_option('firmware', 'ilo2'):
-                    print("Cannot upgrade firmware, no firmware specified in the config")
-                    continue
                 print("Upgrading iLO firmware")
-                ilo.update_rib_firmware(config.get('firmware', 'ilo2'), print_progress)
-                print("Waiting a minute to let firmware upgrade settle...")
-                time.sleep(60)
+                ilo.update_rib_firmware(version='latest', progress=print_progress)
+                todo.append(hostname)
+                continue
             cn = ilo.get_cert_subject_info()['csr_subject_common_name']
             if '.' not in cn:
                 ilo.cert_fqdn(use_fqdn=True)
                 cn = ilo.get_cert_subject_info()['csr_subject_common_name']
-            if cn != hostname:
-                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
-                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print("Waiting a minute to let the iLO reset itself")
-                time.sleep(60)
 
-        elif re.match(r'^iLO{3-9}$', fw_version['management_processor']):
-            cn = ilo.get_network_settings()['dns_name']
-            if cn != hostname[:hostname.find('.')]:
-                print("Hostname (%s) and CN (%s) do not match, fixing" % (hostname, cn))
-                ilo.mod_network_settings(dns_name=hostname[:hostname.find('.')])
-                print("Waiting a minute to let the iLO reset itself")
-                time.sleep(60)
-
-        else:
-            print("hpilo_ca cannot manage certificates for %s, only iLO2 and newer are supported" % (fw_version['management_processor'], hostname))
-            continue
+        hn, dn = hostname.split('.', 1)
+        if network_settings['dns_name'] != hn or dn and network_settings['domain_name'] != dn:
+           print("Hostname misconfigured on the ilo, fixing")
+           ilo.mod_network_settings(dns_name=hn, domain_name=dn)
+           todo.append(hostname)
+           continue
 
         print("(2/5) Retrieving certificate signing request")
-        csr = ilo.certificate_signing_request()
+        if fw_version['management_processor'].lower() == 'ilo2':
+            csr = ilo.certificate_signing_request()
+        else:
+            params = openssl.csr_params.copy()
+            cn = '%s.%s' % (network_settings['dns_name'], network_settings['domain_name'])
+            params['common_name'] = cn
+            try:
+                csr = ilo.certificate_signing_request(**params)
+            except hpilo.IloGeneratingCSR:
+                print("Certificate request is being generated, trying again later")
+                todo.append(hostname)
+                continue
         if not csr:
-            print("Reveived an empty CSR")
+            print("Received an empty CSR")
             continue
-        fd = open(csr_path, 'w')
-        fd.write(csr)
-        fd.close()
 
         print("(3/5) Signing certificate")
-        openssl('ca', '-batch', '-in', csr_path, '-out', crt_path)
+        cert = openssl.sign(network_settings, csr)
 
         print("(4/5) Uploading certificate")
-        fd = open(crt_path)
-        cert = fd.read()
-        fd.close()
-        cert = cert[cert.find('-----BEGIN'):]
         ilo.import_certificate(cert)
 
         print("(5/5) Resetting iLO")
         ilo.reset_rib()
+    return todo
 
 class OpenSSL(object):
-    def __init__(self, openssl_bin, openssl_cnf):
+    def __init__(self, openssl_bin, ca_path, csr_params):
         self.openssl_bin = openssl_bin
-        self.openssl_cnf = openssl_cnf
+        self.ca_path = ca_path
+        self.openssl_cnf = os.path.join(ca_path, 'openssl.cnf')
+        self.csr_params = csr_params
 
-    def __call__(self, *args):
+    def call(self, *args, **envvars):
+        env = os.environ.copy()
+        env.update(envvars)
         args = list(args)
         if args[0] in ('req', 'ca'):
             args = args[:1] + ['-config', self.openssl_cnf] + args[1:]
-        return subprocess.call([self.openssl_bin] + args)
+        return subprocess.call([self.openssl_bin] + args, env=env)
 
-default_openssl_cnf = """default_ca = hpilo_ca
+    def signed(self, hostname):
+        crt_path = os.path.join(self.ca_path, 'certs', hostname + '.crt')
+        return os.path.exists(crt_path)
+
+    def sign(self, network_settings, csr):
+        hostname = network_settings['dns_name']
+        fqdn = '%s.%s' % (network_settings['dns_name'], network_settings['domain_name'])
+        ip = network_settings['ip_address']
+        altnames = 'DNS:%s,DNS:%s,IP:%s' % (fqdn, hostname, ip)
+
+        csr_path = os.path.join(self.ca_path, 'certs', hostname + '.csr')
+        crt_path = os.path.join(self.ca_path, 'certs', hostname + '.crt')
+        fd = open(csr_path, 'w')
+        fd.write(csr)
+        fd.close()
+        self.call('ca', '-batch', '-in', csr_path, '-out', crt_path, SUBJECTALTNAME=altnames)
+        fd = open(crt_path)
+        cert = fd.read()
+        fd.close()
+        cert = cert[cert.find('-----BEGIN'):]
+        return cert
+
+    def init_ca(self):
+        if not os.path.exists(self.ca_path):
+            os.makedirs(self.ca_path)
+        if not os.path.exists(self.openssl_cnf):
+            open(self.openssl_cnf, 'w').write(self.default_openssl_cnf)
+        for dir in ('ca', 'certs', 'crl', 'archive'):
+            if not os.path.exists(os.path.join(self.ca_path, dir)):
+                os.mkdir(os.path.join(self.ca_path, dir))
+        if not os.path.exists(os.path.join(self.ca_path, 'archive', 'index')):
+            open(os.path.join(self.ca_path, 'archive', 'index'),'w').close()
+        if not os.path.exists(os.path.join(self.ca_path, 'archive', 'serial')):
+            fd = open(os.path.join(self.ca_path, 'archive', 'serial'),'w')
+            fd.write("00\n")
+            fd.close()
+        if not os.path.exists(os.path.join(self.ca_path, 'ca', 'hpilo_ca.key')):
+            self.call('genrsa', '-out', os.path.join(self.ca_path, 'ca', 'hpilo_ca.key'), '2048')
+        if not os.path.exists(os.path.join(self.ca_path, 'ca', 'hpilo_ca.crt')):
+            self.call('req', '-new', '-x509', '-days', '7300', # 20 years should be enough for everyone :-)
+                      '-key', os.path.join(self.ca_path, 'ca', 'hpilo_ca.key'),
+                      '-out', os.path.join(self.ca_path, 'ca', 'hpilo_ca.crt'))
+
+    default_openssl_cnf = """default_ca = hpilo_ca
 
 [hpilo_ca]
 dir              = $ENV::CA_PATH
@@ -241,6 +284,7 @@ basicConstraints       = CA:FALSE
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer
 nsComment              = "Certificate generated by iLO CA"
+subjectAltName         = $ENV::SUBJECTALTNAME
 
 [ca_cert]
 basicConstraints       = CA:true
