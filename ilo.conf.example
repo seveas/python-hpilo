@@ -1,0 +1,22 @@
+[ilo]
+login = Administrator
+password = AdminPassword
+hponcfg = /usr/local/bin/hponcfg
+
+[license]
+ilo2_advanced = FAKEILO2LICENSEXXXXXXXXXX
+ilo3_advanced = FAKEI-LO3LI-CENSE-XXXXX-XXXXX
+
+[firmware]
+# mirror = http://firmware-mirror.example.com
+
+[ca]
+path = ~/.hpilo_ca
+# country = NL
+# state = Flevoland
+# locality = Lelystad
+# organization = Kaarsemaker.net
+# organizational_unit = Sysadmin
+
+[elasticsearch]
+# host = elasticsearch.example.com
