@@ -1,3 +1,9 @@
+python-hpilo (3.1-1) wily; urgency=medium
+
+  * New upstream release
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Wed, 07 Oct 2015 13:50:29 +0200
+
 python-hpilo (3.0-1) wily; urgency=medium
 
   * New upstream release 
