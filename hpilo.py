@@ -157,6 +157,9 @@ class IloLoginFailed(IloError):
     possible_messages = ['User login name was not found', 'Login failed', 'Login credentials rejected']
     possible_codes = [0x005f, 0x000a]
 
+class IloPermissionError(IloError):
+    possible_codes = [0x0023]
+
 class IloWarning(Warning):
     pass
 
