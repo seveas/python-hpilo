@@ -250,6 +250,7 @@ policy           = req_policy
 [req_policy]
 countryName            = supplied
 stateOrProvinceName    = supplied
+localityName           = supplied
 organizationName       = supplied
 organizationalUnitName = optional
 commonName             = supplied
