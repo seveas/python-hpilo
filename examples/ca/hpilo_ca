@@ -243,13 +243,14 @@ name_opt         = ca_default
 cert_opt         = ca_default
 default_days     = 1825 # 5 years
 default_crl_days = 30
-default_md       = sha1
+default_md       = sha256
 preserve         = no
 policy           = req_policy
 
 [req_policy]
 countryName            = supplied
 stateOrProvinceName    = supplied
+localityName           = supplied
 organizationName       = supplied
 organizationalUnitName = optional
 commonName             = supplied
@@ -258,7 +259,7 @@ emailAddress           = optional
 [req]
 dir                = $ENV::CA_PATH
 default_bits       = 2048
-default_md         = sha1
+default_md         = sha256
 default_keyfile    = $dir/ca/hpilo_ca.key
 distinguished_name = req_distinguished_name
 x509_extensions    = ca_cert # The extentions to add to the self signed cert

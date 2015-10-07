@@ -1,3 +1,7 @@
+Version 3.1, 2015-10-06
+* hpilo_ca now creates sha256 signatures
+* hpilo_ca now includes the localityName in certificates
+
 Version 3.0, 2015-10-05
 * Major version bump as we're now dual licensed under GPL 3+ and APL at HP's
   request, mainly for using hpilo.py with OpenStack
