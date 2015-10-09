@@ -1514,9 +1514,9 @@ class Ilo(object):
     def profile_apply(self, desc_name, action):
         """Apply a deployment profile"""
         elements = [
-            etree.Element('PROFILE_DESC_NAME', attrs={'VALUE': desc_name}),
-            etree.Element('PROFILE_OPTIONS', attrs={'VALUE': 'none'}), # Currently unused
-            etree.Element('PROFILE_ACTION', attrs={'VALUE': action}),
+            etree.Element('PROFILE_DESC_NAME', attrib={'VALUE': desc_name}),
+            etree.Element('PROFILE_OPTIONS', attrib={'VALUE': 'none'}), # Currently unused
+            etree.Element('PROFILE_ACTION', attrib={'VALUE': action}),
         ]
         return self._control_tag('RIB_INFO', 'PROFILE_APPLY', elements=elements)
 
@@ -1531,10 +1531,10 @@ class Ilo(object):
     def profile_desc_download(self, desc_name, name, description, blob_namespace=None, blob_name=None, url=None):
         """Make the iLO download a blob and create a deployment profile"""
         elements = [
-            etree.Element('PROFILE_DESC_NAME', attrs={'VALUE': desc_name}),
-            etree.Element('PROFILE_NAME', attrs={'VALUE': name}),
-            etree.Element('PROFILE_DESCRIPTION', attrs={'VALUE': description}),
-            etree.Element('PROFILE_SCHEMA', attrs={'VALUE': 'intelligentprovisioning.1.0.0'}),
+            etree.Element('PROFILE_DESC_NAME', attrib={'VALUE': desc_name}),
+            etree.Element('PROFILE_NAME', attrib={'VALUE': name}),
+            etree.Element('PROFILE_DESCRIPTION', attrib={'VALUE': description}),
+            etree.Element('PROFILE_SCHEMA', attrib={'VALUE': 'intelligentprovisioning.1.0.0'}),
         ]
         if blob_namespace:
             elements.append(etree.Element('BLOB_NAMESPACE', attrs={'VALUE': blob_namespace}))
@@ -1586,18 +1586,18 @@ class Ilo(object):
         """Register your iLO with HP Insigt Online using Direct Connect. Note
            that you must also call dc_registration_complete"""
         elements = [
-            etree.Element('ERS_HPP_USER_ID', attrib={'VALUE': user_id}),
-            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': user_id}),
+            etree.Element('ERS_HPP_USER_ID', attrib={'VALUE': str(user_id)}),
+            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(user_id)}),
         ]
         for key, value in locals().items():
-            if key.startswith('proxy_'):
-                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': value}))
+            if key.startswith('proxy_') and value is not None:
+                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': str(value)}))
         return self._control_tag('RIB_INFO', 'SET_ERS_DIRECT_CONNECT', elements=elements)
 
     def set_ers_irs_connect(self, ers_destination_url, ers_destination_port):
         """Connect to an Insight Remote Support server"""
         elements = [
-            etree.Element('ERS_DESTINATION_URL', attrib={'VALUE': ers_destination_url}),
+            etree.Element('ERS_DESTINATION_URL', attrib={'VALUE': str(ers_destination_url)}),
             etree.Element('ERS_DESTINATION_PORT', attrib={'VALUE': str(ers_destination_port)}),
         ]
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
@@ -1608,8 +1608,8 @@ class Ilo(object):
            that you must also call dc_registration_complete"""
         elements = []
         for key, value in locals().items():
-            if key.startswith('proxy_'):
-                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': value}))
+            if key.startswith('proxy_') and value is not None:
+                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': str(value)}))
         return self._control_tag('RIB_INFO', 'SET_ERS_WEB_PROXY', elements=elements)
 
     def set_federation_multicast(self, multicast_discovery_enabled=True, multicast_announcement_interval=600,
@@ -1656,7 +1656,9 @@ class Ilo(object):
     def set_persistent_boot(self, devices):
         """Set persistent boot order, devices should be comma-separated"""
         elements = []
-        for device in devices.split(','):
+        if isinstance(devices, basestring):
+            devices = devices.split(',')
+        for device in devices:
             if not device.lower().startswith('boot'):
                 device = device.upper()
             elements.append(etree.Element('DEVICE', VALUE=device))
@@ -1741,10 +1743,11 @@ class Ilo(object):
         element = etree.Element('MESSAGE_ID', attrib={'value': str(message_id)})
         return self._control_tag('RIB_INFO', 'TRIGGER_TEST_EVENT', elements=[element])
 
-    def uid_control(self, uid="No"):
+    def uid_control(self, uid=False):
         """Turn the UID light on ("Yes") or off ("No")"""
-        if uid.lower() not in ('yes', 'no'):
-            raise ValueError("uid should be Yes or No")
+        if isinstance(uid, basestring):
+            uid = {'on': True, 'yes': True, 'off': False, 'no': False}.get(uid.lower(), uid)
+        uid = ['No', 'Yes'][bool(uid)]
         return self._control_tag('SERVER_INFO', 'UID_CONTROL', attrib={"UID": uid.title()})
 
     def update_rib_firmware(self, filename=None, version=None, progress=None):
