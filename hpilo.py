@@ -1114,7 +1114,11 @@ class Ilo(object):
 
     def get_ilo_event_log(self):
         """Get the full iLO event log"""
-        return self._info_tag('RIB_INFO', 'GET_EVENT_LOG', 'EVENT_LOG')
+        def process(data):
+            if isinstance(data, dict) and 'event' in data:
+                return [data['event']]
+            return data
+        return self._info_tag('RIB_INFO', 'GET_EVENT_LOG', 'EVENT_LOG', process=process)
 
     def get_language(self):
         """Get the default language set"""
@@ -1206,8 +1210,8 @@ class Ilo(object):
     def get_server_event_log(self):
         """Get the IML log of the server"""
         def process(data):
-            if isinstance(data, dict) and 'description' in data:
-                return []
+            if isinstance(data, dict) and 'event' in data:
+                return [data['event']]
             return data
         return self._info_tag('SERVER_INFO', 'GET_EVENT_LOG', 'EVENT_LOG', process=process)
 
