@@ -52,8 +52,6 @@ def main():
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-o", "--port", dest="port", type="int", default=443,
                  help="SSL port to connect to")
-    p.add_option("--untested", dest="untested", action="store_true", default=False,
-                 help="Allow untested methods")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
@@ -98,10 +96,6 @@ def main():
 
     for args in args_:
         method = args.pop(0)
-
-        # Can we run untested methods
-        if method in hpilo._untested and not opts.untested:
-            p.error("Method %s has not been tested, pass --untested to execute" % method)
 
         if method == '_test':
             calls.append(('_test', {'opts': opts, 'tests': args}))

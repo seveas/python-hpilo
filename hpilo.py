@@ -111,17 +111,6 @@ ILO_RAW  = 1
 ILO_HTTP = 2
 ILO_LOCAL = 3
 
-_untested = []
-
-def untested(meth):
-    """Decorator to mark a method as untested"""
-    meth.untested = True
-    if hasattr(meth, 'func_name'):
-        _untested.append(meth.func_name)
-    else:
-        _untested.append(meth.__name__)
-    return meth
-
 class IloErrorMeta(type):
     def __new__(cls, name, parents, attrs):
         if 'possible_messages' not in attrs:
