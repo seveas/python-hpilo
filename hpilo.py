@@ -150,15 +150,18 @@ class IloGeneratingCSR(IloError):
     possible_messages = ['The iLO subsystem is currently generating a Certificate Signing Request(CSR), run script after 10 minutes or more to receive the CSR.']
     possible_codes = [0x0088]
 
-# When we stop supporting ilo 1, 'User login name was not found' and 0x000a can
-# be removed. They should, as they cause IloLoginFailed in cases where login
-# did not fail, but e.g. get_user('nonexistent') was called
 class IloLoginFailed(IloError):
-    possible_messages = ['User login name was not found', 'Login failed', 'Login credentials rejected']
-    possible_codes = [0x005f, 0x000a]
+    possible_messages = ['Login failed', 'Login credentials rejected']
+    possible_codes = [0x005f]
+
+class IloUserNotFound(IloError):
+    possible_codes = [0x000a]
 
 class IloPermissionError(IloError):
     possible_codes = [0x0023]
+
+class IloFeatureNotSupported(IloError):
+    possible_codes = [0x003c]
 
 class IloWarning(Warning):
     pass
