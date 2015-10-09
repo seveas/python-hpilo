@@ -792,7 +792,7 @@ class Ilo(object):
 
     def ahs_clear_data(self):
         """Clears Active Health System information log"""
-        return self._raw(('RIB_INFO', {'MODE': 'WRITE'}), ('AHS_CLEAR_DATA', {}))
+        return self._control_tag('RIB_INFO', 'AHS_CLEAR_DATA')
 
     def cert_fqdn(self, use_fqdn):
         """Configure whether to use the fqdn or the short hostname for certificate requests"""
