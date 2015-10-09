@@ -609,7 +609,7 @@ class Ilo(object):
             val = self._coerce(val)
             if unit:
                 val = (val, unit)
-            if description:
+            if description and isinstance(val, str):
                 val = (val, description)
             if isinstance(retval, list):
                 retval.append(val)
