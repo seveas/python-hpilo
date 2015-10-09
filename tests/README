@@ -1,0 +1,63 @@
+Testsuite for python-hpilo
+--------------------------
+
+This testsuite consists of two parts:
+- Tests for the XML generator and parser
+- Tests that actually contact iLO's
+
+The former use a corpus of known data, they're safe to run and run pretty
+quickly. The latter will change data on iLO's (and do their best to restore
+the data to previous values), will reset iLO's and take a long time to run.
+
+Test contributions wanted!
+--------------------------
+For the corpus of test data, we need more people to submit data from their
+machines. This process is safe (no iLO data is changed at all), though can
+leak information about your systems if you are not careful. If you want to
+contribute, please do the following:
+
+$ cd tests/xml
+$ ./fetch_responses hostname-of-your-ilo-here
+
+This creates a new directory named after the hardware model, ilo model and ilo
+firmware of your machine. In it, you find raw and parsed responses of all
+python-hpilo queries. You should inspect this data and see if it's correct.
+You should also redact information you do not wish to share, but please don't
+go overboard.
+
+- Redacting iLO license keys makes perfect sense.
+- Redacting hostnames and IP addresses is acceptable, but please do not redact
+  anything else
+- When redacting, replace each letter of the redacted string with an x. Don't
+  add or remove characters
+- The .raw files may contain http chunked data, be very careful when editing
+  this and don't break the format. Preferably use a hex editor, or an editor
+  that does not mess with newlines (vim will do)
+
+You can either send me your datafiles via e-mail, or send a pull request on
+GitHub. If you do not know how to redact the data, or want me to do it for
+you, please send the data by e-mail and I will redact hostnames and iLO
+license keys.
+
+Running the tests
+-----------------
+Running the safe tests is as simple as running:
+
+$ python -munittest tests.test_requests
+$ python -munittest tests.test_responses
+
+You can run any of the tests this way, just replace test_requests with the
+name of the test. To run all tests, you can use:
+
+$ python -munittest discover
+
+However, if you run this without configuring the tests, you'll notice that
+nothing actually attempts to contact an iLO. You will need to tell it which
+iLOs to test. You do this in ~/.ilo.conf by adding test sections like the
+following:
+
+[test test-server]
+hostname = test-server.ilo.example.com
+
+Please don't run these tests on mission-critical servers. While they try very
+hard to restore the settings it changes, bugs and errors happen.

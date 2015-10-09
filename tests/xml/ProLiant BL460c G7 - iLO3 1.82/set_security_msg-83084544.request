@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 342
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<SET_SECURITY_MSG
+>
+<SECURITY_MSG
+ VALUE="Yes"
+ />
+<SECURITY_MSG_TEXT
+>
+
+<![CDATA[Security Message Goes Here]]>
+
+</SECURITY_MSG_TEXT>
+</SET_SECURITY_MSG>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

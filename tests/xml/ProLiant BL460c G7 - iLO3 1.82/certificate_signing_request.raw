@@ -1,0 +1,99 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:40:18 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<CERTIFICATE_SIGNING_REQUEST>
+-----BEGIN CERTIFICATE REQUEST-----
+MIIDGzCCAgMCAQAwgYoxKTAnBgNVBAMMIGdhdGV3YXktMDAxLmFtczYubG9tLmJv
+b2tpbmcuY29tMQwwCgYDVQQLDANJU1MxIDAeBgNVB
+1ff
+AoMF0hld2xldHQtUGFja2Fy
+ZCBDb21wYW55MRAwDgYDVQQHDAdIb3VzdG9uMQ4wDAYDVQQIDAVUZXhhczELMAkG
+A1UEBhMCVVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDYq/ZOSuDH
+0HHkLkm4aKLW2uejGXsTYQakoj/nNqqKp5I/33Zhtt+XRAiyZYSik9GpntB1TeUw
+ggFWG9JNsN1y8l+qvTQlZoOVZ2GambY2eajmL3NuDyCB523VeY6U7DSKhNqezjao
++QcEWymx776fz7vABO5TIfB+glLavkLVb0ih+wf0KMaK/l/IaKylC1UtB+S1tK9v
+iZ34lPwMKLlgrVzjptiv+bTY9nRSPZab7plv0zcjC+zZ9dsN+qX3vK7wTaHgysah
+xMwYSB5eKnaOA/iYzRaU70wr0smkLyH6A3StPCriy9qGXXuiBODX2jjaabnrb37X
+gUujrnCtjk7nAgMBAAGgSzBJBgkqhkiG
+132
+9w0BCQ4xPDA6MDgGA1UdEQQxMC+CC2dh
+dGV3YXktMDAxgiBnYXRld2F5LTAwMS5hbXM2LmxvbS5ib29raW5nLmNvbTANBgkq
+hkiG9w0BAQUFAAOCAQEAe4wKv7jbviHFDi2HU6OPCk0IA18hkdTTepKu9OtznZuM
+ztoL0wdPDtbHmPcmq9w8UHU73oVx31Zun0di6iGoe6/1LtpUeAKC20G5mGeBeDpw
+G4V6FZe5LU0/fJGMW8vvuDsBg77G9BQn0fUVSAKgOdaF1PSA3x55kzdKAVR/YfPl
+pTHag4HecPI7b
+03f
+0g13ETYbSrAfaSLi2bhq4Uc51Qw1/DIiBVztSZ+8HyNO4AuyAdK
+jMkBoRIUy31
+09c
+qGSu3biW/NcgiloqeY+UBLkpsqqcfyDOfqqpl/xm0vnl7IfVuQ49T
+Knm1OuuHaEe8HzMNUITCz0KUSVjetAYHbAN/zx4RTQ==
+-----END CERTIFICATE REQUEST-----
+</CERTIFICATE_SIGNING_R
+04a
+EQUEST>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+ 
+03b
+   STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

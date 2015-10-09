@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 364
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_GLOBAL_SETTINGS
+>
+<REMOTE_SYSLOG_PORT
+ VALUE="514"
+ />
+<REMOTE_SYSLOG_SERVER_ADDRESS
+ VALUE="10.1.1.1"
+ />
+<REMOTE_SYSLOG_ENABLE
+ VALUE="Yes"
+ />
+</MOD_GLOBAL_SETTINGS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

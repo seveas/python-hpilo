@@ -1,0 +1,112 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Thu, 08 Oct 2015 00:03:05 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<EVENT_LOG DESCRIPTION="Integrated Management Log">
+ <EVENT
+  SEVERITY="Repaired"
+  CLASS="Maintenance"
+  LAST_UPDATE="08/11/2011 22:01"
+  INITIAL_UPDATE="01/27/2012 00:24"
+  COUNT="1"
+  DESCRIPTION="Maintenance note: IML cleared through hpasmcli"
+ />
+ <EVENT
+  SEVERITY="Caution"
+  CLASS="POST Message"
+  LAST_UPDATE="05/05/2011 00:04"
+  INITIAL_UPDATE="05/05/2011 00:04"
+  COUNT="1"
+  DESCRIPTION="POST 
+1ff
+Error: 1785-Drive Array not Configured"
+ />
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="Rack Infrastructure"
+  LAST_UPDATE="05/06/2011 22:41"
+  INITIAL_UPDATE="05/06/2011 22:41"
+  COUNT="1"
+  DESCRIPTION=" LAN Settings Changed (Enclosure Serial Number CZ3130NLTP)"
+ />
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="Rack Infrastructure"
+  LAST_UPDATE="06/01/2011 19:58"
+  INITIAL_UPDATE="06/01/2011 19:58"
+  COUNT="1"
+  DESCRIPTION=" Name Changed (Enclosure Serial Number CZ3130NLTP)"
+ />
+ <EVENT
+  SEVERITY="Infor
+1c3
+mational"
+  CLASS="Rack Infrastructure"
+  LAST_UPDATE="06/01/2011 19:58"
+  INITIAL_UPDATE="06/01/2011 19:58"
+  COUNT="1"
+  DESCRIPTION=" Rack Name Changed (Enclosure Serial Number CZ3130NLTP)"
+ />
+</EVENT_LOG>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

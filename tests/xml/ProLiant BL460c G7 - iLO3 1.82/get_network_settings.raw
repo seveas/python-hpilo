@@ -1,0 +1,151 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:42:21 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+144
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_NETWORK_SETTINGS>
+    <ENABLE_NIC VALUE="Y"/>
+    <SPEED_AUTOSELECT VALUE="Y"/>
+    <NIC_SPEED VALUE="Automatic"/>
+    <FULL_DUPLEX VALUE="Automatic"/>
+    <DHCP_ENABLE VALUE="N"/>
+    <DHCP_GATEWAY VALUE="Y"/>
+ 
+1ff
+   <DHCP_DNS_SERVER VALUE="Y"/>
+    <DHCP_WINS_SERVER VALUE="Y"/>
+    <DHCP_STATIC_ROUTE VALUE="Y"/>
+    <DHCP_DOMAIN_NAME VALUE="Y"/>
+    <DHCP_SNTP_SETTINGS VALUE="N"/>
+    <REG_WINS_SERVER VALUE="Y"/>
+    <REG_DDNS_SERVER VALUE="Y"/>
+    <PING_GATEWAY VALUE="Y"/>
+    <MAC_ADDRESS VALUE="e4:11:5b:d3:ef:c3"/>
+    <IP_ADDRESS VALUE="xxxxxxxxx"/>
+    <SUBNET_MASK VALUE="255.255.255.0"/>
+    <GATEWAY_IP_ADDRESS VALUE="xxxxxxxxxxx"/>
+    <DNS_NAME VALUE="xxxxxxxxxxx"/>
+    <DOMAIN_NAME VALUE="xxxxxxxxxxxxxxxx
+1ff
+xxxx"/>
+    <PRIM_DNS_SERVER VALUE="xxxxxxxxxxxxxx"/>
+    <SEC_DNS_SERVER VALUE="0.0.0.0"/>
+    <TER_DNS_SERVER VALUE="0.0.0.0"/>
+    <PRIM_WINS_SERVER VALUE="0.0.0.0"/>
+    <SEC_WINS_SERVER VALUE="0.0.0.0"/>
+    <SNTP_SERVER1 VALUE=""/>
+    <SNTP_SERVER2 VALUE=""/>
+    <TIMEZONE VALUE="Europe/London"/>
+    <STATIC_ROUTE_1 DEST="0.0.0.0"
+                    MASK="0.0.0.0"
+                    GATEWAY="0.0.0.0"/>
+    <STATIC_ROUTE_2 DEST="0.0.0.0"
+                    MASK="0.0.0.0"
+                    GATEWA
+1ff
+Y="0.0.0.0"/>
+    <STATIC_ROUTE_3 DEST="0.0.0.0"
+                    MASK="0.0.0.0"
+                    GATEWAY="0.0.0.0"/>
+    <IPV6_ADDRESS   VALUE="fe80::e611:5bff:fed3:efc3"
+                    PREFIXLEN="64"
+                    ADDR_SOURCE="SLAAC"
+                    ADDR_STATUS="ACTIVE"/>
+    <IPV6_STATIC_ROUTE_1
+                    IPV6_DEST="::"
+                    PREFIXLEN="0"
+                    IPV6_GATEWAY="::"
+                    ADDR_STATUS="INACTIVE"/>
+    <IPV6_STATIC_ROUTE_2
+             
+1ff
+       IPV6_DEST="::"
+                    PREFIXLEN="0"
+                    IPV6_GATEWAY="::"
+                    ADDR_STATUS="INACTIVE"/>
+    <IPV6_STATIC_ROUTE_3
+                    IPV6_DEST="::"
+                    PREFIXLEN="0"
+                    IPV6_GATEWAY="::"
+                    ADDR_STATUS="INACTIVE"/>
+    <IPV6_PRIM_DNS_SERVER VALUE="::"/>
+    <IPV6_SEC_DNS_SERVER VALUE="::"/>
+    <IPV6_TER_DNS_SERVER VALUE="::"/>
+    <IPV6_DEFAULT_GATEWAY VALUE="::"/>
+    <IPV6_PREFERRED_PROTOCOL VALUE="Y"/>
+
+003
+   
+1ff
+ <IPV6_ADDR_AUTOCFG VALUE="Y"/>
+    <IPV6_REG_DDNS_SERVER VALUE="Y"/>
+    <DHCPV6_STATELESS_ENABLE VALUE="Y"/>
+    <DHCPV6_STATEFUL_ENABLE VALUE="Y"/>
+    <DHCPV6_RAPID_COMMIT VALUE="N"/>
+    <DHCPV6_DOMAIN_NAME VALUE="Y"/>
+    <DHCPV6_SNTP_SETTINGS VALUE="Y"/>
+    <DHCPV6_DNS_SERVER VALUE="Y"/>
+</GET_NETWORK_SETTINGS>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STAT
+034
+US="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

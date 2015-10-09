@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 310
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_NETWORK_SETTINGS
+>
+<SHARED_NETWORK_PORT_VLAN_ID
+ VALUE="42"
+ />
+<DHCP_ENABLE
+ VALUE="Yes"
+ />
+</MOD_NETWORK_SETTINGS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

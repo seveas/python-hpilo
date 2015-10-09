@@ -1,0 +1,87 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:43:40 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0ba
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x
+02e
+0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_SNMP_IM_SETTINGS>
+    <SNMP_ADDRESS_1 VALUE=""/>
+    <SNMP_ADDRESS_2 VALUE=""/>
+    <SNMP_ADDRESS_3 VALUE=""/>
+    <RIB_TRAPS VALUE="Y"/>
+    <OS_TRAPS VALUE="Y"/>
+   
+1ff
+ <SNMP_PASSTHROUGH_STATUS VALUE="Y"/>
+    <WEB_AGENT_IP_ADDRESS VALUE="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"/>
+    <CIM_SECURITY_MASK VALUE="3"/>
+</GET_SNMP_IM_SETTINGS>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+   
+00e
+  />
+</RIBCL>
+
+0
+

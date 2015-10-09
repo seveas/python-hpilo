@@ -1,0 +1,4 @@
+{'average_power_reading': (106, 'Watts'),
+ 'maximum_power_reading': (157, 'Watts'),
+ 'minimum_power_reading': (106, 'Watts'),
+ 'present_power_reading': (108, 'Watts')}

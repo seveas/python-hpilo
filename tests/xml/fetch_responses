@@ -1,0 +1,134 @@
+#!/usr/bin/python
+
+import ConfigParser
+import hpilo
+import optparse
+import os
+import pprint
+import sys
+import time
+import types
+
+# Almost all methods that fetch data use the _info_tag function
+methods = [meth for meth in dir(hpilo.Ilo) 
+            if isinstance(getattr(hpilo.Ilo, meth), types.MethodType)
+            and '_info_tag' in getattr(hpilo.Ilo, meth).__code__.co_names]
+# Except xmldata (raw http call) and certificate_signing_request
+methods += ['xmldata', 'certificate_signing_request']
+methods.sort()
+method_args = {
+    'get_user': ['Administrator'],
+    'get_federation_group': ['slartibartfast'],
+}
+
+def main():
+    usage = """
+  %prog [options] hostname"""
+
+    p = optparse.OptionParser(usage=usage, add_help_option=False)
+    p.add_option("-l", "--login", dest="login", default=None,
+                 help="Username to access the iLO")
+    p.add_option("-p", "--password", dest="password", default=None,
+                 help="Password to access the iLO")
+    p.add_option("-i", "--interactive", action="store_true", default=False,
+                 help="Prompt for username and/or password if they are not specified.")
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw","local"), default=None,
+                 help="Use the specified protocol instead of autodetecting")
+    p.add_option("-d", "--debug", dest="debug", action="count", default=0,
+                 help="Output debug information, repeat to see all XML data")
+    p.add_option("-o", "--port", dest="port", type="int", default=443,
+                 help="SSL port to connect to")
+
+    opts, args = p.parse_args()
+
+    if len(args) != 1:
+        p.error("No hostname given")
+
+    hostname = args[0]
+
+    config = ConfigParser.ConfigParser()
+    if os.path.exists(os.path.expanduser(opts.config)):
+        config.read(os.path.expanduser(opts.config))
+
+    login = None
+    password = None
+    needs_login = True
+    if hostname == 'localhost':
+        opts.protocol = 'local'
+        needs_login = False
+    if needs_login:
+        if config.has_option('ilo', 'login'):
+            login = config.get('ilo', 'login')
+        if config.has_option('ilo', 'password'):
+            password = config.get('ilo', 'password')
+        if opts.login:
+            login = opts.login
+        if opts.password:
+            password = opts.password
+        if not login or not password:
+            if opts.interactive:
+                while not login:
+                    login = input('Login for iLO at %s: ' % hostname)
+                while not password:
+                    password = getpass.getpass('Password for %s@%s:' % (login, hostname))
+            else:
+                p.error("No login details provided")
+
+    opts.protocol = {
+        'http':  hpilo.ILO_HTTP,
+        'raw':   hpilo.ILO_RAW,
+        'local': hpilo.ILO_LOCAL,
+    }.get(opts.protocol, None)
+
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol)
+    ilo.debug = opts.debug
+    if config.has_option('ilo', 'hponcfg'):
+        ilo.hponcfg = config.get('ilo', 'hponcfg')
+    fw_version = ilo.get_fw_version()
+    host_data = ilo.get_host_data()
+    product_name = None
+    for data in host_data:
+        if 'Product Name' in data:
+            product_name = data['Product Name']
+            break
+    else:
+        raise RuntimeError("No product name found")
+    output_dir = '%s - %s %s' % (product_name, fw_version['management_processor'], fw_version['firmware_version'])
+    if os.path.exists(output_dir):
+        answer = raw_input("I already have output for %s, rescan? [(y)es/(m)issing only/(N)o] " % output_dir).lower()
+        if answer == 'n':
+            sys.exit(0)
+        missing_only = answer == 'm'
+    else:
+        os.makedirs(output_dir)
+    print("Fetching data for %s" % output_dir)
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), output_dir)
+    for number, meth in enumerate(methods):
+        sys.stdout.write('\r\033[K%s (%d/%d)' % (meth, number+1, len(methods)))
+        sys.stdout.flush()
+        args = method_args.get(meth, [])
+        output_file_raw = os.path.join(output_dir, meth + '.raw')
+        output_file_parsed = os.path.join(output_dir, meth + '.parsed')
+        if os.path.exists(output_file_raw):
+            if missing_only:
+                continue
+            else:
+                os.unlink(output_file_raw)
+        ilo.save_response = output_file_raw
+        try:
+            data = getattr(ilo, meth)(*args)
+        except hpilo.IloFeatureNotSupported:
+            continue
+        except hpilo.IloError as e:
+            if 'syntax error' in e.message:
+                continue
+        with open(output_file_parsed, 'w') as fd:
+            pprint.pprint(data, stream=fd)
+    print("")
+
+if __name__ == '__main__':
+    main()

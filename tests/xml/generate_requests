@@ -1,0 +1,194 @@
+#!/usr/bin/python
+
+import ConfigParser
+import hashlib
+import hpilo
+import optparse
+import os
+import pprint
+import sys
+import time
+import types
+
+# All methods that fetch data use the _info_tag or _control_tag function
+methods = [meth for meth in dir(hpilo.Ilo) 
+            if isinstance(getattr(hpilo.Ilo, meth), types.MethodType)
+            and ('_info_tag' in getattr(hpilo.Ilo, meth).__code__.co_names
+                 or '_control_tag' in getattr(hpilo.Ilo, meth).__code__.co_names)]
+methods.sort()
+method_args = {
+    'activate_license': [['XXXXX-XXXXX-XXXXX-XXXXX-XXXXX']],
+    'add_federation_group': [['TestGroup', 'TestKey', False, False, True]],
+    'add_user': [['TestUser', 'TestPass', 'Test User', True, False]],
+    'cert_fqdn': [[True]],
+    'certificate_signing_request': [[],['NL', 'Flevoland']],
+    'computer_lock_config': [[], [None, 'X']],
+    'delete_federation_group': [['TestGroup']],
+    'delete_user': [['TestUser']],
+    'ers_ahs_submit': [['TestMessage', 'bb days']],
+    'get_federation_group': [['slartibartfast']],
+    'get_user': [['TestUser']],
+    'hotkey_config': [['something', 'something else']],
+    'import_certificate': [['-----BEGIN CERTIFICATE-----\nMIIEJjCCAw6gAwIBAgIBADANBgkqhkiG9w0BAQsFADBhMQswCQYDVQQGEwJOTDES\n-----END CERTIFICATE-----']],
+    'import_ssh_key': [['TestUser', 'ssh-rsa VGVzdCBrZXk= Test Key']],
+    'delete_ssh_key': [['TestUser']],
+    'insert_virtual_media': [['CDROM', 'http://localhost/os.iso']],
+    'mod_dir_config': [[True, True, 'ldap.example.com', 389]],
+    'mod_federation_group': [['TestGroup', None, None, False, False, True]],
+    'mod_global_settings': [
+        {'remote_syslog_enable': True, 'remote_syslog_server_address': '10.1.1.1', 'remote_syslog_port': 514},
+        {'http_port': 80, 'https_port': 443, 'snmp_access_enabled': False},
+    ],
+    'mod_network_settings': [
+        {'dhcp_enable': True, 'shared_network_port_vlan_id': 42},
+        {'dhcp_enable': False, 'dns_name': 'example-server', 'domain_name': 'ilos.example.com',
+         'ip_address': '10.1.1.1', 'subnet_mask': '255.255.255.0', 'gateway_ip_address': '10.1.1.254'}
+    ],
+    'mod_snmp_im_settings': [[True, '10.1.1.1', '10.1.1.2', 'rocomm', {'value': 'trapcomm', 'version': '2c'}]],
+    'mod_sso_settings': [['TrustMode', True, False, True]],
+    'mod_user': [['TestUser', 'TestUser2', 'TestPassword2', False, True]],
+    'profile_apply': [['TestProfile', 'Action']],
+    'profile_delete': [['TestProfile']],
+    'profile_desc_download': [['TestProfileDesc', 'TestProfile', 'Description']],
+    'set_ahs_status': [[True]],
+    'set_asset_tag': 'NL000001',
+    'set_ers_direct_connect': [['ErsUser', 'ErsPassword', 'ErsProxyHost', 3128]],
+    'set_ers_irs_connect': [['ErsUrl', 9999]],
+    'set_ers_web_proxy': [['ErsProxy', 3128]],
+    'set_federation_multicast': [[False]],
+    'set_language': [['en']],
+    'set_host_power': [[False]],
+    'set_host_power_saver': [['PowerSaver']],
+    'set_one_time_boot': [['BootDevice'], ['floppy']],
+    'set_pending_boot_mode': [['UEFI']],
+    'set_persistent_boot': [['cdrom,floppy,boot_device']],
+    'set_pers_mouse_keyboard_enabled': [[False]],
+    'set_pwreg': [['disabled'],['enabled', 'threshold']],
+    'set_power_cap': [['CAP']],
+    'set_security_msg': [[True, 'Security Message Goes Here']],
+    'set_server_auto_pwr': [[True],[45]],
+    'set_server_fqdn': [['example-server.example.com']],
+    'set_server_name': [['example-server']],
+    'trigger_l2_collection': [['TestMessage']],
+    'trigger_test_event': [['TestMessage']],
+}
+
+def main():
+    usage = """
+  %prog [options] hostname"""
+
+    p = optparse.OptionParser(usage=usage, add_help_option=False)
+    p.add_option("-l", "--login", dest="login", default=None,
+                 help="Username to access the iLO")
+    p.add_option("-p", "--password", dest="password", default=None,
+                 help="Password to access the iLO")
+    p.add_option("-i", "--interactive", action="store_true", default=False,
+                 help="Prompt for username and/or password if they are not specified.")
+    p.add_option("-c", "--config", dest="config", default="~/.ilo.conf",
+                 help="File containing authentication and config details", metavar="FILE")
+    p.add_option("-t", "--timeout", dest="timeout", type="int", default=60,
+                 help="Timeout for iLO connections")
+    p.add_option("-P", "--protocol", dest="protocol", choices=("http","raw","local"), default=None,
+                 help="Use the specified protocol instead of autodetecting")
+    p.add_option("-d", "--debug", dest="debug", action="count", default=0,
+                 help="Output debug information, repeat to see all XML data")
+    p.add_option("-o", "--port", dest="port", type="int", default=443,
+                 help="SSL port to connect to")
+
+    opts, args = p.parse_args()
+
+    if len(args) != 1:
+        p.error("No hostname given")
+
+    hostname = args[0]
+
+    config = ConfigParser.ConfigParser()
+    if os.path.exists(os.path.expanduser(opts.config)):
+        config.read(os.path.expanduser(opts.config))
+
+    login = None
+    password = None
+    needs_login = True
+    if hostname == 'localhost':
+        opts.protocol = 'local'
+        needs_login = False
+    if needs_login:
+        if config.has_option('ilo', 'login'):
+            login = config.get('ilo', 'login')
+        if config.has_option('ilo', 'password'):
+            password = config.get('ilo', 'password')
+        if opts.login:
+            login = opts.login
+        if opts.password:
+            password = opts.password
+        if not login or not password:
+            if opts.interactive:
+                while not login:
+                    login = input('Login for iLO at %s: ' % hostname)
+                while not password:
+                    password = getpass.getpass('Password for %s@%s:' % (login, hostname))
+            else:
+                p.error("No login details provided")
+
+    opts.protocol = {
+        'http':  hpilo.ILO_HTTP,
+        'raw':   hpilo.ILO_RAW,
+        'local': hpilo.ILO_LOCAL,
+    }.get(opts.protocol, None)
+
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol)
+    ilo.debug = opts.debug
+    if config.has_option('ilo', 'hponcfg'):
+        ilo.hponcfg = config.get('ilo', 'hponcfg')
+    fw_version = ilo.get_fw_version()
+    host_data = ilo.get_host_data()
+    product_name = None
+    for data in host_data:
+        if 'Product Name' in data:
+            product_name = data['Product Name']
+            break
+    else:
+        raise RuntimeError("No product name found")
+    ilo.login = 'Administrator'
+    ilo.password = 'TestPassword'
+    output_dir = '%s - %s %s' % (product_name, fw_version['management_processor'], fw_version['firmware_version'])
+    if os.path.exists(output_dir):
+        answer = raw_input("I already have output for %s, regenerate? [(y)es/(m)issing only/(N)o] " % output_dir).lower()
+        if answer == 'n':
+            sys.exit(0)
+        missing_only = answer == 'm'
+    else:
+        os.makedirs(output_dir)
+    print("Generating data for %s" % output_dir)
+    output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), output_dir)
+    for number, meth in enumerate(methods):
+        sys.stdout.write('\r\033[K%s (%d/%d)' % (meth, number+1, len(methods)))
+        sys.stdout.flush()
+        for args in method_args.get(meth, [[]]):
+            argsf = pprint.pformat(args)
+            sha1 = hashlib.new('sha1')
+            sha1.update(argsf)
+            ident = sha1.hexdigest()[:8]
+            output_file_args = os.path.join(output_dir, '%s-%s.args' % (meth, ident))
+            output_file_req = os.path.join(output_dir, '%s-%s.request' % (meth, ident))
+            if os.path.exists(output_file_req):
+                if missing_only:
+                    continue
+                else:
+                    os.unlink(output_file_req)
+            with open(output_file_args, 'w') as fd:
+                fd.write(argsf)
+            ilo.save_request = output_file_req
+            try:
+                if isinstance(args, dict):
+                    data = getattr(ilo, meth)(**args)
+                else:
+                    data = getattr(ilo, meth)(*args)
+            except ValueError:
+                if meth.startswith('get'):
+                    raise
+                continue
+    print("")
+
+if __name__ == '__main__':
+    main()

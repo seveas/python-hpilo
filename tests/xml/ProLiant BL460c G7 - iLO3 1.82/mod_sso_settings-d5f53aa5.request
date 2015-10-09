@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 345
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<SSO_INFO
+ MODE="write"
+>
+<MOD_SSO_SETTINGS
+>
+<TRUST_MODE
+ VALUE="TrustMode"
+ />
+<USER_ROLE
+ REMOTE_CONS_PRIV="Yes"
+ />
+<USER_ROLE
+ VIRTUAL_MEDIA_PRIV="Yes"
+ />
+</MOD_SSO_SETTINGS>
+</SSO_INFO>
+</LOGIN>
+</RIBCL>

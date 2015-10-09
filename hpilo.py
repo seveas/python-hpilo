@@ -188,6 +188,7 @@ class Ilo(object):
         self.ssl_version = ssl.PROTOCOL_TLSv1
         self.save_response = None
         self.read_response = None
+        self.save_request = None
         self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
         self.firmware_mirror = None
         self.hponcfg = "/sbin/hponcfg"
@@ -325,16 +326,18 @@ class Ilo(object):
 
     def _get_socket(self):
         """Set up a subprocess or an https connection and do an HTTP/raw socket request"""
-        if self.read_response:
+        if self.read_response or self.save_request:
             class FakeSocket(object):
-                def __init__(self, file):
-                    self.trash = StringIO.StringIO()
-                    self.output = open(file)
-                    self.read = self.output.read
-                    self.write = self.trash.write
-                    self.close = self.output.close
+                def __init__(self, rfile=None, wfile=None):
+                    self.input = rfile and open(rfile) or StringIO.StringIO()
+                    self.output = wfile and open(wfile, 'a') or StringIO.StringIO()
+                    self.read = self.input.read
+                    self.write = self.output.write
+                def close(self):
+                    self.input.close()
+                    self.output.close()
                 shutdown = lambda *args: None
-            return FakeSocket(self.read_response)
+            return FakeSocket(self.read_response, self.save_request)
 
         if self.protocol == ILO_LOCAL:
             self._debug(1, "Launching hponcfg")
@@ -420,6 +423,9 @@ class Ilo(object):
             sock.write(xml)
 
         # And grab the data
+        if self.save_request:
+            sock.close()
+            return None, None
         if self.protocol == ILO_LOCAL:
             # hponcfg doesn't return data until stdin is closed
             sock.stdin.close()
@@ -673,6 +679,8 @@ class Ilo(object):
             self._processors.append([self._process_info_tag, returntags or [tagname], process])
             return
         header, message = self._request(root)
+        if self.save_request:
+            return
         return self._process_info_tag(message, returntags or [tagname], process)
 
     def _process_info_tag(self, message, returntags, process):
@@ -1900,370 +1908,3 @@ class Ilo(object):
         'fan': ('bay',),
         'powersupply': ('bay', 'diag'),
     }
-
-###############################################################################
-# Testsuite, safe to run on all iLO versions. Reports of failures of the
-# testsuite are very much appreciated. The testsuite by default makes no
-# changes to the iLO configuration.
-#
-# You can use _test_writes instead of _test to also test methods that make
-# changes to the iLO configuration. All changes should be undone, but no
-# guarantees are made.
-#
-# The writing tests also clear the iLO and server event log, which cannot be
-# undone. The iLO will also be reset at least once.  A firware upgrade will not
-# be attempted by the test.
-#
-# To run these tests: use hpilo_cli hostname_here _test To run only a subset of
-# the test: hpilo_cli hostname_here testname_here [another testname ...]
-
-    def _test(self, opts, tests):
-        import unittest
-        import time
-        this_ilo = self
-        sys.stdout.write("Identifying iLO version... ")
-        sys.stdout.flush()
-        res = self.get_fw_version()
-        print(res['management_processor'])
-        print("Running tests. This will take a few minutes")
-
-        class IloTest(unittest.TestCase):
-            ilo = this_ilo
-            do_write_tests = opts.do_write_tests
-            ilo_version = int(res['management_processor'][3:] or 1)
-
-            def test_non_ilo(self):
-                if self.ilo.protocol == ILO_LOCAL:
-                    return
-                def get_socket(*args):
-                    class FakeSocket(object):
-                        def __init__(self):
-                            self.data = b('Bogus data')
-
-                        def write(self, data):
-                            pass
-
-                        def read(self):
-                            d = self.data
-                            self.data = b('')
-                            return d
-
-                        def shutdown(self, what):
-                            pass
-
-                        def close(self):
-                            pass
-
-                    return FakeSocket()
-                real_get_socket, self.ilo._get_socket = self.ilo._get_socket, get_socket
-
-                try:
-                    self.assertRaises(IloError, self.ilo.get_fw_version)
-                finally:
-                    self.ilo._get_socket = real_get_socket
-
-            def test_connect_error(self):
-                port, self.ilo.port = self.ilo.port, 1
-                hponcfg, self.ilo.hponcfg = self.ilo.hponcfg, '/sbin/does/not/exist'
-                try:
-                    self.assertRaises(IloCommunicationError, self.ilo.get_fw_version)
-                finally:
-                    self.ilo.port = port
-                    self.ilo.hponcfg = hponcfg
-
-            def test_wrong_method(self):
-                if self.ilo_version < 4:
-                    method = self.ilo.get_ahs_status
-                else:
-                    method = self.ilo.get_cert_subject_info
-
-                self.assertRaises(IloError, method)
-
-            def test_users(self):
-                users = self.ilo.get_all_users()
-                self.assertTrue(isinstance(users, list))
-                self.assertTrue(self.ilo.login in users)
-                users = self.ilo.get_all_user_info()
-                self.assertTrue(isinstance(users, dict))
-                self.assertTrue(self.ilo.login in users)
-                self.assertTrue(users[self.ilo.login]['admin_priv'])
-                res = self.ilo.get_user(self.ilo.login)
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue(res['user_login'] == self.ilo.login)
-                self.assertTrue('admin_priv' in res)
-                if not self.do_write_tests:
-                    return
-                if 'dennis' in users:
-                    warnings.warn('User dennis exists, not testing user manipulation', IloTestWarning)
-                    return
-                try:
-                    self.ilo.add_user('dennis', 'Dennis Kaarsemaker', 'Password123')
-                    users = self.ilo.get_all_users()
-                    self.assertTrue('dennis' in users)
-                    key = 'ssh-dss AAAAB3NzaC1kc3MAAACBAIpNY5fvLSS3MCjGNKjuWHrFGR5J6vLqdqIrXttTz7o6GWtmyxcC0Mlp2c/h1bMfvUiKDvDp+5T7SGo/2R+aXLaPwYtm6eBPEBU2CgVTnpeVELDeaJ/tr0kTL/PKMHZDFgT9c7/hOiWr4amlGvuxs60MP/xs4jWaxLxabhjiRoCLAAAAFQChDEFySo74rpPNNWfvJHgiylTbRQAAAIEAgo8UQqXP7gMTAUdHTqlzoTnj3loc4ZTnf3W6jr25cs5XaXNnRtadfw0G4VWaS/uDyNhsq/o2nFrhWTwAvojWSe4C5MDdGGerktL1ZY/QfoxB0d7aK/dlHd1iOVpGahCqyzmhEDmEnq6TWd6cBVHNVcryLEJVVtaf8QmJlwS+XkIAAACAJGnuO6ZJ1S2AMOY1uOpov/srTyuu6PxtcnHsHA5wNoNQFcYElnDndJUfMAPi0vzODntHoiOGdrX3RcjxSAB5lAgNZwFnwGWoAa8UIQlX+GwDYAIk+8G36tmHRgtl7xJlFqs9W6BhrJEmfL4ubWCPXl/yMDrrLnMQuV3Mg0DNVSg= Ilo test key'
-                    #self.ilo.import_ssh_key('dennis', key)
-                    if self.ilo_version == 2:
-                        self.ilo.delete_ssh_key('dennis')
-                    self.ilo.mod_user('dennis', user_name='Dennis Kaarsemaker Test')
-                    res = self.ilo.get_user('dennis')
-                    self.assertTrue(res['user_name'] == 'Dennis Kaarsemaker Test')
-                    self.ilo.delete_user('dennis')
-                    users = self.ilo.get_all_users()
-                    self.assertTrue('dennis' not in users)
-                except:
-                    # Clean up after ourselves
-                    users = self.ilo.get_all_users()
-                    if 'dennis' in users:
-                        self.ilo.delete_user('dennis')
-                    raise
-
-            def test_get_embedded_health(self):
-                if self.ilo_version < 2:
-                    return
-                res = self.ilo.get_embedded_health()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('temperature' in res)
-                self.assertTrue('fans' in res)
-                self.assertTrue('fans' in res['health_at_a_glance'])
-
-                if self.ilo_version >= 3:
-                    self.assertTrue('drives' in res)
-                if self.ilo_version >= 4:
-                    self.assertTrue('storage' in res)
-                    self.assertTrue('nic_information' in res)
-                    self.assertTrue('memory' in res)
-                    self.assertTrue('firmware_information' in res)
-
-            def test_get_cert_subject_info(self):
-                if self.ilo_version != 2:
-                    return
-                res = self.ilo.get_cert_subject_info()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('csr_subject_country' in res)
-
-            def test_get_host_data(self):
-                res = self.ilo.get_host_data()
-                res2 = self.ilo.get_host_data(decoded_only=False)
-                self.assertTrue(isinstance(res, list))
-                self.assertTrue(isinstance(res2, list))
-                self.assertTrue(len(res2) > len(res))
-                self.assertTrue(self.issubset(res, res2))
-                self.assertTrue('b64_data' in res[0])
-
-            def test_boot(self):
-                if self.ilo_version < 2:
-                    return
-                values = self.ilo.get_persistent_boot()
-                self.assertTrue(isinstance(values, list))
-                self.assertTrue('hdd' in values)
-                boot_type = self.ilo.get_one_time_boot()
-                self.assertTrue(isinstance(boot_type, basestring))
-                self.assertTrue(boot_type in values + ['normal'])
-                if self.do_write_tests:
-                    if boot_type in values:
-                        values.remove(boot_type)
-                    try:
-                        self.ilo.set_one_time_boot(values[0])
-                        res = self.ilo.get_one_time_boot()
-                        self.assertTrue(res == values[0])
-                    finally:
-                        self.ilo.set_one_time_boot(boot_type)
-
-            def test_uid(self):
-                status = self.ilo.get_uid_status()
-                self.assertTrue(status in ('ON', 'OFF'))
-                if not self.do_write_tests:
-                    return
-                if status == 'OFF':
-                    self.ilo.uid_control(uid='Yes')
-                    self.assertTrue(self.ilo.get_uid_status() == 'ON')
-                    self.ilo.uid_control(uid='No')
-                    self.assertTrue(self.ilo.get_uid_status() == 'OFF')
-                else:
-                    self.ilo.uid_control(uid='No')
-                    self.assertTrue(self.ilo.get_uid_status() == 'OFF')
-                    self.ilo.uid_control(uid='Yes')
-                    self.assertTrue(self.ilo.get_uid_status() == 'ON')
-
-            def test_get_dir_config(self):
-                if self.ilo_version < 2:
-                    return
-                res = self.ilo.get_dir_config()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('dir_user_context_1' in res)
-
-            def test_delayed(self):
-                if self.ilo_version < 2:
-                    return
-                uid = {'ON': 'Yes', 'OFF': 'No'}[self.ilo.get_uid_status()]
-                self.ilo.delayed = True
-                try:
-                    self.ilo.get_all_users()                # Getter
-                    self.ilo.uid_control(uid=uid)           # Control tag
-                    self.ilo.certificate_signing_request()  # Control tag that returns something
-                    self.ilo.get_all_user_info()            # Getter
-                    res = self.ilo.call_delayed()
-                finally:
-                    self.ilo.delayed = False
-                self.assertTrue(isinstance(res, list))
-                self.assertTrue(len(res) == 3)
-                self.assertTrue(self.ilo.login in res[0])
-                self.assertTrue('-----' in res[1])
-                self.assertTrue(self.ilo.login in res[2])
-
-                # And are we now in non-delayed mode and usable?
-                res = self.ilo.get_all_users()
-                self.assertTrue(isinstance(res, list))
-                self.assertTrue(self.ilo.login in res)
-
-            # get_server_auto_pwr
-            def test_power(self):
-                res = self.ilo.get_host_power_status()
-                self.assertTrue(res in ('ON', 'OFF'))
-                if self.ilo_version < 2:
-                    return
-                res = self.ilo.get_host_power_saver_status()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('host_power_saver' in res)
-                res = self.ilo.get_server_power_on_time()
-                self.assertTrue(isinstance(res, int))
-                res = self.ilo.get_power_cap()
-                self.assertTrue(res in ('ON', 'OFF'))
-                res = self.ilo.get_power_readings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('average_power_reading' in res)
-                res = self.ilo.get_pwreg()
-                self.assertTrue(isinstance(res, dict))
-                res = self.ilo.get_server_auto_pwr()
-                self.assertTrue(isinstance(res, basestring))
-                if not self.do_write_tests:
-                    return
-                self.ilo.clear_server_power_on_time()
-                res = self.ilo.get_server_power_on_time()
-                self.assertTrue(isinstance(res, int))
-                self.assertTrue(res < 2)
-
-            def test_get_sso_settings(self):
-                if self.ilo_version < 2:
-                    return
-                res = self.ilo.get_sso_settings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('administrator_role' in res)
-                self.assertTrue(isinstance(res['administrator_role'], dict))
-                self.assertTrue(res['administrator_role']['reset_server_priv'] == True)
-
-            def test_global_settings(self):
-                res = self.ilo.get_global_settings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue(res['https_port'] == self.ilo.port)
-                if self.do_write_tests:
-                    min_password = res['min_password']
-                    self.ilo.mod_global_settings(min_password=8)
-                    res = self.ilo.get_global_settings()
-                    self.ilo.mod_global_settings(min_password=min_password)
-                    self.assertTrue(res['min_password'] == 8)
-
-            def test_ilo_event_log(self):
-                res = self.ilo.get_ilo_event_log()
-                self.assertTrue(isinstance(res, list))
-                self.assertTrue(isinstance(res[0], dict))
-                if not self.do_write_tests:
-                    self.ilo.clear_ilo_event_log()
-                    res = self.ilo.get_ilo_event_log()
-                    self.assertTrue(len(res) == 3)
-                    self.assertTrue(res[0]['description'].startswith('Event log cleared'))
-                    self.assertTrue(res[2]['description'].startswith('XML logout'))
-
-            def test_languages(self):
-                if self.ilo_version < 3:
-                    return
-                res = self.ilo.get_all_languages()
-                self.assertTrue(isinstance(res, dict))
-                res = self.ilo.get_language()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('lang_id' in res)
-                if self.do_write_tests:
-                    self.ilo.set_language(res['lang_id'])
-
-            def test_get_host_pwr_micro_ver(self):
-                if self.ilo_version < 2:
-                    return
-                res = self.ilo.get_host_pwr_micro_ver()
-                self.assertTrue(isinstance(res, str))
-                self.assertTrue(res != "")
-
-            def test_get_oa_info(self):
-                if self.ilo_version < 2:
-                    return
-                try:
-                    res = self.ilo.get_oa_info()
-                except IloError:
-                    e = sys.exc_info()[1]
-                    self.assertTrue('not a rack server' in str(e).lower())
-                else:
-                    self.assertTrue('rack' in res)
-
-            def test_get_vm_status(self):
-                res = self.ilo.get_vm_status()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('device' in res)
-
-            def test_network_settings(self):
-                res = self.ilo.get_network_settings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('sec_wins_server' in res)
-                if self.do_write_tests and not res['dhcp_wins_server']:
-                    old_wins_server = res['sec_wins_server']
-                    try:
-                        self.ilo.mod_network_settings(sec_wins_server='127.1.2.3')
-                        # This resets the iLO board, wait for it to come back
-                        time.sleep(70)
-                        res = self.ilo.get_network_settings()
-                        self.assertTrue(res['sec_wins_server'] == '127.1.2.3')
-                    finally:
-                        self.ilo.mod_network_settings(sec_wins_server=old_wins_server)
-                        # This resets the iLO board, wait for it to come back
-                        time.sleep(70)
-
-            def test_get_server_event_log(self):
-                res = self.ilo.get_server_event_log()
-                self.assertTrue(isinstance(res, list))
-                if res:
-                    self.assertTrue(isinstance(res[0], dict))
-                    self.assertTrue('class' in res[0])
-
-            def test_snmp(self):
-                res = self.ilo.get_snmp_im_settings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('snmp_address_3' in res)
-                if self.do_write_tests:
-                    old = res['snmp_address_3']
-                    try:
-                        self.ilo.mod_snmp_im_settings(snmp_address_3='127.2.3.4')
-                        res = self.ilo.get_snmp_im_settings()
-                        self.assertTrue(res['snmp_address_3'] == '127.2.3.4')
-                    finally:
-                        self.ilo.mod_snmp_im_settings(snmp_address_3=old)
-
-            def test_get_twofactor_settings(self):
-                if self.ilo_version != 2:
-                    return
-                res = self.ilo.get_twofactor_settings()
-                self.assertTrue(isinstance(res, dict))
-                self.assertTrue('auth_twofactor_enable' in res)
-
-            def issubset(self, a, b):
-                for elt in a:
-                    if elt not in b:
-                        return False
-                return  True
-
-        # Limit tests if requested
-        # FIXME: there has to be a better way than this
-        if tests:
-            for attr in list(IloTest.__dict__.keys()):
-                if attr.startswith('test_') and attr not in tests and attr[5:] not in tests:
-                    delattr(IloTest, attr)
-        self.IloTest = IloTest
-        runner = unittest.TextTestRunner(verbosity=2)
-        unittest.main(self, argv=[sys.argv[0], 'IloTest'], testRunner=runner)

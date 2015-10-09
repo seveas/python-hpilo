@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 309
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<SET_ERS_WEB_PROXY
+>
+<ERS_WEB_proxy_host
+ VALUE="ErsProxy"
+ />
+<ERS_WEB_proxy_port
+ VALUE="3128"
+ />
+</SET_ERS_WEB_PROXY>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

@@ -1,0 +1,6 @@
+{'dhcp_enable': False,
+ 'dns_name': 'example-server',
+ 'domain_name': 'ilos.example.com',
+ 'gateway_ip_address': '10.1.1.254',
+ 'ip_address': '10.1.1.1',
+ 'subnet_mask': '255.255.255.0'}

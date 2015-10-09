@@ -1,0 +1,8 @@
+{'cim_security_mask': 3,
+ 'os_traps': True,
+ 'rib_traps': True,
+ 'snmp_address_1': '',
+ 'snmp_address_2': '',
+ 'snmp_address_3': '',
+ 'snmp_passthrough_status': True,
+ 'web_agent_ip_address': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}

@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 288
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<HOTKEY_CONFIG
+>
+<CTRL_T
+ VALUE="something"
+ />
+<CTRL_U
+ VALUE="something else"
+ />
+</HOTKEY_CONFIG>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

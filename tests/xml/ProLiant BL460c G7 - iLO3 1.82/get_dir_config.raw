@@ -1,0 +1,117 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:40:57 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+089
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+05f
+
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1bd
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_DIR_CONFIG>
+    <DIR_AUTHENTICATION_ENABLED VALUE="N"/>
+    <DIR_LOCAL_USER_ACCT VALUE="Y"/>
+    <DIR_SERVER_ADDRESS VALUE= ""/>
+    <DIR_SERVER_PORT VALUE= "636"/>
+    <DIR_OBJECT_DN VALUE= ""/>
+    <DIR_USER_CONTEXT_1 VALUE= ""/>
+    <DIR_USER_CONTEXT_2 VALUE= ""/>
+    <DIR_USER_CONTEXT_3 VALUE= ""/>
+    <DIR_USER_CONTEXT_4 VALUE
+07a
+= ""/>
+    <DIR_USER_CONTEXT_5 VALUE= ""/>
+    <DIR_USER_CONTEXT_6 VALUE= ""/>
+    <DIR_USER_CONTEXT_7 VALUE= ""/>
+    <DI
+10c
+R_USER_CONTEXT_8 VALUE= ""/>
+    <DIR_USER_CONTEXT_9 VALUE= ""/>
+    <DIR_USER_CONTEXT_10 VALUE= ""/>
+    <DIR_USER_CONTEXT_11 VALUE= ""/>
+    <DIR_USER_CONTEXT_12 VALUE= ""/>
+    <DIR_USER_CONTEXT_13 VALUE= ""/>
+    <DIR_USER_CONTEXT_14 VALUE= ""/>
+    <DIR_USER_CONT
+136
+EXT_15 VALUE= ""/>
+    <DIR_ENABLE_GRP_ACCT VALUE= "N"/>
+    <DIR_GRPACCT1_NAME VALUE= "Administrators"/>
+    <DIR_GRPACCT1_PRIV VALUE= "1,2,3,4,5,6"/>
+    <DIR_GRPACCT1_SID VALUE= ""/>
+    <DIR_GRPACCT2_NAME VALUE= "Authenticated Users"/>
+    <DIR_GRPACCT2_PRIV VALUE= "6"/>
+    <DIR_GRPACCT2_SID VALUE= "S-1-
+0bf
+5-11"/>
+    <DIR_KERBEROS_ENABLED VALUE="N"/>
+    <DIR_KERBEROS_REALM VALUE=""/>
+    <DIR_KERBEROS_KDC_ADDRESS VALUE= ""/>
+    <DIR_KERBEROS_KDC_PORT VALUE= "88"/>
+</GET_DIR_CONFIG>
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+00d
+<?xml version
+067
+="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

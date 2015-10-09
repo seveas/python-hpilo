@@ -1,0 +1,25 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 256
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<USER_INFO
+ MODE="write"
+>
+<MOD_USER
+ USER_LOGIN="TestUser"
+>
+<DEL_USERS_SSH_KEY
+ />
+</MOD_USER>
+</USER_INFO>
+</LOGIN>
+</RIBCL>

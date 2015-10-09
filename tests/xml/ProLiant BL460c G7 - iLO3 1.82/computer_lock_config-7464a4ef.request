@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 304
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<COMPUTER_LOCK_CONFIG
+>
+<COMPUTER_LOCK
+ VALUE="custom"
+ />
+<COMPUTER_LOCK_KEY
+ VALUE="X"
+ />
+</COMPUTER_LOCK_CONFIG>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

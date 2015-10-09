@@ -1,0 +1,40 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 475
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_NETWORK_SETTINGS
+>
+<DOMAIN_NAME
+ VALUE="ilos.example.com"
+ />
+<GATEWAY_IP_ADDRESS
+ VALUE="10.1.1.254"
+ />
+<SUBNET_MASK
+ VALUE="255.255.255.0"
+ />
+<IP_ADDRESS
+ VALUE="10.1.1.1"
+ />
+<DHCP_ENABLE
+ VALUE="No"
+ />
+<DNS_NAME
+ VALUE="example-server"
+ />
+</MOD_NETWORK_SETTINGS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>
