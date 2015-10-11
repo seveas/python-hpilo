@@ -333,11 +333,16 @@ class Ilo(object):
                     self.output = wfile and open(wfile, 'a') or StringIO.StringIO()
                     self.read = self.input.read
                     self.write = self.output.write
+                    data = self.input.read(4)
+                    self.input.seek(0)
+                    self.protocol = data == 'HTTP' and ILO_HTTP or ILO_RAW
                 def close(self):
                     self.input.close()
                     self.output.close()
                 shutdown = lambda *args: None
-            return FakeSocket(self.read_response, self.save_request)
+            sock = FakeSocket(self.read_response, self.save_request)
+            self.protocol = sock.protocol
+            return sock
 
         if self.protocol == ILO_LOCAL:
             self._debug(1, "Launching hponcfg")
@@ -389,6 +394,8 @@ class Ilo(object):
 
     def _communicate(self, xml, protocol, progress=None, save=True):
         sock = self._get_socket()
+        if self.read_response:
+            protocol = sock.protocol
         msglen = msglen_ = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
             extra_header = ''
@@ -1761,6 +1768,9 @@ class Ilo(object):
 
         if self.delayed:
             raise IloError("Cannot run firmware update in delayed mode")
+
+        if self.read_response:
+            raise IloError("Cannot run firmware update in read_response mode")
 
         if not self.protocol:
             self._detect_protocol()
