@@ -261,7 +261,7 @@ class Ilo(object):
         # Do a bogus request, using the HTTP protocol. If there is no
         # header (see special case in communicate(), we should be using the
         # raw protocol
-        header, data = self._communicate(b('<RIBCL VERSION="2.0"></RIBCL>'), ILO_HTTP)
+        header, data = self._communicate(b('<RIBCL VERSION="2.0"></RIBCL>'), ILO_HTTP, save=False)
         if header:
             self.protocol = ILO_HTTP
         else:
@@ -387,7 +387,7 @@ class Ilo(object):
                 return self._get_socket()
             raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, msg))
 
-    def _communicate(self, xml, protocol, progress=None):
+    def _communicate(self, xml, protocol, progress=None, save=True):
         sock = self._get_socket()
         msglen = msglen_ = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
@@ -423,7 +423,7 @@ class Ilo(object):
             sock.write(xml)
 
         # And grab the data
-        if self.save_request:
+        if self.save_request and save:
             sock.close()
             return None, None
         if self.protocol == ILO_LOCAL:
@@ -470,7 +470,7 @@ class Ilo(object):
                 else:
                     raise
             sock.close()
-        if self.save_response:
+        if self.save_response and save:
             fd = open(self.save_response, 'a')
             fd.write(data)
             fd.close()
