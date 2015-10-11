@@ -1,0 +1,22 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 217
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<SERVER_INFO
+ MODE="write"
+>
+<SET_ASSET_TAG
+ VALUE="0"
+ />
+</SERVER_INFO>
+</LOGIN>
+</RIBCL>

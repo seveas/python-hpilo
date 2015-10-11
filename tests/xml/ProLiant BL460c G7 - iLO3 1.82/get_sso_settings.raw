@@ -1,0 +1,91 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:43:47 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_SSO_SETTINGS>
+<TRUST_MODE VALUE="DISABLED" />
+<USER_ROLE LOGIN_PRIV="Y" />
+<USER_ROLE REMOTE_CONS_PRIV="N" />
+<USER_ROLE VIRTUAL_MEDIA_PRIV="N" />
+<USER_ROLE RESET
+1ff
+_SERVER_PRIV="N" />
+<USER_ROLE CFG_ILO_PRIV="N" />
+<USER_ROLE ADMIN_PRIV="N" />
+<OPERATOR_ROLE LOGIN_PRIV="Y" />
+<OPERATOR_ROLE REMOTE_CONS_PRIV="Y" />
+<OPERATOR_ROLE VIRTUAL_MEDIA_PRIV="Y" />
+<OPERATOR_ROLE RESET_SERVER_PRIV="Y" />
+<OPERATOR_ROLE CFG_ILO_PRIV="N" />
+<OPERATOR_ROLE ADMIN_PRIV="N" />
+<ADMINISTRATOR_ROLE LOGIN_PRIV="Y" />
+<ADMINISTRATOR_ROLE REMOTE_CONS_PRIV="Y" />
+<ADMINISTRATOR_ROLE VIRTUAL_MEDIA_PRIV="Y" />
+<ADMINISTRATOR_ROLE RESET_SERVER_PRIV="Y" />
+<ADMINISTRATOR_ROLE CFG_
+13e
+ILO_PRIV="Y" />
+<ADMINISTRATOR_ROLE ADMIN_PRIV="Y" />
+</GET_SSO_SETTINGS>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

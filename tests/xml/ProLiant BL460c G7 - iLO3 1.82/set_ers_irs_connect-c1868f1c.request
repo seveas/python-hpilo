@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 314
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<SET_ERS_IRS_CONNECT
+>
+<ERS_DESTINATION_URL
+ VALUE="ErsUrl"
+ />
+<ERS_DESTINATION_PORT
+ VALUE="9999"
+ />
+</SET_ERS_IRS_CONNECT>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

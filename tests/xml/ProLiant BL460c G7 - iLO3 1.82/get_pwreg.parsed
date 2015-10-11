@@ -1,0 +1,4 @@
+{'efficiency_mode': 3,
+ 'get_host_power': {'host_power': 'ON'},
+ 'pcap': {'mode': 'OFF'},
+ 'pwralert': {'duration': 0, 'threshold': 0, 'type': 'DISABLED'}}

@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 330
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<SERVER_INFO
+ MODE="write"
+>
+<SET_PERSISTENT_BOOT
+>
+<DEVICE
+ VALUE="CDROM"
+ />
+<DEVICE
+ VALUE="FLOPPY"
+ />
+<DEVICE
+ VALUE="boot_device"
+ />
+</SET_PERSISTENT_BOOT>
+</SERVER_INFO>
+</LOGIN>
+</RIBCL>

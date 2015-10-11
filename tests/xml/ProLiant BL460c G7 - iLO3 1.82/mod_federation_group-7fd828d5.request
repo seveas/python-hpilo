@@ -1,0 +1,32 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 361
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_FEDERATION_GROUP
+ GROUP_NAME="TestGroup"
+>
+<RESET_SERVER_PRIV
+ VALUE="Yes"
+ />
+<ADMIN_PRIV
+ VALUE="No"
+ />
+<REMOTE_CONS_PRIV
+ VALUE="No"
+ />
+</MOD_FEDERATION_GROUP>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

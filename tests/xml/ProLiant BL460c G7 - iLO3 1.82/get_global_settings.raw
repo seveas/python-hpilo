@@ -1,0 +1,102 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:41:39 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+079
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml
+06f
+ version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+06b
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+
+009
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_GLOBAL_SETTINGS>
+    <SESSION_TIMEOUT VALUE="30"/>
+    <F8_PROMPT_ENABLED VALUE="Y"/>
+    <F8_LOGIN_REQUIRED VALUE="N"/>
+    <HTTPS_PORT VALUE="443"/>
+    <HTTP_PORT VALUE="80"/>
+    <REMOTE_CONSOLE_PORT VALUE="17990"/>
+    <VIRTUAL_MEDIA_PORT VALUE="17988"/>
+    <SSH_PORT VALUE="22"/>
+    <SSH_STATUS VALUE="Y"/>
+    <SERIAL_CLI_STATUS VALUE="Enabled-Authentication Required"/>
+    <SERIAL_CLI_SPE
+1ff
+ED VALUE="9600"/>
+    <MIN_PASSWORD VALUE="8"/>
+    <AUTHENTICATION_FAILURE_LOGGING VALUE="Enabled-every 3rd failure"/>
+    <RBSU_POST_IP VALUE="Y"/>
+    <ENFORCE_AES VALUE="N"/>
+    <IPMI_DCMI_OVER_LAN_ENABLED VALUE="Y"/>
+    <PROPAGATE_TIME_TO_HOST VALUE="Y"/>
+</GET_GLOBAL_SETTINGS>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+
+085
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

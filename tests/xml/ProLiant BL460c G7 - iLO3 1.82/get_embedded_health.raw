@@ -1,0 +1,430 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:41:02 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e4
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIB
+004
+CL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_EMBEDDED_HEALTH_DATA>
+    <FANS>
+       <FAN>
+            <ZONE VALUE = "Virtual"/>
+            <LABEL VALUE = "Virtual Fan"/>
+            <STATUS VALUE = "OK"/>
+     
+1ff
+           <SPEED VALUE = "29" UNIT="Percentage"/>
+       </FAN>
+    </FANS>
+    <TEMPERATURE>
+       <TEMP>
+            <LABEL VALUE = "01-Inlet Ambient"/>
+            <LOCATION VALUE = "Ambient"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "20" UNIT="Celsius"/>
+            <CAUTION VALUE = "42" UNIT="Celsius"/>
+            <CRITICAL VALUE = "46" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "02-CPU 1"/>
+            <LOCATION VALUE = "CPU"/>
+         
+1ff
+   <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "40" UNIT="Celsius"/>
+            <CAUTION VALUE = "82" UNIT="Celsius"/>
+            <CRITICAL VALUE = "83" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "03-CPU 2"/>
+            <LOCATION VALUE = "CPU"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "40" UNIT="Celsius"/>
+            <CAUTION VALUE = "82" UNIT="Celsius"/>
+            <CRITICAL VALUE = "83" UNIT="Celsius"/>
+       </TEMP>
+      
+1ff
+ <TEMP>
+            <LABEL VALUE = "04-DIMMs 1"/>
+            <LOCATION VALUE = "Memory"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "37" UNIT="Celsius"/>
+            <CAUTION VALUE = "87" UNIT="Celsius"/>
+            <CRITICAL VALUE = "92" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "05-DIMMs 2"/>
+            <LOCATION VALUE = "Memory"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "40" UNIT="Celsius"/>
+            <CAUTIO
+003
+N V
+1ff
+ALUE = "87" UNIT="Celsius"/>
+            <CRITICAL VALUE = "92" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "06-HDD Max"/>
+            <LOCATION VALUE = "Storage"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "35" UNIT="Celsius"/>
+            <CAUTION VALUE = "60" UNIT="Celsius"/>
+            <CRITICAL VALUE = "65" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "07-Memory 1 1-6"/>
+            <LOCATION VALUE = "Memory"/>
+    
+1ff
+        <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "37" UNIT="Celsius"/>
+            <CAUTION VALUE = "81" UNIT="Celsius"/>
+            <CRITICAL VALUE = "86" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "08-Memory 2 1-6"/>
+            <LOCATION VALUE = "Memory"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "44" UNIT="Celsius"/>
+            <CAUTION VALUE = "81" UNIT="Celsius"/>
+            <CRITICAL VALUE = "86" UNIT="Celsius"/>
+      
+1ff
+ </TEMP>
+       <TEMP>
+            <LABEL VALUE = "09-IOH"/>
+            <LOCATION VALUE = "I/O Board"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "61" UNIT="Celsius"/>
+            <CAUTION VALUE = "105" UNIT="Celsius"/>
+            <CRITICAL VALUE = "110" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "10-Mezz Zone"/>
+            <LOCATION VALUE = "I/O Board"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "46" UNIT="Celsius"/
+1ff
+>
+            <CAUTION VALUE = "81" UNIT="Celsius"/>
+            <CRITICAL VALUE = "86" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "11-CNA Zone"/>
+            <LOCATION VALUE = "I/O Board"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "35" UNIT="Celsius"/>
+            <CAUTION VALUE = "81" UNIT="Celsius"/>
+            <CRITICAL VALUE = "86" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "12-Chassis Exit"/>
+            <LOCAT
+003
+ION
+1ff
+ VALUE = "System"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "35" UNIT="Celsius"/>
+            <CAUTION VALUE = "70" UNIT="Celsius"/>
+            <CRITICAL VALUE = "75" UNIT="Celsius"/>
+       </TEMP>
+       <TEMP>
+            <LABEL VALUE = "13-Chassis Exit"/>
+            <LOCATION VALUE = "System"/>
+            <STATUS VALUE = "OK"/>
+            <CURRENTREADING VALUE = "21" UNIT="Celsius"/>
+            <CAUTION VALUE = "70" UNIT="Celsius"/>
+            <CRITICAL VALUE = "75"
+1ae
+ UNIT="Celsius"/>
+       </TEMP>
+    </TEMPERATURE>
+    <POWER_SUPPLIES>
+       <POWER_SUPPLY_SUMMARY>
+            <PRESENT_POWER_READING VALUE = "109 Watts"/>
+            <POWER_MANAGEMENT_CONTROLLER_FIRMWARE_VERSION VALUE = "1.6"/>
+            <HIGH_EFFICIENCY_MODE VALUE = "Balanced"/>
+       </POWER_SUPPLY_SUMMARY>
+    </POWER_SUPPLIES>
+    <VRM>
+      <MODULE>
+            <LABEL VALUE = "VRM 1"/>
+            <STATUS VALUE 
+1ff
+= "OK"/>
+      </MODULE>
+      <MODULE>
+            <LABEL VALUE = "VRM 2"/>
+            <STATUS VALUE = "OK"/>
+      </MODULE>
+    </VRM>
+    <PROCESSORS>
+       <PROCESSOR>
+            <LABEL VALUE = "Proc 1"/>
+            <SPEED VALUE = "2267 MHz"/>
+            <EXECUTION_TECHNOLOGY VALUE = "6/6 cores; 12 threads"/>
+            <MEMORY_TECHNOLOGY VALUE = "64-bit Capable"/>
+            <INTERNAL_L1_CACHE VALUE = "192 KB"/>
+            <INTERNAL_L2_CACHE VALUE = "1536 KB"/>
+            <INTERNAL_L3_CACHE 
+1ff
+VALUE = "12288 KB"/>
+       </PROCESSOR>
+       <PROCESSOR>
+            <LABEL VALUE = "Proc 2"/>
+            <SPEED VALUE = "2267 MHz"/>
+            <EXECUTION_TECHNOLOGY VALUE = "6/6 cores; 12 threads"/>
+            <MEMORY_TECHNOLOGY VALUE = "64-bit Capable"/>
+            <INTERNAL_L1_CACHE VALUE = "192 KB"/>
+            <INTERNAL_L2_CACHE VALUE = "1536 KB"/>
+            <INTERNAL_L3_CACHE VALUE = "12288 KB"/>
+       </PROCESSOR>
+    </PROCESSORS>
+    <MEMORY>
+       <MEMORY_COMPONENTS>
+            <MEM
+1ff
+ORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 1 DIMM 1D"/>
+                <MEMORY_SIZE VALUE = "Not Installed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 1 DIMM 2A"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 
+1ff
+1 DIMM 3E"/>
+                <MEMORY_SIZE VALUE = "Not Installed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 1 DIMM 4B"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 1 DIMM 5F"/>
+                <MEMORY_SIZE VALUE = "Not Install
+1ff
+ed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 1 DIMM 6C"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 2 DIMM 1D"/>
+                <MEMORY_SIZE VALUE = "Not Installed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+        
+1ff
+    </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 2 DIMM 2A"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 2 DIMM 3E"/>
+                <MEMORY_SIZE VALUE = "Not Installed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+       
+0fc
+         <MEMORY_LOCATION VALUE = "PROC 2 DIMM 4B"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VAL
+1ff
+UE = "PROC 2 DIMM 5F"/>
+                <MEMORY_SIZE VALUE = "Not Installed"/>
+                <MEMORY_SPEED VALUE = "0 MHz"/>
+            </MEMORY_COMPONENT>
+            <MEMORY_COMPONENT>
+                <MEMORY_LOCATION VALUE = "PROC 2 DIMM 6C"/>
+                <MEMORY_SIZE VALUE = "4096 MB"/>
+                <MEMORY_SPEED VALUE = "1333 MHz"/>
+            </MEMORY_COMPONENT>
+       </MEMORY_COMPONENTS>
+    </MEMORY>
+    <NIC_INFOMATION>
+       <NIC>
+            <NETWORK_PORT VALUE = "Port 1"/>
+        
+1ff
+    <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:58"/>
+       </NIC>
+       <NIC>
+            <NETWORK_PORT VALUE = "Port 2"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:5c"/>
+       </NIC>
+       <NIC>
+            <NETWORK_PORT VALUE = "Port 3"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:59"/>
+       </NIC>
+       <NIC>
+            <NETWORK_PORT VALUE = "Port 4"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:5d"/>
+       </NIC>
+       <iLO>
+            <NETWORK_PORT VALUE = "iLO Dedicated Network
+1ff
+ Port"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:d3:ef:c3"/>
+       </iLO>
+       <iSCSI>
+            <NETWORK_PORT VALUE = "Port 1"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:59"/>
+       </iSCSI>
+       <iSCSI>
+            <NETWORK_PORT VALUE = "Port 2"/>
+            <MAC_ADDRESS VALUE = "e4:11:5b:e0:14:5d"/>
+       </iSCSI>
+    </NIC_INFOMATION>
+    <FIRMWARE_INFORMATION>
+       <INDEX_1>
+            <FIRMWARE_NAME VALUE = "HP ProLiant System ROM"/>
+            <FIRMWARE_VERSION VALUE = "05/0
+1ff
+5/2011"/>
+       </INDEX_1>
+       <INDEX_2>
+            <FIRMWARE_NAME VALUE = "HP ProLiant System ROM - Backup"/>
+            <FIRMWARE_VERSION VALUE = "05/05/2011"/>
+       </INDEX_2>
+       <INDEX_3>
+            <FIRMWARE_NAME VALUE = "HP ProLiant System ROM Bootblock"/>
+            <FIRMWARE_VERSION VALUE = "03/08/2010"/>
+       </INDEX_3>
+       <INDEX_4>
+            <FIRMWARE_NAME VALUE = "iLO"/>
+            <FIRMWARE_VERSION VALUE = "1.82 Pass 4 Jan 15 2015"/>
+       </INDEX_4>
+       <INDEX_5>
+   
+1ff
+         <FIRMWARE_NAME VALUE = "Power Management Controller"/>
+            <FIRMWARE_VERSION VALUE = "1.6"/>
+       </INDEX_5>
+       <INDEX_6>
+            <FIRMWARE_NAME VALUE = "CPLD - PAL0"/>
+            <FIRMWARE_VERSION VALUE = "ProLiant BL460c G7 System Programmable Logic Device version 0x13"/>
+       </INDEX_6>
+    </FIRMWARE_INFORMATION>
+    <DRIVES>
+       <BACKPLANE>
+            <FIRMWARE_VERSION VALUE="1.18"/>
+            <ENCLOSURE_ADDR VALUE="224"/>
+            <DRIVE_BAY VALUE = "1"/>
+      
+1c7
+          <PRODUCT_ID VALUE = "DG146BB976     "/>
+                <STATUS VALUE = "Ok"/>
+                <UID_LED VALUE = "Off"/>
+            <DRIVE_BAY VALUE = "2"/>
+                <PRODUCT_ID VALUE = "DG146BB976     "/>
+                <STATUS VALUE = "Ok"/>
+                <UID_LED VALUE = "Off"/>
+            <DRIVE_BAY VALUE = "3"/>
+                <PRODUCT_ID VALUE = "N/A"/>
+                <STATUS VALUE = "Not Present/Not Installed"/>
+         
+151
+       <UID_LED VALUE = "Off"/>
+            <DRIVE_BAY VALUE = "4"/>
+                <PRODUCT_ID VALUE = "N/A"/>
+                <STATUS VALUE = "Not Present/Not Installed"/>
+                <UID_LED VALUE = "Off"/>
+       </BACKPLANE>
+    </DRIVES>
+    <HEALTH_AT_A_GLANCE>
+       <FANS STATUS= "OK"/>
+       <TEMPERATURE STATUS= "OK"/>
+161
+
+       <VRM STATUS= "OK"/>
+       <DRIVE STATUS= "OK"/>
+    </HEALTH_AT_A_GLANCE>
+</GET_EMBEDDED_HEALTH_DATA>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+040
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STAT
+034
+US="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

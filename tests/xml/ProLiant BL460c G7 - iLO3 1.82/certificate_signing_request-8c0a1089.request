@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 312
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<CERTIFICATE_SIGNING_REQUEST
+>
+<CSR_COUNTRY
+ VALUE="NL"
+ />
+<CSR_STATE
+ VALUE="Flevoland"
+ />
+</CERTIFICATE_SIGNING_REQUEST>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

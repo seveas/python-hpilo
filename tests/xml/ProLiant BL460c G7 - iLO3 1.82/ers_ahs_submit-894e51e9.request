@@ -1,0 +1,28 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 292
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<TRIGGER_BB_DATA
+>
+<MESSAGE_ID
+ VALUE="TestMessage"
+ />
+<BB_DAYS
+ VALUE="bb days"
+ />
+</TRIGGER_BB_DATA>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

@@ -1,0 +1,29 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 312
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<SET_VM_STATUS
+ DEVICE="CDROM"
+>
+<VM_BOOT_OPTION
+ value="BOOT_ONCE"
+ />
+<VM_WRITE_PROTECT
+ value="YES"
+ />
+</SET_VM_STATUS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

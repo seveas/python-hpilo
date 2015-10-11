@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 329
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_GLOBAL_SETTINGS
+>
+<HTTPS_PORT
+ VALUE="443"
+ />
+<HTTP_PORT
+ VALUE="80"
+ />
+<SNMP_ACCESS_ENABLED
+ VALUE="No"
+ />
+</MOD_GLOBAL_SETTINGS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

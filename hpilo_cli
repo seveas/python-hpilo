@@ -52,8 +52,6 @@ def main():
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-o", "--port", dest="port", type="int", default=443,
                  help="SSL port to connect to")
-    p.add_option("--untested", dest="untested", action="store_true", default=False,
-                 help="Allow untested methods")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
@@ -65,7 +63,6 @@ def main():
     p.add_option('-v', '--version', action="callback", callback=hpilo_version)
 
     opts, args = p.parse_args()
-    opts.do_write_tests = False
 
     if opts.format == 'json':
         import json
@@ -76,10 +73,7 @@ def main():
     if len(args) < 2:
         p.error("Not enough arguments")
 
-    if args[1] == '_test_writes':
-        args[1] = '_test'
-        opts.do_write_tests = True
-    if args[1] not in ilo_methods and args[1] != '_test' and args[0] != 'download_rib_firmware':
+    if args[1] not in ilo_methods and args[0] != 'download_rib_firmware':
         p.error("Unknown method: %s" % args[1])
 
     config = ConfigParser.ConfigParser()
@@ -98,14 +92,6 @@ def main():
 
     for args in args_:
         method = args.pop(0)
-
-        # Can we run untested methods
-        if method in hpilo._untested and not opts.untested:
-            p.error("Method %s has not been tested, pass --untested to execute" % method)
-
-        if method == '_test':
-            calls.append(('_test', {'opts': opts, 'tests': args}))
-            continue
 
         # Arguments must be passed as param=value pairs that are valid arguments to the methods
         if sys.version_info[0] >= 3:

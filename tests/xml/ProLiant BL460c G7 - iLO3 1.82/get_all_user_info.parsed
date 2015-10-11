@@ -1,0 +1,7 @@
+{'Administrator': {'admin_priv': True,
+                   'config_ilo_priv': True,
+                   'remote_cons_priv': True,
+                   'reset_server_priv': True,
+                   'user_login': 'Administrator',
+                   'user_name': 'Administrator',
+                   'virtual_media_priv': True}}

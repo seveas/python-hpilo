@@ -1,0 +1,34 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 414
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<SET_FEDERATION_MULTICAST
+>
+<MULTICAST_DISCOVERY_ENABLED
+ VALUE="No"
+ />
+<MULTICAST_ANNOUNCEMENT_INTERVAL
+ VALUE="600"
+ />
+<IPV6_MULTICAST_SCOPE
+ VALUE="Site"
+ />
+<MULTICAST_TTL
+ VALUE="5"
+ />
+</SET_FEDERATION_MULTICAST>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

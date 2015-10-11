@@ -1,0 +1,38 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 471
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<MOD_SNMP_IM_SETTINGS
+>
+<SNMP_ADDRESS_1_ROCOMMUNITY
+ VALUE="rocomm"
+ />
+<WEB_AGENT_IP_ADDRESS
+ VALUE="10.1.1.1"
+ />
+<SNMP_ADDRESS_1
+ VALUE="10.1.1.2"
+ />
+<SNMP_ACCESS
+ VALUE="Yes"
+ />
+<SNMP_ADDRESS_1_TRAPCOMMUNITY
+ VALUE="trapcomm"
+ VERSION="2c"
+ />
+</MOD_SNMP_IM_SETTINGS>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

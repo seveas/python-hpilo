@@ -1,0 +1,73 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:41:51 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+075
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<
+073
+?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_HOST_POWER_SAVER
+    HOST_POWER_SAVER="AUTO"
+    />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+00a
+
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

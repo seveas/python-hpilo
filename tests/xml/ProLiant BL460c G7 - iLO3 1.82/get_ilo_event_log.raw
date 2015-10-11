@@ -1,0 +1,104 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Thu, 08 Oct 2015 00:03:02 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+1ff
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<EVENT_LOG DESCRIPTION="iLO 3 Event Log">
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="iLO 3"
+  LAST_UPDATE="10/08/2015 00:02"
+  INITIAL_UPDATE="10/08/2015 00:02"
+  COUNT="3"
+  DESCRIPTION="XML login: Administrator - xxxxxxxxx(DNS name not found)."
+ />
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="iLO 3"
+  LAST_UPDATE="10/08/2015 00:02"
+  INITIAL_UPDATE="10/08/2015 00:02"
+  COUNT="1"
+  DESCRIPTION="Event 
+1ff
+log cleared by: Administrator."
+ />
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="iLO 3"
+  LAST_UPDATE="10/08/2015 00:02"
+  INITIAL_UPDATE="10/08/2015 00:02"
+  COUNT="3"
+  DESCRIPTION="XML logout: Administrator - xxxxxxxxx(DNS name not found)."
+ />
+ <EVENT
+  SEVERITY="Informational"
+  CLASS="iLO 3"
+  LAST_UPDATE="10/08/2015 00:03"
+  INITIAL_UPDATE="10/08/2015 00:03"
+  COUNT="1"
+  DESCRIPTION="XML login: Administrator - xxxxxxxxx(DNS name not found)."
+ />
+</EVENT_LOG>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VE
+0c8
+RSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

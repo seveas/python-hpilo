@@ -1,0 +1,40 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 460
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<USER_INFO
+ MODE="write"
+>
+<ADD_USER
+ PASSWORD="Test User"
+ USER_LOGIN="TestUser"
+ USER_NAME="TestPass"
+>
+<VIRTUAL_MEDIA_PRIV
+ VALUE="No"
+ />
+<RESET_SERVER_PRIV
+ VALUE="No"
+ />
+<CONFIG_ILO_PRIV
+ VALUE="Yes"
+ />
+<ADMIN_PRIV
+ VALUE="Yes"
+ />
+<REMOTE_CONS_PRIV
+ VALUE="No"
+ />
+</ADD_USER>
+</USER_INFO>
+</LOGIN>
+</RIBCL>

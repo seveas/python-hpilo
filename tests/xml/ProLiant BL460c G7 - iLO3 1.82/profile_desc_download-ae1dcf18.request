@@ -1,0 +1,34 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 435
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<PROFILE_DESC_DOWNLOAD
+>
+<PROFILE_DESC_NAME
+ VALUE="TestProfileDesc"
+ />
+<PROFILE_NAME
+ VALUE="TestProfile"
+ />
+<PROFILE_DESCRIPTION
+ VALUE="Description"
+ />
+<PROFILE_SCHEMA
+ VALUE="intelligentprovisioning.1.0.0"
+ />
+</PROFILE_DESC_DOWNLOAD>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

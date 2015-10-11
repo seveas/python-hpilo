@@ -1,0 +1,31 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 339
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<RIB_INFO
+ MODE="write"
+>
+<PROFILE_APPLY
+>
+<PROFILE_DESC_NAME
+ VALUE="TestProfile"
+ />
+<PROFILE_OPTIONS
+ VALUE="none"
+ />
+<PROFILE_ACTION
+ VALUE="Action"
+ />
+</PROFILE_APPLY>
+</RIB_INFO>
+</LOGIN>
+</RIBCL>

@@ -1,3 +1,9 @@
+Version 3.2, 2015-10-11
+* When reading responses saved earlier, the protocol is now detected properly
+* A new testsuite has been written
+* Various bugs were fixed
+* More error codes get their own exception classes
+
 Version 3.1, 2015-10-06
 * hpilo_ca now creates sha256 signatures
 * hpilo_ca now includes the localityName in certificates

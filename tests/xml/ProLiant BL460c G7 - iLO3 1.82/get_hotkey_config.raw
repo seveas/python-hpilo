@@ -1,0 +1,91 @@
+HTTP/1.1 200 OK
+Content-Type: text/xml
+Date: Wed, 07 Oct 2015 23:42:03 GMT
+Cache-Control: no-cache
+Expires: Thu, 26 Oct 1995 00:00:00 GMT
+Transfer-Encoding: chunked
+Server: Allegro-Software-RomPager/4.62
+Connection: close
+
+0e8
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+10d
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+<GET_HOTKEY_CONFIG>
+    <CTRL_T VALUE="NONE,NONE,NONE,NONE,NONE"/>
+    <CTRL_U VALUE="NONE,NONE,NONE,NONE,NONE"/>
+    <CTRL_V VALUE="NONE,NONE,NONE,NONE,NONE"/>
+ 
+0d7
+   <CTRL_W VALUE="NONE,NONE,NONE,NONE,NONE"/>
+    <CTRL_X VALUE="NONE,NONE,NONE,NONE,NONE"/>
+    <CTRL_Y VALUE="NONE,NONE,NONE,NONE,NONE"/>
+</GET_HOTKEY_CONFIG>
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23"
+091
+>
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x000
+02b
+0"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+074
+<?xml version="1.0"?>
+<RIBCL VERSION="2.23">
+<RESPONSE
+    STATUS="0x0000"
+    MESSAGE='No error'
+     />
+</RIBCL>
+
+0
+

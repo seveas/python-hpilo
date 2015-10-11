@@ -1,0 +1,34 @@
+POST /ribcl HTTP/1.1
+Host: localhost
+Content-Length: 396
+Connection: Close
+
+<?xml version="1.0"?>
+<RIBCL
+ VERSION="2.0"
+>
+<LOGIN
+ PASSWORD="TestPassword"
+ USER_LOGIN="Administrator"
+>
+<DIR_INFO
+ MODE="write"
+>
+<MOD_DIR_CONFIG
+>
+<DIR_AUTHENTICATION_ENABLED
+ VALUE="Yes"
+ />
+<DIR_SERVER_PORT
+ VALUE="389"
+ />
+<DIR_LOCAL_USER_ACCT
+ VALUE="Yes"
+ />
+<DIR_SERVER_ADDRESS
+ VALUE="ldap.example.com"
+ />
+</MOD_DIR_CONFIG>
+</DIR_INFO>
+</LOGIN>
+</RIBCL>
