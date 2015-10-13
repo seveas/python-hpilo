@@ -477,14 +477,16 @@ class Ilo(object):
                 else:
                     raise
             sock.close()
+
+        # Stript out garbage from hponcfg
+        if self.protocol == ILO_LOCAL:
+            data = data[data.find('<'):data.rfind('>')+1]
+
         if self.save_response and save:
             fd = open(self.save_response, 'a')
             fd.write(data)
             fd.close()
 
-        # Stript out garbage from hponcfg
-        if self.protocol == ILO_LOCAL:
-            data = data[data.find('<'):data.rfind('>')+1]
         # Do we have HTTP?
         header_ = ''
         if protocol == ILO_HTTP and data.startswith('HTTP/1.1 200'):
