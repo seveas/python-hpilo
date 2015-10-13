@@ -385,7 +385,7 @@ class Ilo(object):
             return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
             e = sys.exc_info()[1]
-            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(message)
+            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(e)
             # Some ancient iLO's don't support TLSv1, retry with SSLv3
             if 'wrong version number' in msg and self.sslversion == ssl.PROTOCOL_TLSv1:
                 self.ssl_version = ssl.PROTOCOL_SSLv3
