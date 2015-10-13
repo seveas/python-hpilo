@@ -109,15 +109,15 @@ def main():
         params = {}
         for arg in args:
             if '=' not in arg:
-                hpilo_help(None, None, method, None)
+                hpilo_help(None, None, method, None, 2)
             param, val = arg.split('=', 1)
             # Do we expect structured data?
             keys = param.split('.')
             if (len(keys) > 1) != (keys[0] in getattr(func, 'requires_dict', {})):
-                hpilo_help(None, None, method, None)
+                hpilo_help(None, None, method, None, 2)
 
             if keys[0] not in argnames:
-                hpilo_help(None, None, method, None)
+                hpilo_help(None, None, method, None, 2)
 
             # Optionally extract values from the config
             if val.startswith('$') and '.' in val:
@@ -140,7 +140,7 @@ def main():
 
         for name in argnames:
             if name not in params and name not in args_with_defaults:
-                hpilo_help(None, None, method, sys)
+                hpilo_help(None, None, method, None, 2)
 
         calls.append((method, params))
 
@@ -226,7 +226,7 @@ def main():
                 print(">>> pprint(my_ilo.%s(%s))" % (method, param_str))
                 pprint(result)
 
-def hpilo_help(option, opt_str, value, parser):
+def hpilo_help(option, opt_str, value, parser, exitcode=0):
     if not value:
         if parser and parser.rargs and parser.rargs[0][0] != '-':
             value = parser.rargs[0]
@@ -257,9 +257,9 @@ def hpilo_help(option, opt_str, value, parser):
         else:
             print("No such method: %s" % value)
     if parser:
-        parser.exit()
+        parser.exit(exitcode)
     else:
-        sys.exit()
+        sys.exit(exitcode)
 
 def hpilo_help_methods(option, opt_str, value, parser):
     print("""Supported methods:
