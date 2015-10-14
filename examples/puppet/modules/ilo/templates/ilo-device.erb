@@ -1,0 +1,8 @@
+<%
+require 'uri'
+uri = URI.parse(name)
+-%>
+[<%= uri.host %>]
+type ilo
+url <%= uri.to_s %>
+

@@ -1,7 +1,7 @@
 # (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "3.2"
+__version__ = "3.3"
 
 import os
 import errno
@@ -148,6 +148,12 @@ class IloUserNotFound(IloError):
 
 class IloPermissionError(IloError):
     possible_codes = [0x0023]
+
+class IloNotARackServer(IloError):
+    possible_codes = [0x002a]
+
+class IloLicenseKeyError(IloError):
+    possible_codes = [0x002e]
 
 class IloFeatureNotSupported(IloError):
     possible_codes = [0x003c]
@@ -385,7 +391,7 @@ class Ilo(object):
             return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
         except socket.sslerror:
             e = sys.exc_info()[1]
-            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(message)
+            msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(e)
             # Some ancient iLO's don't support TLSv1, retry with SSLv3
             if 'wrong version number' in msg and self.sslversion == ssl.PROTOCOL_TLSv1:
                 self.ssl_version = ssl.PROTOCOL_SSLv3
@@ -477,14 +483,16 @@ class Ilo(object):
                 else:
                     raise
             sock.close()
+
+        # Stript out garbage from hponcfg
+        if self.protocol == ILO_LOCAL:
+            data = data[data.find('<'):data.rfind('>')+1]
+
         if self.save_response and save:
             fd = open(self.save_response, 'a')
             fd.write(data)
             fd.close()
 
-        # Stript out garbage from hponcfg
-        if self.protocol == ILO_LOCAL:
-            data = data[data.find('<'):data.rfind('>')+1]
         # Do we have HTTP?
         header_ = ''
         if protocol == ILO_HTTP and data.startswith('HTTP/1.1 200'):
