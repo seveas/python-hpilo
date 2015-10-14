@@ -1,3 +1,12 @@
+Version 3.3, 2015-10-14
+* A puppet module has been added
+* More error codes get their own exception classes
+* Passing incorrect arguments to hpilo_cli now causes it to consistently exit
+  with a nonzero exitcode
+* A bug in dealing with SSL errors was fixed
+* When saving responses retrieved using the ILO_LOCAL protocol, the
+  garbage data added by hponcfg is now properly removed
+
 Version 3.2, 2015-10-11
 * When reading responses saved earlier, the protocol is now detected properly
 * A new testsuite has been written
