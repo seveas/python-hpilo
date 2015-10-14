@@ -149,6 +149,12 @@ class IloUserNotFound(IloError):
 class IloPermissionError(IloError):
     possible_codes = [0x0023]
 
+class IloNotARackServer(IloError):
+    possible_codes = [0x002a]
+
+class IloLicenseKeyError(IloError):
+    possible_codes = [0x002e]
+
 class IloFeatureNotSupported(IloError):
     possible_codes = [0x003c]
 
