@@ -106,6 +106,7 @@ dependencies.
    ca
    elasticsearch
    autofirmware
+   puppet
 
 Development information
 =======================

@@ -9,6 +9,7 @@ include examples/elasticsearch/servers.py.example
 include examples/elasticsearch/kibana-dashboard.json
 include examples/firmwareupdater/hpilo_firmware_update
 include examples/ca/hpilo_ca
+recursive-include examples/puppet *.rb *.pp *.erb
 include ilo.conf.example
 include COPYING
 include CHANGES
