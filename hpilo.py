@@ -1599,7 +1599,7 @@ class Ilo(object):
            that you must also call dc_registration_complete"""
         elements = [
             etree.Element('ERS_HPP_USER_ID', attrib={'VALUE': str(user_id)}),
-            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(user_id)}),
+            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(password)}),
         ]
         for key, value in locals().items():
             if key.startswith('proxy_') and value is not None:
