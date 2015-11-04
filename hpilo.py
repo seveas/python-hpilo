@@ -1180,6 +1180,8 @@ class Ilo(object):
         def process(data):
             if isinstance(data, dict):
                 data = data.items()
+                if PY3:  # Python 3 requires list in orde to sort items
+                    data = list(data)
                 data.sort(key=lambda x: x[1])
                 return [x[0].lower() for x in data]
             elif isinstance(data[0], tuple):
