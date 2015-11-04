@@ -1179,7 +1179,7 @@ class Ilo(object):
            list of names"""
         def process(data):
             if isinstance(data, dict):
-                data = data.items()
+                data = list(data.items())
                 data.sort(key=lambda x: x[1])
                 return [x[0].lower() for x in data]
             elif isinstance(data[0], tuple):
