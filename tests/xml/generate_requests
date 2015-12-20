@@ -152,6 +152,7 @@ def main():
     ilo.login = 'Administrator'
     ilo.password = 'TestPassword'
     output_dir = '%s - %s %s' % (product_name, fw_version['management_processor'], fw_version['firmware_version'])
+    missing_only = False
     if os.path.exists(output_dir):
         answer = raw_input("I already have output for %s, regenerate? [(y)es/(m)issing only/(N)o] " % output_dir).lower()
         if answer == 'n':
