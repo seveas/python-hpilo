@@ -1,3 +1,7 @@
+Version 3.4, 2015-12-20
+* Bugfixes in set_ers_direct_connect and get_persistent_boot
+* xmldata now also supports querying for license keys
+
 Version 3.3, 2015-10-14
 * A puppet module has been added
 * More error codes get their own exception classes
