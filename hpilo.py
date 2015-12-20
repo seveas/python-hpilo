@@ -1826,18 +1826,22 @@ class Ilo(object):
             self._upload_file(filename, progress)
             return self._request(root, progress)[1]
 
-    def xmldata(self):
+    def xmldata(self, item='all'):
         """Get basic discovery data which all iLO versions expose over
-           unauthenticated URL"""
+           unauthenticated https. The default item to query is 'all'. Despite
+           its name, it does not return all information. To get license
+           information, use 'cpqkey' as argument."""
         if self.delayed:
             raise IloError("xmldata is not compatible with delayed mode")
+        if item.lower() not in ('all', 'cpqkey'):
+            raise IloError("unsupported xmldata argument '%s', must be 'all' or 'cpqkey'" % item)
 
         if self.read_response:
             fd = open(self.read_response)
             data = fd.read()
             fd.close()
         else:
-            url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+            url = 'https://%s:%s/xmldata?item=%s' % (self.hostname, self.port, item)
             if hasattr(ssl, 'create_default_context'):
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
