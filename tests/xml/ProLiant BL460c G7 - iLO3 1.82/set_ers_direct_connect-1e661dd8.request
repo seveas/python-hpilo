@@ -1,6 +1,6 @@
 POST /ribcl HTTP/1.1
 Host: localhost
-Content-Length: 406
+Content-Length: 410
 Connection: Close
 
 <?xml version="1.0"?>
@@ -20,7 +20,7 @@ Connection: Close
  VALUE="ErsUser"
  />
 <ERS_HPP_PASSWORD
- VALUE="ErsUser"
+ VALUE="ErsPassword"
  />
 <ERS_WEB_proxy_host
  VALUE="ErsProxyHost"

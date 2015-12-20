@@ -1,7 +1,7 @@
 # (c) 2011-2015 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "3.3"
+__version__ = "3.4"
 
 import os
 import errno
@@ -1179,7 +1179,7 @@ class Ilo(object):
            list of names"""
         def process(data):
             if isinstance(data, dict):
-                data = data.items()
+                data = list(data.items())
                 data.sort(key=lambda x: x[1])
                 return [x[0].lower() for x in data]
             elif isinstance(data[0], tuple):
@@ -1599,7 +1599,7 @@ class Ilo(object):
            that you must also call dc_registration_complete"""
         elements = [
             etree.Element('ERS_HPP_USER_ID', attrib={'VALUE': str(user_id)}),
-            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(user_id)}),
+            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(password)}),
         ]
         for key, value in locals().items():
             if key.startswith('proxy_') and value is not None:
@@ -1826,18 +1826,22 @@ class Ilo(object):
             self._upload_file(filename, progress)
             return self._request(root, progress)[1]
 
-    def xmldata(self):
+    def xmldata(self, item='all'):
         """Get basic discovery data which all iLO versions expose over
-           unauthenticated URL"""
+           unauthenticated https. The default item to query is 'all'. Despite
+           its name, it does not return all information. To get license
+           information, use 'cpqkey' as argument."""
         if self.delayed:
             raise IloError("xmldata is not compatible with delayed mode")
+        if item.lower() not in ('all', 'cpqkey'):
+            raise IloError("unsupported xmldata argument '%s', must be 'all' or 'cpqkey'" % item)
 
         if self.read_response:
             fd = open(self.read_response)
             data = fd.read()
             fd.close()
         else:
-            url = 'https://%s:%s/xmldata?item=all' % (self.hostname, self.port)
+            url = 'https://%s:%s/xmldata?item=%s' % (self.hostname, self.port, item)
             if hasattr(ssl, 'create_default_context'):
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
