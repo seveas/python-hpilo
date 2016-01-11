@@ -11,6 +11,7 @@ import re
 import socket
 import subprocess
 import sys
+import types
 import warnings
 import hpilo_fw
 
@@ -113,6 +114,9 @@ ILO_LOCAL = 3
 
 class IloErrorMeta(type):
     def __new__(cls, name, parents, attrs):
+        # Support old python versions where Exception is an old-style class
+        if hasattr(types, 'ClassType') and type(Exception) == types.ClassType:
+            parents = parents + (object,)
         if 'possible_messages' not in attrs:
             attrs['possible_messages'] = []
         if 'possible_codes' not in attrs:
