@@ -16,7 +16,7 @@ import sys
 import tarfile
 from whelk import Shell
 try:
-    git = Shell(redirect=False).git
+    git = Shell(redirect=False, encoding='utf-8').git
 except AttributeError:
     git = lambda *args: True
 
@@ -28,23 +28,34 @@ def main():
                  help="no output except errors and updates. Repeat to get only errors")
     p.add_option('--blank-files', dest='blank_files', action="store_true", default=False,
                  help="Delete downloaded content after processing")
+    p.add_option('--reset', dest='reset', action="store_true", default=False,
+                 help="Reset git tree to origin/master before mirroring")
+    p.add_option('--fetch', dest='fetch', action="store_true", default=False,
+                 help="Fetch git data before mirroring")
     p.add_option('--keep', dest='keep', action="store_true", default=False,
                  help="Keep changes")
     opts, args = p.parse_args()
 
     repo = os.path.abspath(os.path.dirname(__file__))
+    repo = git('-C', repo, 'rev-parse', '--show-toplevel', stdout=Shell.PIPE).stdout.strip()
     os.chdir(repo)
+
+    # Do we need to update?
+    if opts.fetch:
+        git('fetch', '--quiet')
+
+    if opts.reset:
+        git('reset', '--quiet', '--hard', 'origin/master')
 
     # Abort if there are local changes
     if not git('diff', '--quiet', '--exit-code', '--', 'firmware.conf'):
         print("Local changes to firmware.conf, aborting")
         return
 
-
     # Mirror all files and write config
     ftproot = ('ftp.hp.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
-    conf = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'firmware.conf')
-    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'firmware')
+    conf = os.path.join(repo, 'firmware.conf')
+    root = os.path.join(repo, 'devtools', 'firmware')
 
     ftp = FTP(ftproot[0], conf=conf, verbosity = 0 if opts.quiet else 2 if opts.verbose else 1, blank_files=opts.blank_files)
 
