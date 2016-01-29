@@ -1,3 +1,6 @@
+Version 3.5, 2016-01-29
+* Restore python 2.4 compatibility, which broke in 3.0
+
 Version 3.4, 2015-12-20
 * Bugfixes in set_ers_direct_connect and get_persistent_boot
 * xmldata now also supports querying for license keys
