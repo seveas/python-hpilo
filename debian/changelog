@@ -1,3 +1,9 @@
+python-hpilo (3.5-1) xenial; urgency=medium
+
+  * New upstream release
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Fri, 29 Jan 2016 17:11:53 +0100
+
 python-hpilo (3.4-1) xenial; urgency=medium
 
   * New upstream release
