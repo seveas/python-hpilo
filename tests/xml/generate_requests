@@ -94,6 +94,8 @@ def main():
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-o", "--port", dest="port", type="int", default=443,
                  help="SSL port to connect to")
+    p.add_option('-s', '--ssl', dest="ssl_version", default="tls1",
+                 help="The SSL/TLS version to use for connecting to the iLO")
 
     opts, args = p.parse_args()
 
@@ -135,8 +137,9 @@ def main():
         'raw':   hpilo.ILO_RAW,
         'local': hpilo.ILO_LOCAL,
     }.get(opts.protocol, None)
+    opts.ssl_version = hpilo.SSL_VERSION.get(opts.ssl_version, None)
 
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol)
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, ssl_version=opts.ssl_version)
     ilo.debug = opts.debug
     if config.has_option('ilo', 'hponcfg'):
         ilo.hponcfg = config.get('ilo', 'hponcfg')

@@ -19,25 +19,26 @@ Contacts the iLO, calls one or more methods and displays the output as if you
 were using a python console.
 
 Options:
-    -l LOGIN, --login=LOGIN
-                          Username to access the iLO
-    -p PASSWORD, --password=PASSWORD
-                          Password to access the iLO
-    -i, --interactive     Prompt for username and/or password if they are not
-                          specified.
-    -c FILE, --config=FILE
-                          File containing authentication and config details
-    -t TIMEOUT, --timeout=TIMEOUT
-                          Timeout for iLO connections
-    -j, --json            Output a json document instead of a python dict
-    -y, --yaml            Output a yaml document instead of a python dict
-    -P PROTOCOL, --protocol=PROTOCOL
-                          Use the specified protocol instead of autodetecting
-    -d, --debug           Output debug information, repeat to see all XML data
-    -o PORT, --port=PORT  SSL port to connect to
-    --untested            Allow untested methods
-    -h, --help            show this help message or help for a method
-    -H, --help-methods    show all supported methods
+  -l LOGIN, --login=LOGIN
+                        Username to access the iLO
+  -p PASSWORD, --password=PASSWORD
+                        Password to access the iLO
+  -i, --interactive     Prompt for username and/or password if they are not
+                        specified.
+  -c FILE, --config=FILE
+                        File containing authentication and config details
+  -t TIMEOUT, --timeout=TIMEOUT
+                        Timeout for iLO connections
+  -j, --json            Output a json document instead of a python dict
+  -y, --yaml            Output a yaml document instead of a python dict
+  -P PROTOCOL, --protocol=PROTOCOL
+                        Use the specified protocol instead of autodetecting
+  -d, --debug           Output debug information, repeat to see all XML data
+  -o PORT, --port=PORT  SSL port to connect to
+  -s SSL_VERSION, --ssl=SSL_VERSION
+                        The SSL/TLS version to use for connecting to the iLO
+  -h, --help            show this help message or help for a method
+  -H, --help-methods    show all supported methods
 
 :program:`hpilo_cli` will read a config file (by default :file:`~/.ilo.conf`)
 to find login information and any other variable you wish to set. This config

@@ -33,9 +33,11 @@ try:
 except ImportError:
     # Fallback for older python versions
     class ssl:
-        PROTOCOL_SSLv3 = 1
-        PROTOCOL_TLSv23 = 2
-        PROTOCOL_TLSv1 = 3
+        PROTOCOL_SSLv3   = 1
+        PROTOCOL_TLSv23  = 2
+        PROTOCOL_TLSv1   = 3
+        PROTOCOL_TLSv1_1 = 4
+        PROTOCOL_TLSv1_2 = 5
         @staticmethod
         def wrap_socket(sock, *args, **kwargs):
             return ssl(sock)
@@ -57,6 +59,13 @@ except ImportError:
 
         def close(self):
             return self.sock.close()
+
+SSL_VERSION = {
+    "ssl3"   : ssl.PROTOCOL_SSLv3,
+    "tls1"   : ssl.PROTOCOL_TLSv1,
+    "tls1_1" : ssl.PROTOCOL_TLSv1_1,
+    "tls1_2" : ssl.PROTOCOL_TLSv1_2,
+}
 
 try:
     import xml.etree.ElementTree as etree
@@ -183,19 +192,20 @@ class Ilo(object):
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 64 * 1024
 
-    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None):
         self.hostname = hostname
         self.login    = login or 'Administrator'
         self.password = password or 'Password'
         self.timeout  = timeout
         self.debug    = 0
         self.port     = port
+        self.ssl_version = ssl_version if ssl_version in SSL_VERSION.values() else ssl.PROTOCOL_TLSv1
+        self.ssl_fallback = self.ssl_version != ssl_version
         self.protocol = protocol
         self.cookie   = None
         self.delayed  = delayed
         self._elements = None
         self._processors = []
-        self.ssl_version = ssl.PROTOCOL_TLSv1
         self.save_response = None
         self.read_response = None
         self.save_request = None
@@ -397,9 +407,11 @@ class Ilo(object):
             e = sys.exc_info()[1]
             msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(e)
             # Some ancient iLO's don't support TLSv1, retry with SSLv3
-            if 'wrong version number' in msg and self.sslversion == ssl.PROTOCOL_TLSv1:
-                self.ssl_version = ssl.PROTOCOL_SSLv3
-                return self._get_socket()
+            # iff the ssl_version argument where not specified on the command line.
+            if self.ssl_fallback:
+				if 'wrong version number' in msg and self.sslversion >= ssl.PROTOCOL_TLSv1:
+					self.ssl_version = ssl.PROTOCOL_SSLv3
+					return self._get_socket()
             raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, msg))
 
     def _communicate(self, xml, protocol, progress=None, save=True):
@@ -1934,3 +1946,4 @@ class Ilo(object):
         'fan': ('bay',),
         'powersupply': ('bay', 'diag'),
     }
+
