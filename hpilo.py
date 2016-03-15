@@ -1439,15 +1439,39 @@ class Ilo(object):
         vars = dict(locals())
         del vars['self']
 
+        # The _priv thing is a comma-separated list of numbers, but other
+        # functions use names, and the iLO ssh interface shows different names.
+        # Support them all.
+        privmap = {
+            'login':         1,
+            'rc':            2,
+            'remote_cons':   2,
+            'vm':            3,
+            'virtual_media': 3,
+            'power':         4,
+            'reset_server':  4,
+            'config':        5,
+            'config_ilo':    5,
+            'admin':         6,
+        }
+
         # create special case for element with text inside
         if dir_kerberos_keytab:
             keytab_el = etree.Element('DIR_KERBEROS_KEYTAB')
             keytab_el.text = dir_kerberos_keytab
             del vars['dir_kerberos_keytab']
 
-        elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', \
-                False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+        elements = []
+        for key, val in vars.iteritems():
+            if not val:
+                continue
+            if key.endswith('_priv'):
+                if isinstance(val, basestring):
+                    val = val.replace('oemhp_', '').replace('_priv', '').split(',')
+                val = ','.join([str(privmap.get(x,x)) for x in val])
+            else:
+                val = str({True: 'Yes', False: 'No'}.get(val, val))
+            elements.append(etree.Element(key.upper(), VALUE=val))
 
         if dir_kerberos_keytab:
             elements.append(keytab_el)
