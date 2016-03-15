@@ -36,6 +36,8 @@ Options:
     -d, --debug           Output debug information, repeat to see all XML data
     -o PORT, --port=PORT  SSL port to connect to
     --untested            Allow untested methods
+    -s SSL_VERSION, --ssl=SSL_VERSION
+                          The SSL/TLS version to use for connecting to the iLO
     -h, --help            show this help message or help for a method
     -H, --help-methods    show all supported methods
 
