@@ -52,6 +52,8 @@ def main():
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-o", "--port", dest="port", type="int", default=443,
                  help="SSL port to connect to")
+    p.add_option('-s', '--ssl', dest="ssl_version", default="tls1",
+                 help="The SSL/TLS version to use for connecting to the iLO")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
@@ -60,8 +62,6 @@ def main():
                  help="Store XML output in this file")
     p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
-    p.add_option('-s', '--ssl', dest="ssl_version", default="tls1",
-                 help="The SSL/TLS version to use for connecting to the iLO")
     p.add_option('-v', '--version', action="callback", callback=hpilo_version)
 
     opts, args = p.parse_args()
@@ -181,12 +181,8 @@ def main():
         'raw':   hpilo.ILO_RAW,
         'local': hpilo.ILO_LOCAL,
     }.get(opts.protocol, None)
-    opts.ssl_version = {
-        "tls1": "PROTOCOL_TLSv1",
-        "tls1_1" : "PROTOCOL_TLSv1_1",
-        "tls1_2" : "PROTOCOL_TLSv1_2",
-        "ssl3" : "PROTOCOL_SSLv3"
-    }.get(opts.ssl_version, "PROTOCOL_TLSv1")
+    opts.ssl_version = hpilo.SSL_VERSION.get(opts.ssl_version, None)
+
     ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1, opts.ssl_version)
     ilo.debug = opts.debug
     ilo.save_response = opts.save_response
