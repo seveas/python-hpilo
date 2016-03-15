@@ -36,6 +36,8 @@ except ImportError:
         PROTOCOL_SSLv3 = 1
         PROTOCOL_TLSv23 = 2
         PROTOCOL_TLSv1 = 3
+        PROTOCOL_TLSv1_1 = 4
+        PROTOCOL_TLSv1_2 = 5
         @staticmethod
         def wrap_socket(sock, *args, **kwargs):
             return ssl(sock)
@@ -183,7 +185,7 @@ class Ilo(object):
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 64 * 1024
 
-    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version="PROTOCOL_TLSv1"):
         self.hostname = hostname
         self.login    = login or 'Administrator'
         self.password = password or 'Password'
@@ -195,7 +197,7 @@ class Ilo(object):
         self.delayed  = delayed
         self._elements = None
         self._processors = []
-        self.ssl_version = ssl.PROTOCOL_TLSv1
+        self.ssl_version = getattr(ssl, ssl_version, ssl.PROTOCOL_TLSv1)
         self.save_response = None
         self.read_response = None
         self.save_request = None
@@ -1934,3 +1936,4 @@ class Ilo(object):
         'fan': ('bay',),
         'powersupply': ('bay', 'diag'),
     }
+
