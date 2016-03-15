@@ -1676,7 +1676,9 @@ class Ilo(object):
 
     def set_host_power_saver(self, host_power_saver):
         """Set the configuration of the ProLiant power regulator"""
-        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER_SAVER', attrib={'HOST_POWER_SAVER': str(host_power_saver)})
+        mapping = {'off': 1, 'min': 2, 'auto': 3, 'max': 4}
+        host_power_saver = str(mapping.get(str(host_power_saver).lower(), host_power_saver))
+        return self._control_tag('SERVER_INFO', 'SET_HOST_POWER_SAVER', attrib={'HOST_POWER_SAVER': host_power_saver})
 
     def set_one_time_boot(self, device):
         """Set one time boot device, device should be one of normal, floppy,
