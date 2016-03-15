@@ -311,7 +311,7 @@ def download(ilotype, versions):
 
 def _download(config, key):
     if key not in config:
-        sys.stderr.write("Unkown ilo/firmware version: %s\n" % key)
+        sys.stderr.write("Unknown ilo/firmware version: %s\n" % key)
         sys.exit(1)
     try:
         if hpilo_fw.download(key, progress=print_progress):
