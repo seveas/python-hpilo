@@ -1,3 +1,7 @@
+Version 3.7, 2016-01-30
+* Support for TLSv1.1 and TLSv1.2
+* mod_dir_settings and set_host_power_saver now also accept non-numeric values
+
 Version 3.6, 2016-01-29
 * Actually fix mod_snmp_im_settings' cpability of setting ro/trap communities
 
