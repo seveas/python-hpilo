@@ -81,3 +81,12 @@ first update to 1.28 and then update to a later version::
 
   hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=1.28
   hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=latest
+
+`hpilo.IloError: Error reading configuration`
+---------------------------------------------
+This error occurs in certain iLO4 firmware versions, for example 2.40, when
+trying to use delayed calls. If the first call is a reset to factory defaults,
+some subsequent calls, such as activating a license, will trigger this error.
+This is a bug in the iLO firmware which will hopefully be fixed by HP.
+
+Not using delayed calls is an effective workaround in this case.
