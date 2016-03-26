@@ -84,9 +84,11 @@ first update to 1.28 and then update to a later version::
 
 `hpilo.IloError: Error reading configuration`
 ---------------------------------------------
-This error occurs in certain iLO4 firmware versions, for example 2.40, when
-trying to use delayed calls. If the first call is a reset to factory defaults,
-some subsequent calls, such as activating a license, will trigger this error.
-This is a bug in the iLO firmware which will hopefully be fixed by HP.
-
-Not using delayed calls is an effective workaround in this case.
+This error might occur in delayed mode when one of the calls causes a reset of
+the iLO, such as changing network settings or reseting to factory defaults. All
+delayed calls called by the same `call_delayed` after this reset may then cause
+this error as the iLO is reseting. For example, when calling `hpilo_cli
+localhost factory_defaults + activate_license key=12345`, the
+`activate_license` call may fail with this error. If you hit this issue and you
+use calls that can cause a reset, make sure you either use them outside a
+delayed call or at the end of the delayed call.
