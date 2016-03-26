@@ -544,7 +544,10 @@ class Ilo(object):
                 root, login = self._elements
             else:
                 self._elements = (root, login)
-        element = etree.SubElement(login, element, **attrs)
+        if self.delayed and len(login) and login[-1].tag == element and login[-1].attrib == attrs:
+            element = login[-1]
+        else:
+            element = etree.SubElement(login, element, **attrs)
         return root, element
 
     def _parse_message(self, data, include_inform=False):
