@@ -68,6 +68,9 @@ few auxiliarry items in this module too.
       one HTTP connection. As this overhead is quite significant, it makes
       sense to do this when you need to make more than one API call.
 
+      When using the delayed mode, please be aware that methods that trigger a
+      reset may cause subsequent methods to not be called or cause errors to be
+      returned for these methods.
 
    All other methods of this class are API calls that mimic the methods
    available via XML. These are documented separately in further pages here and
