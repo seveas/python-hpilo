@@ -22,7 +22,10 @@ import optparse
 import os
 from pprint import pprint
 import sys
-import urllib2
+try:
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import HTTPError
 
 ilo_methods = sorted([x for x in dir(hpilo.Ilo) if not x.startswith('_') and x.islower()])
 
@@ -318,7 +321,7 @@ def _download(config, key):
             print("")
         else:
             print("%s firmware version %s was already downloaded" % (key.split()[0], config[key]['version']))
-    except urllib2.HTTPError:
+    except HTTPError:
         e = sys.exc_info()[1]
         print("\n%s" % str(e))
 
