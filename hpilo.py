@@ -18,14 +18,16 @@ import hpilo_fw
 PY3 = sys.version_info[0] >= 3
 if PY3:
     import urllib.request as urllib2
-    import io as StringIO
+    import io
     b = lambda x: bytes(x, 'ascii')
     class Bogus(Exception): pass
     socket.sslerror = Bogus
     basestring = str
 else:
     import urllib2
-    import cStringIO as StringIO
+    import cStringIO as io
+    if not hasattr(io, 'BytesIO'):
+        io.BytesIO = io.StringIO
     b = lambda x: x
 
 try:
@@ -342,13 +344,13 @@ class Ilo(object):
         if self.read_response or self.save_request:
             class FakeSocket(object):
                 def __init__(self, rfile=None, wfile=None):
-                    self.input = rfile and open(rfile) or StringIO.StringIO()
-                    self.output = wfile and open(wfile, 'a') or StringIO.StringIO()
+                    self.input = rfile and open(rfile, 'rb') or io.BytesIO()
+                    self.output = wfile and open(wfile, 'ab') or io.BytesIO()
                     self.read = self.input.read
                     self.write = self.output.write
                     data = self.input.read(4)
                     self.input.seek(0)
-                    self.protocol = data == 'HTTP' and ILO_HTTP or ILO_RAW
+                    self.protocol = data == b('HTTP') and ILO_HTTP or ILO_RAW
                 def close(self):
                     self.input.close()
                     self.output.close()
@@ -691,7 +693,7 @@ class Ilo(object):
         for t in tags[1:]:
             inner = etree.SubElement(inner, t[0], **t[1])
         header, message = self._request(root)
-        fd = StringIO.StringIO()
+        fd = io.BytesIO()
         etree.ElementTree(message).write(fd)
         ret = fd.getvalue()
         fd.close()
