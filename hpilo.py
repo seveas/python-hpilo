@@ -916,6 +916,11 @@ class Ilo(object):
         """Reset the iLO to factory default settings"""
         return self._control_tag('RIB_INFO', 'FACTORY_DEFAULTS')
 
+    def force_format(self):
+        """Forcefully format the iLO's internal NAND flash. Only use this when
+           the iLO is having severe problems and its self-test fails"""
+        return self._control_tag('RIB_INFO', 'FORCE_FORMAT', attrib={'VALUE': 'all'})
+
     def get_ahs_status(self):
         """Get active health system logging status"""
         return self._info_tag('RIB_INFO', 'GET_AHS_STATUS')

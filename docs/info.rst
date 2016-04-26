@@ -12,6 +12,7 @@ authentication or power.
    :noindex:
 
    .. automethod:: factory_defaults
+   .. automethod:: force_format
    .. automethod:: get_product_name
    .. ilo_output:: get_product_name
    .. automethod:: get_fw_version
