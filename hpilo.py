@@ -3,6 +3,7 @@
 
 __version__ = "3.7"
 
+import codecs
 import os
 import errno
 import platform
@@ -110,6 +111,22 @@ elif hasattr(etree.ElementTree, '_write'):
     etree.ElementTree._write = _write
 else:
     raise RuntimeError("Don't know how to monkeypatch XML serializer workarounds. Please report a bug at https://github.com/seveas/python-hpilo")
+
+# We handle non-ascii characters in the returned XML by replacing them with XML
+# character references. This likely results in bogus data, but avoids crashes.
+# The iLO should never do this, but firmware bugs may cause it to do so.
+def iloxml_replace(error):
+    ret = ""
+    for pos in range(error.start, len(error.object)):
+        b = error.object[pos]
+        if not isinstance(b, int):
+            b = ord(b)
+        if b < 128:
+            break
+        ret += u'?'
+    warnings.warn("Invalid ascii data found: %s, replaced with %s" % (repr(error.object[error.start:pos]), ret), IloWarning)
+    return (ret, pos)
+codecs.register_error('iloxml_replace', iloxml_replace)
 
 # Which protocol to use
 ILO_RAW  = 1
@@ -222,7 +239,7 @@ class Ilo(object):
 
     def _debug(self, level, message):
         if message.__class__.__name__ == 'bytes':
-            message = message.decode('latin-1')
+            message = message.decode('ascii')
         if self.debug >= level:
             if self._protect_passwords:
                 message = re.sub(r'PASSWORD=".*?"', 'PASSWORD="********"', message)
@@ -319,7 +336,7 @@ class Ilo(object):
         try:
             while True:
                 d = sock.read()
-                data += d.decode('latin-1')
+                data += d.decode('ascii')
                 if not d:
                     break
         except socket.sslerror: # Connection closed
@@ -454,7 +471,7 @@ class Ilo(object):
         data = ''
         try:
             while True:
-                d = sock.read().decode('latin-1')
+                d = sock.read().decode('ascii', 'iloxml_replace')
                 data += d
                 if not d:
                     break
@@ -1889,7 +1906,7 @@ class Ilo(object):
                 opener = urllib2.build_opener(urllib2.ProxyHandler({}))
             req = opener.open(url, None, self.timeout)
             data = req.read()
-            self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('utf-8', 'replace'))
+            self._debug(1, str(req.headers).rstrip() + "\n\n" + data.decode('ascii', 'iloxml_replace'))
         if self.save_response:
             fd = open(self.save_response, 'a')
             fd.write(data)
