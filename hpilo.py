@@ -1,7 +1,7 @@
 # (c) 2011-2016 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "3.7"
+__version__ = "3.8"
 
 import codecs
 import os

@@ -1,3 +1,9 @@
+Version 3.8, 2016-04-26
+* Improved python 3 compatibility
+* More compact XML in delayed mode to make resets and changes more cooperative
+* More workarounds for iLO firmware bugs, this time around badly encoded data
+* Add the force_format command to help recover really broken iLOs
+
 Version 3.7, 2016-01-30
 * Support for TLSv1.1 and TLSv1.2
 * mod_dir_settings and set_host_power_saver now also accept non-numeric values
