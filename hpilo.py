@@ -428,7 +428,7 @@ class Ilo(object):
         sock = self._get_socket()
         if self.read_response:
             protocol = sock.protocol
-        msglen = msglen_ = len(self.XML_HEADER + xml)
+        msglen = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
             extra_header = ''
             if self.cookie:
