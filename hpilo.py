@@ -1492,7 +1492,7 @@ class Ilo(object):
             del vars['dir_kerberos_keytab']
 
         elements = []
-        for key, val in vars.iteritems():
+        for key, val in vars.items():
             if not val:
                 continue
             if key.endswith('_priv'):
