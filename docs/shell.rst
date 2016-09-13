@@ -58,7 +58,7 @@ specified as :data:`key=value` pairs on the command-line. These parameters can
 also point to arbitrary configuration variables using the
 :attr:`key='$section.option'` syntax.
 
-Finally, you can also call multiple methds at once by separating them with a
+Finally, you can also call multiple methods at once by separating them with a
 :data:`+`
 
 Examples
