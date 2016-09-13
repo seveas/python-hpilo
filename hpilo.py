@@ -1493,7 +1493,7 @@ class Ilo(object):
 
         elements = []
         for key, val in vars.items():
-            if not val:
+            if val is None:
                 continue
             if key.endswith('_priv'):
                 if isinstance(val, basestring):
