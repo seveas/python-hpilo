@@ -53,7 +53,7 @@ def main():
         return
 
     # Mirror all files and write config
-    ftproot = ('ftp.hp.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
+    ftproot = ('downloads.hpe.com', '/pub/softlib2/software1/sc-linux-fw-ilo')
     conf = os.path.join(repo, 'firmware.conf')
     root = os.path.join(repo, 'devtools', 'firmware')
 
