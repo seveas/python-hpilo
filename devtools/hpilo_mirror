@@ -150,10 +150,10 @@ class FTP(ftplib.FTP):
             fn = os.sep.join(path[-3:])
             if not os.path.exists(fn):
                 self.log(1, "Downloading %s" % url)
+                resp = requests.get(url, stream=True)
+                if resp.status_code != 200:
+                    continue
                 with open(fn, 'wb') as fd:
-                    resp = requests.get(url, stream=True)
-                    if resp.status_code != 200:
-                        continue
                     for chunk in resp.iter_content(chunk_size=4096):
                         fd.write(chunk)
             os.chdir(dn)
