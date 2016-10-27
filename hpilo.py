@@ -373,7 +373,8 @@ class Ilo(object):
                     self.output.close()
                 shutdown = lambda *args: None
             sock = FakeSocket(self.read_response, self.save_request)
-            self.protocol = sock.protocol
+            if self.read_response:
+                self.protocol = sock.protocol
             return sock
 
         if self.protocol == ILO_LOCAL:

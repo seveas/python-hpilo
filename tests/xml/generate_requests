@@ -34,6 +34,7 @@ method_args = {
     'delete_ssh_key': [['TestUser']],
     'insert_virtual_media': [['CDROM', 'http://localhost/os.iso']],
     'mod_dir_config': [[True, True, 'ldap.example.com', 389]],
+    'mod_dir_config': [[True, True, '']],
     'mod_federation_group': [['TestGroup', None, None, False, False, True]],
     'mod_global_settings': [
         {'remote_syslog_enable': True, 'remote_syslog_server_address': '10.1.1.1', 'remote_syslog_port': 514},
