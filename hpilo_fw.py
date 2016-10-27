@@ -62,10 +62,10 @@ def download(ilo, path=None, progress = lambda txt: None):
     return False
 
 def parse(fwfile, ilo):
-    fd = open(fwfile)
+    fd = open(fwfile, 'rb')
     data = fd.read()
     fd.close()
-    if '_SKIP=' in data:
+    if b('_SKIP=') in data:
         # scexe file
         fwfile = _parse(data, os.getcwd())
     return fwfile
