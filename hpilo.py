@@ -135,9 +135,6 @@ ILO_LOCAL = 3
 
 class IloErrorMeta(type):
     def __new__(cls, name, parents, attrs):
-        # Support old python versions where Exception is an old-style class
-        if hasattr(types, 'ClassType') and type(Exception) == types.ClassType:
-            parents = parents + (object,)
         if 'possible_messages' not in attrs:
             attrs['possible_messages'] = []
         if 'possible_codes' not in attrs:
@@ -162,6 +159,12 @@ if PY3:
     # that syntax is an error on older python, so recreate IloError properly
     # the manual way.
     IloError = IloErrorMeta('IloError', (Exception,), {'known_subclasses': [], '__init__': IloError.__init__})
+
+elif sys.version_info < (2,5,0):
+    # And in python 2.4, exceptions cannot be new style classes. So in python
+    # 2.4, you don't get nicely differentiated errors.
+    class IloError(Exception):
+        pass
 
 class IloCommunicationError(IloError):
     pass
