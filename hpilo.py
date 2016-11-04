@@ -157,6 +157,12 @@ class IloError(Exception):
         self.errorcode = errorcode
     known_subclasses = []
 
+if PY3:
+    # Python 3 ignores __metaclass__ but wants class foo(metaclass=bar) But
+    # that syntax is an error on older python, so recreate IloError properly
+    # the manual way.
+    IloError = IloErrorMeta('IloError', (Exception,), {'known_subclasses': [], '__init__': IloError.__init__})
+
 class IloCommunicationError(IloError):
     pass
 
