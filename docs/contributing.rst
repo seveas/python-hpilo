@@ -14,12 +14,11 @@ test data from a server model that's not included in the tests yet, see
 
 Coding guidelines
 -----------------
-* python-hpilo currently supports python 2.4 up to python 3.5. Any new code in
-  `hpilo.py` and `hpilo_cli` needs to be compatible with all these versions.
-  That means no `with` statement, no `sorted` and using brackets for `print()`.
-  Code in examples and tests can assume python 2.7 and 3.4 or newer.
-* No dependencies in `hpilo.py` and `hpilo_cli`. Examples may have additional
-  dependencies.
+* python-hpilo currently supports python 2.6 up to python 3.6, excluding
+  3.0-3.2 Any new code in `hpilo.py` and `hpilo_cli` needs to be compatible
+  with all these versions.
+* No non-stdlib dependencies in `hpilo.py` and `hpilo_cli`. Examples may have
+  additional dependencies.
 * All methods call into :func:`_info_tag` or :func:`_control_tag`. Any
   new method must do so too, to be able to use it in :meth:`call_delayed`.
 * All new methods must be documented. A docstring is mandatory and will appear

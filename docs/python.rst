@@ -25,10 +25,6 @@ few auxiliarry items in this module too.
                    for any method call you make and return a result. To save
                    roundtrip time costs, set this to :py:data:`False` and call
                    the :py:meth:`call_delayed` method manually.
-   :param ssl_version: By default, this library will use the TLSv1 protocol as
-                   security layer, falling back to SSLv3 if necessary. You can
-                   specify a different TLS version (use the constants from the
-                   ssl module) to use if necessary.
 
    .. py:method:: call_delayed
 

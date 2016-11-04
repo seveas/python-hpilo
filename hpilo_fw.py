@@ -4,6 +4,7 @@
 # see COPYING for license details
 
 import tarfile
+import io
 import os
 import sys
 PY3 = sys.version_info[0] >= 3
@@ -11,16 +12,11 @@ PY3 = sys.version_info[0] >= 3
 if PY3:
     import urllib.request as urllib2
     import configparser as ConfigParser
-    from io import BytesIO, StringIO
-    b = lambda x: bytes(x, 'ascii')
-    GZIP_CONSTANT = '\x1f\x8b'.encode('latin-1')
 else:
     import urllib2
     import ConfigParser
-    from cStringIO import StringIO as StringIO
-    BytesIO = StringIO
-    b = lambda x: x
-    GZIP_CONSTANT = '\x1f\x8b'
+
+GZIP_CONSTANT = b'\x1f\x8b'
 
 _config = None
 def config(mirror=None):
@@ -33,7 +29,7 @@ def config(mirror=None):
         if PY3:
             conf = conf.decode('ascii')
         parser = ConfigParser.ConfigParser()
-        parser.readfp(StringIO(conf))
+        parser.readfp(io.StringIO(conf))
         _config = {}
         for section in parser.sections():
             _config[section] = {}
@@ -53,9 +49,8 @@ def download(ilo, path=None, progress = lambda txt: None):
         progress(msg)
         data = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
         if conf[ilo]['url'].endswith('.bin'):
-            fd = open(os.path.join(path, conf[ilo]['file']), 'w')
-            fd.write(data)
-            fd.close()
+            with open(os.path.join(path, conf[ilo]['file']), 'w') as fd:
+                fd.write(data)
         else:
             _parse(data, path, conf[ilo]['file'])
         return True
@@ -65,7 +60,7 @@ def parse(fwfile, ilo):
     fd = open(fwfile, 'rb')
     data = fd.read()
     fd.close()
-    if b('_SKIP=') in data:
+    if b'_SKIP=' in data:
         # scexe file
         fwfile = _parse(data, os.getcwd())
     return fwfile
@@ -76,7 +71,7 @@ def _download(url, progress=lambda txt: None):
     if size < 16384:
         return req.read()
     downloaded = 0
-    data = b('')
+    data = b''
     while downloaded < size:
         new = req.read(16384)
         data += new
@@ -87,16 +82,16 @@ def _download(url, progress=lambda txt: None):
 
 def _parse(scexe, path, filename=None):
     # An scexe is a shell script with an embedded compressed tarball. Find the tarball.
-    skip_start = scexe.index(b('_SKIP=')) + 6
-    skip_end = scexe.index(b('\n'), skip_start)
+    skip_start = scexe.index(b'_SKIP=') + 6
+    skip_end = scexe.index(b'\n', skip_start)
     skip = int(scexe[skip_start:skip_end]) - 1
-    tarball = scexe.split(b('\n'), skip)[-1]
+    tarball = scexe.split(b'\n', skip)[-1]
 
     # Now uncompress it
     if tarball[:2] != GZIP_CONSTANT:
         raise ValueError("scexe file seems corrupt")
 
-    tf = tarfile.open(name="bogus_name_for_old_python_versions", fileobj=BytesIO(tarball), mode='r:gz')
+    tf = tarfile.open(name="bogus_name_for_old_python_versions", fileobj=io.BytesIO(tarball), mode='r:gz')
     filenames = [x for x in tf.getnames() if x.endswith('.bin')]
     if not filename or filename not in filenames:
         if len(filenames) != 1:
