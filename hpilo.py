@@ -997,6 +997,9 @@ class Ilo(object):
         return self._info_tag('SERVER_INFO', 'GET_EMBEDDED_HEALTH', 'GET_EMBEDDED_HEALTH_DATA',
                 process=process)
 
+    def get_nand_vendor_data(self):
+        return self._info_tag('RIB_INFO', 'GET_NAND_VENDOR_DATA')
+
     # Ok, special XML structures. Yay.
     def _parse_get_embedded_health_data_drives(self, element):
         ret = []
