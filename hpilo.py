@@ -1337,13 +1337,13 @@ class Ilo(object):
     # Broken in iLO3 < 1.55 for Administrator
     def import_ssh_key(self, user_login, ssh_key):
         """Imports an SSH key for the specified user. The value of ssh_key
-           should be the content of an id_dsa.pub file"""
+           should be the content of an id_dsa.pub or id_rsa.pub file"""
         # Basic sanity checking
         if ' ' not in ssh_key:
             raise ValueError("Invalid SSH key")
         algo, key = ssh_key.split(' ',2)[:2]
-        if algo != 'ssh-dss':
-            raise ValueError("Invalid SSH key, only DSA keys are supported")
+        if algo not in ['ssh-dss', 'ssh-rsa']:
+            raise ValueError("Invalid SSH key, only DSA and RSA keys are supported")
         try:
             key.decode('base64')
         except Exception:
