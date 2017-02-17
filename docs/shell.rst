@@ -136,7 +136,7 @@ Available methods
 -----------------
 All methods available to the python API are also available to the command line.
 These methods are documented separately in further pages here and in the `ilo
-scripting guide`_ published by HP.
+scripting guide`_ published by Hewlett Packard Enterprise.
 
-.. _`hp`: http://www.hp.com/go/ilo
-.. _`ilo scripting guide`: http://www.hp.com/support/ilo4_cli_gde_en
+.. _`hp`: http://www.hpe.com/info/ilo
+.. _`ilo scripting guide`: http://www.hpe.com/support/ilo4_cli_gde_en
