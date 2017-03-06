@@ -192,6 +192,9 @@ class IloLicenseKeyError(IloError):
 class IloFeatureNotSupported(IloError):
     possible_codes = [0x003c]
 
+class IloNotConfigured(IloError):
+    possible_codes = [0x006d]
+
 class IloWarning(Warning):
     pass
 
@@ -1651,6 +1654,10 @@ class Ilo(object):
     def reset_server(self):
         """Power cycle the server"""
         return self._control_tag('SERVER_INFO', 'RESET_SERVER')
+
+    def send_snmp_test_trap(self):
+        """Send an SNMP test trap to the configured alert destinations"""
+        return self._control_tag('RIB_INFO', 'SEND_SNMP_TEST_TAG')
 
     def set_ahs_status(self, status):
         """Enable or disable AHS logging"""

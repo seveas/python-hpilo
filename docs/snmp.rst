@@ -13,3 +13,4 @@ SNMP.
    .. automethod:: get_snmp_im_settings
    .. ilo_output:: get_snmp_im_settings
    .. automethod:: mod_snmp_im_settings
+   .. automethod:: send_snmp_test_trap
