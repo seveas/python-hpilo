@@ -273,6 +273,11 @@ class Ilo(object):
         else:
             xml = etree.tostring(xml)
 
+        # XML doesn't support ampersand (&) characters un-escaped, but the HP iLO permits
+        # this as a valid password character. ElementTree helpfully escapes & to &amp; thus
+        # breaking passwords containing this character. Undo its good work.
+        xml = xml.replace('&amp;', '&')
+
         header, data =  self._communicate(xml, self.protocol, progress=progress)
 
         # This thing usually contains multiple XML messages
