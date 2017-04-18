@@ -1391,12 +1391,13 @@ class Ilo(object):
             alertmail_enable=None, alertmail_email_address=None,
             alertmail_sender_domain=None, alertmail_smtp_server=None, alertmail_smtp_port=None,
             min_password=None, enforce_aes=None, authentication_failure_logging=None,
+            authentication_failure_delay_secs=None, authentication_failures_before_delay=None,
             rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
             terminal_services_port=None, high_performance_mouse=None,
             shared_console_enable=None, shared_console_port=None,
             remote_console_acquire=None, brownout_recovery=None,
-            ipmi_dcmi_over_lan_enabled=None, vsp_log_enable=None, vsp_software_flow_control=None,
-            propagate_time_to_host=None):
+            ipmi_dcmi_over_lan_enabled=None, ipmi_dcmi_over_lan_port=None,
+            vsp_log_enable=None, vsp_software_flow_control=None, propagate_time_to_host=None):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
@@ -1421,7 +1422,9 @@ class Ilo(object):
             ipv6_prim_dns_server=None, ipv6_sec_dns_server=None, ipv6_ter_dns_server=None,
             ipv6_default_gateway=None, ipv6_preferred_protocol=None, ipv6_addr_autocfg=None,
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
-            dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None):
+            dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None,
+            dhcpv6_domain_name=None, ilo_nic_auto_select=None, ilo_nic_auto_snp_scan=None,
+            ilo_nic_auto_delay=None, ilo_nic_fail_over=None, gratuitous_arp=None):
         """Configure the network settings for the iLO card. The static route arguments require
            dicts as arguments. The necessary keys in these dicts are dest,
            gateway and mask all in dotted-quad form"""
@@ -1699,11 +1702,13 @@ class Ilo(object):
                 elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': str(value)}))
         return self._control_tag('RIB_INFO', 'SET_ERS_WEB_PROXY', elements=elements)
 
-    def set_federation_multicast(self, multicast_discovery_enabled=True, multicast_announcement_interval=600,
-                                    ipv6_multicast_scope="Site", multicast_ttl=5):
+    def set_federation_multicast(self, multicast_federation_enabled=True, multicast_discovery_enabled=True,
+                                 multicast_announcement_interval=600, ipv6_multicast_scope="Site", multicast_ttl=5):
         """Set the Federation multicast configuration"""
+        multicast_federation_enabled = {True: 'Yes', False: 'No'}[multicast_federation_enabled]
         multicast_discovery_enabled = {True: 'Yes', False: 'No'}[multicast_discovery_enabled]
         elements = [
+            etree.Element('MULTICAST_FEDERATION_ENABLED', attrib={'VALUE': multicast_federation_enabled}),
             etree.Element('MULTICAST_DISCOVERY_ENABLED', attrib={'VALUE': multicast_discovery_enabled}),
             etree.Element('MULTICAST_ANNOUNCEMENT_INTERVAL', attrib={'VALUE': str(multicast_announcement_interval)}),
             etree.Element('IPV6_MULTICAST_SCOPE', attrib={'VALUE': str(ipv6_multicast_scope)}),
