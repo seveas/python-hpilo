@@ -10,6 +10,7 @@ include examples/elasticsearch/kibana-dashboard.json
 include examples/firmwareupdater/hpilo_firmware_update
 include examples/ca/hpilo_ca
 recursive-include examples/puppet *.rb *.pp *.erb
+recursive-include tests *
 include ilo.conf.example
 include COPYING
 include CHANGES
