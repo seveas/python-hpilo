@@ -1542,10 +1542,14 @@ class Ilo(object):
                     for x in vars if vars[x] is not None and 'trapcommunity' not in x and 'snmp_user_profile' not in x]
         for key in vars:
             if 'trapcommunity' in key and vars[key]:
-                val = vars[key]
-                for key_ in val.keys():
-                    val[key_.upper()] = str(val.pop(key_))
-                elements.append(etree.Element(key.upper(), **val))
+                if type(vars[key]) is str:
+                    vals = { 'VALUE': vars[key] }  
+                    vals['VERSION']=''
+                else:  # A dict
+                    vals = vars[key]
+                    for key_ in vals.keys():
+                       vals[key_.upper()] = str(vals.pop(key_))
+                elements.append(etree.Element(key.upper(), **vals))
             elif 'snmp_user_profile' in key and vars[key]:
                 elt = etree.Element(key[:-2].upper(), {'INDEX': key[-1]})
                 for key, val in vars[key].items():
