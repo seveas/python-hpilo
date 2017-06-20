@@ -1675,7 +1675,7 @@ class Ilo(object):
         """Set the server asset tag"""
         return self._control_tag('SERVER_INFO', 'SET_ASSET_TAG', attrib={'VALUE': asset_tag})
 
-    def set_ers_direct_connect(self, user_id, password, proxy_host=None,
+    def set_ers_direct_connect(self, user_id, password, proxy_url=None,
             proxy_port=None, proxy_username=None, proxy_password=None):
         """Register your iLO with HP Insigt Online using Direct Connect. Note
            that you must also call dc_registration_complete"""
@@ -1696,7 +1696,7 @@ class Ilo(object):
         ]
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
 
-    def set_ers_web_proxy(self, proxy_host, proxy_port, proxy_username=None,
+    def set_ers_web_proxy(self, proxy_url, proxy_port, proxy_username=None,
             proxy_password=None):
         """Register your iLO with HP Insigt Online using Direct Connect. Note
            that you must also call dc_registration_complete"""
