@@ -6,10 +6,10 @@ Integrated Lights out, or iLO. It has an extensive web interface and
 commercially available tools for centrally managing iLO devices and their
 servers.
 
-But if you want to built your own tooling, integrate iLO management to your
+But if you want to build your own tooling, integrate iLO management to your
 existing procedures or simply want to manage iLOs using a command-line
 interface, you're stuck manually creating XML files and using a perl hack HP
-ships called locfg.pl.
+ships called `locfg.pl`.
 
 Enter python-hpilo!
 
@@ -42,9 +42,9 @@ The available functions you can call are all documented in the pages linked
 below, but for detailed descriptions of all functions and especially their
 arguments, please refer to the `ilo scripting guide`_ as well.
 
-This package also ships examples of more complete applications in the examples
+This package also ships examples of more complete applications in the `examples`
 directory. This include an automated CA for managing SSL certificates, tooling
-to centralize iLO informatin in elastic search and an automated firmware
+to centralize iLO information in elastic search and an automated firmware
 updater. All of which are used in production by the author or other
 contributors.
 
@@ -97,7 +97,7 @@ Example applications
 ====================
 There are several example applications in the `examples/` directory. Note that
 while `hpilo.py` and `hpilo_cli` are compatible with python versions as old as
-2.4, some examples may require new versions of python and have additional
+2.4, some examples may require newer versions of python and have additional
 dependencies.
 
 .. toctree::
