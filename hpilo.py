@@ -1614,7 +1614,7 @@ class Ilo(object):
         """Delet the specified deployment profile"""
         return self._control_tag('RIB_INFO', 'PROFILE_DELETE', elements=[etree.Element('PROFILE_DESC_NAME', attrib={'VALUE': desc_name})])
 
-    def profile_desc_download(self, desc_name, name, description, blob_namespace=None, blob_name=None, url=None):
+    def profile_desc_download(self, desc_name, name, description, blob_namespace='perm', blob_name=None, url=None):
         """Make the iLO download a blob and create a deployment profile"""
         elements = [
             etree.Element('PROFILE_DESC_NAME', attrib={'VALUE': desc_name}),
@@ -1623,11 +1623,13 @@ class Ilo(object):
             etree.Element('PROFILE_SCHEMA', attrib={'VALUE': 'intelligentprovisioning.1.0.0'}),
         ]
         if blob_namespace:
-            elements.append(etree.Element('BLOB_NAMESPACE', attrs={'VALUE': blob_namespace}))
+            elements.append(etree.Element('BLOB_NAMESPACE', attrib={'VALUE': blob_namespace}))
         if blob_name:
-            elements.append(etree.Element('BLOB_NAME', attrs={'VALUE': blob_name}))
+            elements.append(etree.Element('BLOB_NAME', attrib={'VALUE': blob_name}))
+        else:
+            elements.append(etree.Element('BLOB_NAME', attrib={'VALUE': desc_name}))
         if url:
-            elements.append(etree.Element('PROFILE_URL', attrs={'VALUE': url}))
+            elements.append(etree.Element('PROFILE_URL', attrib={'VALUE': url}))
         return self._control_tag('RIB_INFO', 'PROFILE_DESC_DOWNLOAD', elements=elements)
 
     def profile_list(self):
