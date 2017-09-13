@@ -1418,7 +1418,7 @@ class Ilo(object):
             timezone=None, enclosure_ip_enable=None, web_agent_ip_address=None,
             shared_network_port=None, vlan_enabled=None, vlan_id=None,
             shared_network_port_vlan=None, shared_network_port_vlan_id=None, ipv6_address=None,
-            ipv6_static_route_1=None, ipv6_static_route2=None, ipv6_static_route_3=None,
+            ipv6_static_route_1=None, ipv6_static_route_2=None, ipv6_static_route_3=None,
             ipv6_prim_dns_server=None, ipv6_sec_dns_server=None, ipv6_ter_dns_server=None,
             ipv6_default_gateway=None, ipv6_preferred_protocol=None, ipv6_addr_autocfg=None,
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,

@@ -11,3 +11,4 @@ firmware
 *.request.tmp
 hpilo_test_debug_output
 .firmware_version_cache
+.idea/
