@@ -67,6 +67,10 @@ def main():
     p.add_option('--read-response', dest="read_response", default=None, metavar='FILE',
                  help="Read XML response from this file instead of the iLO")
     p.add_option('-v', '--version', action="callback", callback=hpilo_version)
+    p.add_option('--ca-file', dest="ca_file", default=None,
+                 help="CA bundle to validate iLO certificate against")
+    p.add_option('--no-match-hostname', dest="match_hostname", action='store_false', default=True,
+                 help="Don't check if the hostname matches the certificate when using --ca-file")
 
     opts, args = p.parse_args()
 
@@ -187,7 +191,7 @@ def main():
     }.get(opts.protocol, None)
     opts.ssl_version = getattr(hpilo.ssl, 'PROTOCOL_' + opts.ssl_version.upper().replace('V','v'))
 
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1, opts.ssl_version)
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1, opts.ssl_version, opts.ca_file, opts.match_hostname)
     ilo.debug = opts.debug
     ilo.save_response = opts.save_response
     ilo.read_response = opts.read_response
