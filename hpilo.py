@@ -1405,8 +1405,11 @@ class Ilo(object):
         """Modify iLO global settings, only values that are specified will be changed."""
         vars = dict(locals())
         del vars['self']
+        dont_map = ['authentication_failure_logging']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None]
+                    for x in vars if vars[x] is not None and x not in dont_map] + \
+                   [etree.Element(x.upper(), VALUE=str(vars[x]))
+                    for x in vars if vars[x] is not None and x in dont_map]
         return self._control_tag('RIB_INFO', 'MOD_GLOBAL_SETTINGS', elements=elements)
 
     def mod_network_settings(self, enable_nic=None, reg_ddns_server=None,
