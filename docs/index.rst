@@ -57,7 +57,7 @@ are:
 * Python 2.4-2.7 and python 3.2 and newer
 * Any operating system Python runs on
 
-iLOs can be managed both locally using `hponcfg` or remotely using the iLO's
+iLOs can be managed both locally using `hponcfg` or remotely using iLO's
 built-in webserver. In the latter case, the requirements above concern the
 machine you run this code on, not the managed server.
 
