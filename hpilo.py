@@ -1431,7 +1431,8 @@ class Ilo(object):
             ipv6_reg_ddns_server=None, dhcpv6_dns_server=None, dhcpv6_rapid_commit=None,
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None,
             dhcpv6_domain_name=None, ilo_nic_auto_select=None, ilo_nic_auto_snp_scan=None,
-            ilo_nic_auto_delay=None, ilo_nic_fail_over=None, gratuitous_arp=None):
+            ilo_nic_auto_delay=None, ilo_nic_fail_over=None, gratuitous_arp=None,
+            nic_fail_over_delay=None):
         """Configure the network settings for the iLO card. The static route arguments require
            dicts as arguments. The necessary keys in these dicts are dest,
            gateway and mask all in dotted-quad form"""
