@@ -33,11 +33,15 @@ else:
 
 try:
     import ssl
+    # Python 2.7.13 renamed PROTOCOL_SSLv23 to PROTOCOL_TLS
+    if not hasattr(ssl, 'PROTOCOL_TLS'):
+        ssl.PROTOCOL_TLS = ssl.PROTOCOL_SSLv23
 except ImportError:
     # Fallback for older python versions
     class ssl:
         PROTOCOL_SSLv3   = 1
         PROTOCOL_SSLv23  = 2
+        PROTOCOL_TLS     = 2
         PROTOCOL_TLSv1   = 3
         PROTOCOL_TLSv1_1 = 4
         PROTOCOL_TLSv1_2 = 5
@@ -223,7 +227,7 @@ class Ilo(object):
         self.timeout  = timeout
         self.debug    = 0
         self.port     = port
-        self.ssl_version = ssl_version or ssl.PROTOCOL_TLSv1
+        self.ssl_version = ssl_version or ssl.PROTOCOL_TLS
         self.ssl_fallback = ssl_version is None # Only fall back to SSLv3 if no protocol was specified
         self.protocol = protocol
         self.cookie   = None
