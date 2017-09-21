@@ -39,6 +39,8 @@ try:
 except ImportError:
     # Fallback for older python versions
     class ssl:
+        CERT_NONE        = 0
+        CERT_REQUIRED    = 2
         PROTOCOL_SSLv3   = 1
         PROTOCOL_SSLv23  = 2
         PROTOCOL_TLS     = 2
@@ -66,6 +68,9 @@ except ImportError:
 
         def close(self):
             return self.sock.close()
+
+        def match_hostname(self, peerCert, hostname):
+            pass
 
 try:
     import xml.etree.ElementTree as etree
@@ -220,7 +225,7 @@ class Ilo(object):
     HTTP_UPLOAD_HEADER = "POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 64 * 1024
 
-    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None, ca_file=None, match_hostname=True):
         self.hostname = hostname
         self.login    = login or 'Administrator'
         self.password = password or 'Password'
@@ -240,6 +245,8 @@ class Ilo(object):
         self._protect_passwords = os.environ.get('HPILO_DONT_PROTECT_PASSWORDS', None) != 'YesPlease'
         self.firmware_mirror = None
         self.hponcfg = "/sbin/hponcfg"
+        self.ca_file = ca_file
+        self.match_hostname = match_hostname
         hponcfg = 'hponcfg'
         if platform.system() == 'Windows':
             self.hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
@@ -431,7 +438,13 @@ class Ilo(object):
             raise IloCommunicationError("Unable to resolve %s" % self.hostname)
 
         try:
-            return ssl.wrap_socket(sock, ssl_version=self.ssl_version)
+            cert_reqs = ssl.CERT_NONE
+            if self.ca_file:
+              cert_reqs = ssl.CERT_REQUIRED
+            sslContext = ssl.wrap_socket(sock, ssl_version=self.ssl_version, cert_reqs=cert_reqs, ca_certs=self.ca_file)
+            if self.ca_file and self.match_hostname:
+              ssl.match_hostname(sslContext.getpeercert(), self.hostname)
+            return sslContext
         except socket.sslerror:
             e = sys.exc_info()[1]
             msg = getattr(e, 'reason', None) or getattr(e, 'message', None) or str(e)

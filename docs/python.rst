@@ -7,7 +7,7 @@ The :py:mod:`hpilo` module contains all you need to communicate with iLO
 devices, encapsulated in the :class:`Ilo` class and its methods. There are a
 few auxiliarry items in this module too.
 
-.. py:class:: Ilo(hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None)
+.. py:class:: Ilo(hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None, ca_file=None, match_hostname=True)
 
    Represents an iLO management interface on a specific host.
 
@@ -29,6 +29,12 @@ few auxiliarry items in this module too.
                    security layer, falling back to SSLv3 if necessary. You can
                    specify a different TLS version (use the constants from the
                    ssl module) to use if necessary.
+   :param ca_file: By default, the tls certificate of the iLO interfaces won't
+                   be validated. With this option set to a ca_bundle the
+                   certificate will be checked.
+   :param match_hostname: When ca_file is set, the hostname must match the
+                   commonname or SNI of the certificate. (IP Address
+                   matching doesn't work.) This option disables the matching.
 
    .. py:method:: call_delayed
 
