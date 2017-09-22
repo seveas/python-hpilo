@@ -9,6 +9,7 @@ import getpass
 import optparse
 import os
 from pprint import pprint
+import ssl
 import sys
 
 PY3 = sys.version_info[0] >= 3
@@ -49,6 +50,12 @@ def main():
                  help="Output debug information, repeat to see all XML data")
     p.add_option("-o", "--port", dest="port", type="int", default=443,
                  help="SSL port to connect to")
+    p.add_option('--ssl-verify', dest="ssl_verify", action="store_true", default=False,
+                 help="Verify SSL certificates against the trusted CA's")
+    p.add_option('--ssl-ca-file', dest="ssl_ca_file", default=None,
+                 help="CA bundle to validate iLO certificate against, instead of the system CA's")
+    p.add_option('--ssl-ignore-hostname', dest="ssl_ignore_hostname", action='store_true', default=False,
+                 help="Don't check if the hostname matches the certificate when verifying SSL certificates")
     p.add_option("-h", "--help", action="callback", callback=hpilo_help,
                  help="show this help message or help for a method")
     p.add_option("-H", "--help-methods", action="callback", callback=hpilo_help_methods,
@@ -177,7 +184,16 @@ def main():
         'local': hpilo.ILO_LOCAL,
     }.get(opts.protocol, None)
 
-    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1)
+    ssl_context = None
+    if opts.ssl_verify:
+        if sys.version_info < (2,7,9):
+            p.error("SSL verification is only supported in python 2.7.9 or newer")
+        ssl_context = ssl.create_default_context(cafile=opts.ssl_ca_file)
+        ssl_context.options &= ~ssl.OP_NO_SSLv3
+        ssl_context.check_hostname = not opts.ssl_ignore_hostname
+        # import debugme
+
+    ilo = hpilo.Ilo(hostname, login, password, opts.timeout, opts.port, opts.protocol, len(calls) > 1, opts.ssl_verify, ssl_context)
     ilo.debug = opts.debug
     ilo.save_response = opts.save_response
     ilo.read_response = opts.read_response

@@ -7,7 +7,7 @@ The :py:mod:`hpilo` module contains all you need to communicate with iLO
 devices, encapsulated in the :class:`Ilo` class and its methods. There are a
 few auxiliarry items in this module too.
 
-.. py:class:: Ilo(hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_version=None)
+.. py:class:: Ilo(hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_verify=False, ssl_context=None)
 
    Represents an iLO management interface on a specific host.
 
@@ -25,6 +25,14 @@ few auxiliarry items in this module too.
                    for any method call you make and return a result. To save
                    roundtrip time costs, set this to :py:data:`False` and call
                    the :py:meth:`call_delayed` method manually.
+   :param ssl_verify: By default, this library does not verify ssl
+                   certificates, because the iLO comes with a self-signed
+                   certificate by default and sadly not many people fix this.
+                   But if you do fix this, you can actually force verification
+                   of the certificates.
+   :param ssl_context: If you need custom ssl or verification parameters, such
+                   as a custom CA certificate, you can pass a custom ssl
+                   context object with all the settings you need.
 
    .. py:method:: call_delayed
 

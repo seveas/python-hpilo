@@ -35,8 +35,13 @@ Options:
                           Use the specified protocol instead of autodetecting
     -d, --debug           Output debug information, repeat to see all XML data
     -o PORT, --port=PORT  SSL port to connect to
-    -s SSL_VERSION, --ssl=SSL_VERSION
-                          The SSL/TLS version to use for connecting to the iLO
+    --ssl-verify          Verify SSL certificates against the trusted CA's
+    --ssl-ca-file=SSL_CA_FILE
+                          CA bundle to validate iLO certificate against, instead
+                          of the system CA's
+    --ssl-ignore-hostname
+                          Don't check if the hostname matches the certificate
+                          when verifying SSL certificates
     -h, --help            show this help message or help for a method
     -H, --help-methods    show all supported methods
 

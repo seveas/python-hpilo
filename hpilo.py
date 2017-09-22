@@ -174,7 +174,7 @@ class Ilo(object):
     HTTP_UPLOAD_HEADER = b"POST /cgi-bin/uploadRibclFiles HTTP/1.1\r\nHost: localhost\r\nConnection: Close\r\nContent-Length: %d\r\nContent-Type: multipart/form-data; boundary=%s\r\n\r\n"
     BLOCK_SIZE = 64 * 1024
 
-    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False):
+    def __init__(self, hostname, login=None, password=None, timeout=60, port=443, protocol=None, delayed=False, ssl_verify=False, ssl_context=None):
         self.hostname = hostname
         self.login    = login or 'Administrator'
         self.password = password or 'Password'
@@ -182,6 +182,8 @@ class Ilo(object):
         self.debug    = 0
         self.port     = port
         self.protocol = protocol
+        self.ssl_verify = False
+        self.ssl_context = ssl_context
         self.cookie   = None
         self.delayed  = delayed
         self._elements = None
@@ -201,6 +203,13 @@ class Ilo(object):
             if os.access(maybe, os.X_OK):
                 self.hponcfg = maybe
                 break
+        if self.ssl_verify:
+            if sys.version_info < (2,7,9):
+                raise EnvironmentError("SSL verification only works with python 2.7.9 or newer")
+            if not self.ssl_context:
+                self.ssl_context = ssl.create_default_context()
+                # Sadly, ancient iLO's aren't dead yet, so let's enable sslv3 by default
+                self.ssl_context.options &= ~ssl.OP_NO_SSLv3
 
     def __str__(self):
         return "iLO interface of %s" % self.hostname
@@ -381,8 +390,11 @@ class Ilo(object):
             raise IloCommunicationError("Unable to resolve %s" % self.hostname)
 
         try:
-            return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLS)
-        except socket.sslerror as exc:
+            if self.ssl_context:
+                return self.ssl_context.wrap_socket(sock, server_hostname=self.hostname)
+            else:
+                return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLS)
+        except ssl.SSLError as exc:
             raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, str(exc)))
 
     def _communicate(self, xml, protocol, progress=None, save=True):
