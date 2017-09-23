@@ -1,3 +1,13 @@
+Version 4.0, 2016-09-23
+! Backwards compatibility warning
+  4.0 marks the end of our support for Python 2.4 and 2.5. The oldest OS we
+  support is now RHEL 6, and it uses python 2.6.
+* Optinally verify SSL certificates, when using python 2.7.9 or newer
+* Add some more new methods and fields and fix some misspelings in other fields
+* profile_desc_download now actually works
+* The ssh key uploader now supports RSA SSH keys
+* Our exceptions now work properly under python 3
+
 Version 3.9, 2016-10-27
 * Several small bugfixes
 * firmware downloader updated for the hp -> hp enterprise move
