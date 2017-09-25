@@ -1,3 +1,9 @@
+python-hpilo (4.0-1) artful; urgency=medium
+
+  * New upstream version 
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Mon, 25 Sep 2017 23:17:26 +0200
+
 python-hpilo (3.9-1) yakkety; urgency=medium
 
   * New upstream version
