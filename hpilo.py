@@ -278,7 +278,7 @@ class Ilo(object):
 
     def _upload_file(self, filename, progress):
         with open(filename, 'rb') as fd:
-            firwmware = fd.read()
+            firmware = fd.read()
         boundary = b'------hpiLO3t%dz' % random.randint(100000,1000000)
         while boundary in firmware:
             boundary = b'------hpiLO3t%dz' % str(random.randint(100000,1000000))
