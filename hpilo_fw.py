@@ -28,6 +28,8 @@ def config(mirror=None):
             conf = _download('https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf')
         if PY3:
             conf = conf.decode('ascii')
+        else:
+            conf = conf.decode('unicode-escape')
         parser = ConfigParser.ConfigParser()
         parser.readfp(io.StringIO(conf))
         _config = {}
