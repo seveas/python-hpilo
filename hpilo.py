@@ -884,6 +884,11 @@ class Ilo(object):
         """Delete the specified user from the ilo"""
         return self._control_tag('USER_INFO', 'DELETE_USER', attrib={'USER_LOGIN': user_login})
 
+    def deactivate_license(self):
+        """Delete the license key from the iLO"""
+        element = etree.Element('DEACTIVATE')
+        return self._control_tag('RIB_INFO', 'LICENSE', elements=[element])
+
     def disable_ers(self):
         """Disable Insight Remote Support functionality and unregister the server"""
         return self._control_tag('RIB_INFO', 'DISABLE_ERS')

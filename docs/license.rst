@@ -13,3 +13,4 @@ allow you to activate one.
    .. automethod:: get_all_licenses
    .. ilo_output:: get_all_licenses
    .. automethod:: activate_license
+   .. automethod:: deactivate_license
