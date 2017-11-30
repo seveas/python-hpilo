@@ -1736,7 +1736,7 @@ class Ilo(object):
 
     def send_snmp_test_trap(self):
         """Send an SNMP test trap to the configured alert destinations"""
-        return self._control_tag('RIB_INFO', 'SEND_SNMP_TEST_TAG')
+        return self._control_tag('RIB_INFO', 'SEND_SNMP_TEST_TRAP')
 
     def set_ahs_status(self, status):
         """Enable or disable AHS logging"""
