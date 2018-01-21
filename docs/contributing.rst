@@ -14,9 +14,9 @@ test data from a server model that's not included in the tests yet, see
 
 Coding guidelines
 -----------------
-* python-hpilo currently supports python 2.6 up to python 3.6, excluding
-  3.0-3.2 Any new code in `hpilo.py` and `hpilo_cli` needs to be compatible
-  with all these versions.
+* python-hpilo currently supports python 2.6, 2.7 and 3.5 or newer. Any new
+  code in `hpilo.py` and `hpilo_cli` needs to be compatible with all these
+  versions.
 * No non-stdlib dependencies in `hpilo.py` and `hpilo_cli`. Examples may have
   additional dependencies.
 * All methods call into :func:`_info_tag` or :func:`_control_tag`. Any

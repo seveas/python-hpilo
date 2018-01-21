@@ -43,7 +43,7 @@ This module is written with compatibility as main priority. Currently supported
 are:
 
 * All RILOE II/iLO versions up to and including iLO 4
-* Python 2.4-2.7 and python 3.2 and newer
+* Python 2.6 or 2.7, and python 3.5 and newer
 * Any operating system Python runs on
 
 iLOs can be managed both locally using `hponcfg` or remotely using the iLO's
@@ -52,7 +52,7 @@ machine you run this code on, not the managed server.
 
 Author and license
 ------------------
-This software is (c) 2011-2014 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+This software is (c) 2011-2018 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

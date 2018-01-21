@@ -1,4 +1,7 @@
-Version 4.0, 2016-09-23
+Version 4.1, 2018-01-21
+* Fix the firmware updater
+
+Version 4.0, 2017-09-23
 ! Backwards compatibility warning
   4.0 marks the end of our support for Python 2.4 and 2.5. The oldest OS we
   support is now RHEL 6, and it uses python 2.6.
