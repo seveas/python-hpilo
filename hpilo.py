@@ -25,8 +25,10 @@ if PY3:
     class Bogus(Exception): pass
     socket.sslerror = Bogus
     basestring = str
+    from os import fsencode
 else:
     import urllib2
+    fsencode = lambda x: x
 
 # Python 2.7.13 renamed PROTOCOL_SSLv23 to PROTOCOL_TLS
 if not hasattr(ssl, 'PROTOCOL_TLS'):
@@ -278,13 +280,13 @@ class Ilo(object):
 
     def _upload_file(self, filename, progress):
         with open(filename, 'rb') as fd:
-            firwmware = fd.read()
+            firmware = fd.read()
         boundary = b'------hpiLO3t%dz' % random.randint(100000,1000000)
         while boundary in firmware:
             boundary = b'------hpiLO3t%dz' % str(random.randint(100000,1000000))
         parts = [
             b"""--%s\r\nContent-Disposition: form-data; name="fileType"\r\n\r\n""" % boundary,
-            b"""\r\n--%s\r\nContent-Disposition: form-data; name="fwimgfile"; filename="%s"\r\nContent-Type: application/octet-stream\r\n\r\n""" % (boundary, filename),
+            b"""\r\n--%s\r\nContent-Disposition: form-data; name="fwimgfile"; filename="%s"\r\nContent-Type: application/octet-stream\r\n\r\n""" % (boundary, fsencode(filename)),
             firmware,
             b"\r\n--%s--\r\n" % boundary,
         ]
@@ -403,9 +405,9 @@ class Ilo(object):
             protocol = sock.protocol
         msglen = len(self.XML_HEADER + xml)
         if protocol == ILO_HTTP:
-            extra_header = ''
+            extra_header = b''
             if self.cookie:
-                extra_header = "\r\nCookie: %s" % self.cookie
+                extra_header = b"\r\nCookie: %s" % self.cookie.encode('ascii')
             http_header = self.HTTP_HEADER % (msglen, extra_header)
             msglen += len(http_header)
         self._debug(1, "Sending XML request, %d bytes" % msglen)
@@ -419,7 +421,7 @@ class Ilo(object):
         # XML header and data need to arrive in 2 distinct packets
         if self.protocol != ILO_LOCAL:
             sock.write(self.XML_HEADER)
-        if '$EMBED' in xml:
+        if b'$EMBED' in xml:
             pre, name, post = re.compile(b'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
             sock.write(pre)
             sent = 0
