@@ -23,3 +23,4 @@ let you inspect and manipulate the AHS and ERS configuration and submit data.
    .. automethod:: trigger_l2_collection
    .. automethod:: trigger_test_event
    .. automethod:: disable_ers
+   .. automethod:: trigger_bb_data

@@ -549,6 +549,12 @@ class Ilo(object):
             data = data.replace('<RIBCL VERSION="2.22"/>', '<RIBCL VERSION="2.22">')
         if re.search(r'''=+ *[^"'\n=]''', data):
             data = re.sub(r'''= *([^"'\n]+?) *\n''', r'="\1"', data)
+        if re.search('[a-zA-Z0-9]""/>', data):
+            def fix(line):
+                if re.search('[a-zA-Z0-9]""/>', line):
+                    line = '"'.join([x.replace('"', '&quot;') for x in line.split('""')])
+                return line
+            data = '\n'.join([fix(line) for line in data.split('\n')])
         data = data.strip()
         if not data:
             return None
@@ -771,6 +777,10 @@ class Ilo(object):
         self._elements = None
         return ret
 
+    def abort_dir_test(self):
+        """Abort authentication directory test"""
+        return self._control_tag('DIR_INFO', 'ABORT_DIR_TEST')
+
     def activate_license(self, key):
         """Activate an iLO advanced license"""
         license = etree.Element('ACTIVATE', KEY=key)
@@ -788,6 +798,18 @@ class Ilo(object):
 
         return self._control_tag('RIB_INFO', 'ADD_FEDERATION_GROUP', elements=elements,
                 attrib={'GROUP_NAME': group_name, 'GROUP_KEY': group_key})
+
+    def add_sso_server(self, server=None, import_from=None, certificate=None):
+        """Add an SSO server by name (only if SSO trust level is lowered) or by
+           importing a certificate from a server or directly"""
+        if [server, import_from, certificate].count(None) != 2:
+            raise ValueError("You must specify exactly one of server, import_from or certificate")
+        if server:
+            return self._control_tag('SSO_INFO', 'SSO_SERVER', attrib={'NAME': server})
+        if import_from:
+            return self._control_tag('SSO_INFO', 'SSO_SERVER', attrib={'IMPORT_FROM': import_from})
+        if certificate:
+            return self._control_tag('SSO_INFO', 'IMPORT_CERTIFICATE', text=certificate)
 
     def add_user(self, user_login, user_name, password, admin_priv=False,
             remote_cons_priv=True, reset_server_priv=False,
@@ -853,6 +875,10 @@ class Ilo(object):
     def delete_federation_group(self, group_name):
         """Delete the specified federation group membership"""
         return self._control_tag('RIB_INFO', 'DELETE_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name})
+
+    def delete_sso_server(self, index):
+        """Delete an SSO server by index"""
+        return self._control_tag('SSO_INFO', 'DELETE_SERVER', index)
 
     def delete_user(self, user_login):
         """Delete the specified user from the ilo"""
@@ -928,13 +954,29 @@ class Ilo(object):
         """Get ssl certificate subject information"""
         return self._info_tag('RIB_INFO', 'GET_CERT_SUBJECT_INFO', 'CSR_CERT_SETTINGS')
 
+    def get_critical_temp_remain_off(self):
+        """Get whether the server will remain powered off after a critical temperature shutdown"""
+        return self._info_tag('SERVER_INFO', 'GET_CRITICAL_TEMP_REMAIN_OFF')
+
     def get_current_boot_mode(self):
         """Get the current boot mode (legaci or uefi)"""
         return self._info_tag('SERVER_INFO', 'GET_CURRENT_BOOT_MODE', process=lambda data: data['boot_mode'])
 
+    def get_diagport_settings(self):
+        """Get the blade diagport settings"""
+        return self._info_tag('RACK_INFO', 'GET_DIAGPORT_SETTINGS')
+
     def get_dir_config(self):
         """Get directory authentication configuration"""
         return self._info_tag('DIR_INFO', 'GET_DIR_CONFIG')
+
+    def get_dir_test_results(self):
+        """Get the results of the authentication directory test"""
+        def process(data):
+            for item in data:
+                data[item] = dict([(x[0], x[1]['value']) for x in data[item]])
+            return data
+        return self._info_tag('DIR_INFO', 'GET_DIR_TEST_RESULTS', process=process)
 
     def get_embedded_health(self):
         """Get server health information"""
@@ -1059,6 +1101,10 @@ class Ilo(object):
                 ret[elt.tag.lower()] = data
         return ret
 
+    def get_enclosure_ip_settings(self):
+        """Get the enclosure bay static IP settings"""
+        return self._info_tag('RACK_INFO', 'GET_ENCLOSURE_IP_SETTINGS')
+
     def get_encrypt_settings(self):
         """Get the iLO encryption settings"""
         return self._info_tag('RIB_INFO', 'GET_ENCRYPT_SETTINGS')
@@ -1116,6 +1162,10 @@ class Ilo(object):
                 data = [x for x in data if len(x) > 2]
             return data
         return self._info_tag('SERVER_INFO', 'GET_HOST_DATA', process=process)
+
+    def get_host_power_reg_info(self):
+        """Get power regulator information"""
+        return self._control_tag('SERVER_INFO', 'GET_HOST_POWER_REG_INFO')
 
     def get_host_power_saver_status(self):
         """Get the configuration of the ProLiant power regulator"""
@@ -1218,6 +1268,10 @@ class Ilo(object):
         """Get the rack settings for an iLO"""
         return self._info_tag('RACK_INFO', 'GET_RACK_SETTINGS')
 
+    def get_sdcard_status(self):
+        """Get whether an SD card is connected to the server"""
+        return self._info_tag('SERVER_INFO', 'GET_SDCARD_STATUS')
+
     def get_security_msg(self):
         """Retrieve the security message that is displayed on the login screen"""
         return self._info_tag('RIB_INFO', 'GET_SECURITY_MSG')
@@ -1264,6 +1318,10 @@ class Ilo(object):
 
     def get_supported_boot_mode(self):
         return self._info_tag('SERVER_INFO', 'GET_SUPPORTED_BOOT_MODE', process=lambda data: data['supported_boot_mode'])
+
+    def get_topology(self):
+        """Get rack topology information"""
+        return self._info_tag('RACK_INFO', 'GET_TOPOLOGY')
 
     def get_tpm_status(self):
         """Get the status of the Trusted Platform Module"""
@@ -1323,6 +1381,20 @@ class Ilo(object):
            use :func:`set_vm_status` to connect the media"""
         return self._control_tag('RIB_INFO', 'INSERT_VIRTUAL_MEDIA', attrib={'DEVICE': device.upper(), 'IMAGE_URL': image_url})
 
+    def mod_encrypt_settings(self, user_login, password, ilo_group_name, cert_name, enable_redundancy,
+            primary_server_address, primary_server_port, secondary_server_address=None, secondary_server_port=None):
+        """Configure encryption settings"""
+        vars = locals()
+        del vars['self']
+        elements = []
+        for var in ['ilo_group_name', 'enable_redundancy']:
+            if vars[var] is not None:
+                elements.append(etree.Element(var.upper(), VALUE=vars.pop(var)))
+        for var in vars:
+            if vars[val] is not None:
+                elements.append(etree.Element('ESKM_' + var.upper(), VALUE=vars[var]))
+        return self._control_tag('RIB_INFO', 'MOD_ENCRYPT_SETTINGS', elements=elements)
+
     def mod_federation_group(self, group_name, new_group_name=None, group_key=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None, login_priv=None):
@@ -1341,24 +1413,44 @@ class Ilo(object):
                 elements.append(etree.Element(attribute.upper(), VALUE=val))
         return self._control_tag('RIB_INFO', 'MOD_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name}, elements=elements)
 
-    def mod_global_settings(self, session_timeout=None, f8_prompt_enabled=None,
-            f8_login_required=None, lock_configuration=None, ilo_funct_enabled=None,
+    def mod_global_settings(self, ilo_funct_enabled=None, rbsu_post_ip=None,
+            # Access settings
+            f8_prompt_enabled=None, f8_login_required=None, lock_configuration=None,
             serial_cli_status=None, serial_cli_speed=None,
             http_port=None, https_port=None, ssh_port=None, ssh_status=None,
-            vmedia_disable=None, virtual_media_port=None, remote_console_port=None,
+            ipmi_dcmi_over_lan_enabled=None, ipmi_dcmi_over_lan_port=None,
+            remote_console_port_status=None, remote_console_port=None, remote_console_encryption=None,
+            rawvsp_port=None, vsp_software_flow_control=None,
+            terminal_services_port=None,
+            shared_console_enable=None, shared_console_port=None, remote_console_acquire=None,
+            telnet_enable=None, ssl_empty_records_enable=None,
+
+            # Security settings
+            min_password=None, enforce_aes=None, authentication_failure_logging=None,
+            authentication_failure_delay_secs=None, authentication_failures_before_delay=None,
+            ssl_v3_enable=None, session_timeout=None,
+
+            # Monitoring & alerting
             snmp_access_enabled=None, snmp_port=None, snmp_trap_port=None,
             remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
             alertmail_enable=None, alertmail_email_address=None,
             alertmail_sender_domain=None, alertmail_smtp_server=None, alertmail_smtp_port=None,
-            min_password=None, enforce_aes=None, authentication_failure_logging=None,
-            authentication_failure_delay_secs=None, authentication_failures_before_delay=None,
-            rbsu_post_ip=None, remote_console_encryption=None, remote_keyboard_model=None,
-            terminal_services_port=None, high_performance_mouse=None,
-            shared_console_enable=None, shared_console_port=None,
-            remote_console_acquire=None, brownout_recovery=None,
-            ipmi_dcmi_over_lan_enabled=None, ipmi_dcmi_over_lan_port=None,
-            vsp_log_enable=None, vsp_software_flow_control=None, propagate_time_to_host=None):
-        """Modify iLO global settings, only values that are specified will be changed."""
+
+            # Console capturing
+            vsp_log_enable=None,
+            interactive_console_replay_enable=None, console_capture_enable=None,
+            console_capture_boot_buffer_enable=None, console_capture_fault_buffer_enable=None,
+            console_capture_port=17990,
+            capture_auto_export_enable=None, capture_auto_export_location=None,
+            capture_auto_export_username=None, capture_auto_export_password=None,
+
+            # And the rest
+            remote_keyboard_model=None, virtual_kbmouse_connection=None, vmedia_disable=None,
+            virtual_media_port=None, key_up_key_down_enable=None, high_performance_mouse=None,
+            brownout_recovery=None, enhanced_cli_prompt_enable=None, tcp_keep_alive_enable=None,
+            propagate_time_to_host=None, passthrough_config=None):
+        """Modify iLO global settings, only values that are specified will be changed. Note that
+           many settings only work on certain iLO models and firmware versions"""
         vars = dict(locals())
         del vars['self']
         dont_map = ['authentication_failure_logging']
@@ -1388,7 +1480,7 @@ class Ilo(object):
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None,
             dhcpv6_domain_name=None, ilo_nic_auto_select=None, ilo_nic_auto_snp_scan=None,
             ilo_nic_auto_delay=None, ilo_nic_fail_over=None, gratuitous_arp=None,
-            nic_fail_over_delay=None):
+            ilo_nic_fail_over_delay=None):
         """Configure the network settings for the iLO card. The static route arguments require
            dicts as arguments. The necessary keys in these dicts are dest,
            gateway and mask all in dotted-quad form"""
@@ -1538,6 +1630,20 @@ class Ilo(object):
         elements += [etree.Element(x[0][0] + '_ROLE', attrib={x[0][1]: x[1]}) for x in vars]
         return self._control_tag('SSO_INFO', 'MOD_SSO_SETTINGS', elements=elements)
 
+    def mod_twofactor_settings(self, auth_twofactor_enable=None, cert_revocation_check=None, cert_owner_san=None, cert_owner_subject=None):
+        """Modify the twofactor authenticatino settings"""
+        elements = []
+        if auth_twofactor_enable is not None:
+            elements.append(etree.Element('AUTH_TWOFACTOR_ENABLE', VALUE=['No', 'Yes'][bool(auth_twofactor_enable)]))
+        if cert_revocation_check is not None:
+            elements.append(etree.Element('CERT_REVOCATION_CHECK', VALUE=['No', 'Yes'][bool(cert_revocation_check)]))
+        if cert_owner_san:
+            elements.append(etree.Element('CERT_OWNER_SAN'))
+        if cert_owner_subject:
+            elements.append(etree.Element('CERT_OWNER_SUBJECT'))
+        return self._control_tag('RIB_INFO', 'MOD_TWOFACTOR_SETTINGS', elements=elements)
+
+
     def mod_user(self, user_login, user_name=None, password=None,
             admin_priv=None, remote_cons_priv=None, reset_server_priv=None,
             virtual_media_priv=None, config_ilo_priv=None):
@@ -1604,9 +1710,12 @@ class Ilo(object):
             return data
         return self._info_tag('RIB_INFO', 'PROFILE_LIST', 'PROFILE_DESC_LIST', process=process)
 
-    def hold_pwr_btn(self):
+    def hold_pwr_btn(self, toggle=None):
         """Press and hold the power button"""
-        return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN')
+        attrib = {}
+        if toggle is not None:
+            attrib['TOGGLE'] = ['No', 'Yes'][bool(toggle)]
+        return self._control_tag('SERVER_INFO', 'HOLD_PWR_BTN', attrib=attrib)
 
     def cold_boot_server(self):
         """Force a cold boot of the server"""
@@ -1636,6 +1745,11 @@ class Ilo(object):
     def set_asset_tag(self, asset_tag):
         """Set the server asset tag"""
         return self._control_tag('SERVER_INFO', 'SET_ASSET_TAG', attrib={'VALUE': asset_tag})
+
+    def set_critical_temp_remain_off(self, value):
+        """Set whether the server will remain off after a critical temperature shutdown"""
+        status = {True: 'Yes', False: 'No'}[value]
+        return self._control_tag('SERVER_INFO', 'SET_CRITICAL_TEMP_REMAIN_OFF', attrib={'VALUE': value})
 
     def set_ers_direct_connect(self, user_id, password, proxy_url=None,
             proxy_port=None, proxy_username=None, proxy_password=None):
@@ -1792,6 +1906,18 @@ class Ilo(object):
         ]
         return self._control_tag('RIB_INFO', 'SET_VM_STATUS', attrib={'DEVICE': device.upper()},
                                  elements=elements)
+
+    def start_dir_test(self, dir_admin_distinguished_name, dir_admin_password, test_user_name, test_user_password):
+        """Test directory authentication with the specified credentials"""
+        vars = locals()
+        del vars['self']
+        elements = [etree.Element(x, VALUE=vars[x]) for x in vars]
+        return self._control_tag('DIR_INFO', 'START_DIR_TEST', elements=elements)
+
+    def trigger_bb_data(self, message_id, days):
+        """Initiate AHS data submission to IRS. The submitted data will include
+           the specified message ID and number of days of data"""
+        return self._control_tag('RIB_INFO', 'TRIGGER_BB_DATA', attrib={'MESSAGE_ID': message_id, 'BB_DAYS': days})
 
     def trigger_l2_collection(self, message_id):
         """Initiate an L2 data collection submission to the Insight Remote Support server."""

@@ -28,8 +28,15 @@ refer to the `ilo scripting guide`_.
    .. automethod:: get_dir_config
    .. ilo_output:: get_dir_config
    .. automethod:: mod_dir_config
+   .. automethod:: start_dir_test
+   .. automethod:: get_dir_test_results
+   .. ilo_output:: get_dir_test_results
+   .. automethod:: abort_dir_test
    .. automethod:: get_sso_settings
    .. ilo_output:: get_sso_settings
    .. automethod:: mod_sso_settings
+   .. automethod:: add_sso_server
+   .. automethod:: delete_sso_server
    .. automethod:: get_twofactor_settings
    .. ilo_output:: get_twofactor_settings
+   .. automethod:: mod_twofactor_settings

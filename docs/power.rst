@@ -14,10 +14,14 @@ methods. It is also possible to power the server on and off via the iLO, and to
    .. automethod:: hold_pwr_btn
    .. automethod:: get_host_power_status
    .. ilo_output:: get_host_power_status
+   .. automethod:: get_host_power_reg_info
    .. automethod:: set_host_power
    .. automethod:: get_server_auto_pwr
    .. ilo_output:: get_server_auto_pwr
    .. automethod:: set_server_auto_pwr
+   .. automethod:: get_critical_temp_remain_off
+   .. ilo_output:: get_critical_temp_remain_off
+   .. automethod:: set_critical_temp_remain_off
    .. automethod:: get_power_readings
    .. ilo_output:: get_power_readings
    .. automethod:: get_server_power_on_time

@@ -18,6 +18,7 @@ as you want them, including using proper SSL certificates for communication.
    .. automethod:: fips_enable
    .. automethod:: get_encrypt_settings
    .. ilo_output:: get_encrypt_settings
+   .. automethod:: mod_encrypt_settings
    .. automethod:: get_fips_status
    .. ilo_output:: get_fips_status
    .. automethod:: get_security_msg

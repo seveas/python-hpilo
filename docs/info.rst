@@ -32,6 +32,7 @@ authentication or power.
    .. ilo_output:: get_smh_fqdn
    .. automethod:: get_oa_info
    .. ilo_output:: get_oa_info
+   .. automethod:: get_enclosure_ip_settings
    .. automethod:: get_asset_tag
    .. ilo_output:: get_asset_tag
    .. ilo_output:: get_asset_tag#1
@@ -48,3 +49,7 @@ authentication or power.
    .. ilo_output:: get_rack_settings
    .. automethod:: get_spatial
    .. ilo_output:: get_spatial
+   .. automethod:: get_topology
+   .. automethod:: get_diagport_settings
+   .. automethod:: get_sdcard_status
+   .. ilo_output:: get_sdcard_status
