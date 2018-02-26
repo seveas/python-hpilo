@@ -1039,11 +1039,7 @@ class Ilo(object):
         return {element.tag.lower(): ret}
 
     def _parse_get_embedded_health_data_nic_information(self, element):
-        ret = {}
-        for elt in element:
-            data = self._element_children_to_dict(elt)
-            ret['%s %s' % (elt.tag, data['network_port'])] = data
-        return {'nic_information': ret}
+        return {'nic_information': [self._element_children_to_dict(elt) for elt in element]}
     # Can you notice the misspelling?Yes, this is an actual bug in the HP firmware, seen in at least ilo3 1.70
     _parse_get_embedded_health_data_nic_infomation = _parse_get_embedded_health_data_nic_information
 

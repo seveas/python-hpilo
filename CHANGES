@@ -1,3 +1,10 @@
+Version 4.2, XXXX-XX-XX
+! Backwards compatibility warning
+  The output of get_embedded_health changed: the network interfaces are now
+  returned as a list instead of a dict that's keyd on the port name, as port
+  names are not unique. This will make iLO interfaces and interfaces on
+  non-primary nic's show up in the output.
+
 Version 4.1, 2018-01-21
 * Fix the firmware updater
 
