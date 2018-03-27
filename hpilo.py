@@ -579,6 +579,8 @@ class Ilo(object):
                         # This is triggered when doing protocol detection, ignore
                         pass
                     else:
+                        self._processors = []
+                        self._elements = None
                         status = int(child.get('STATUS'), 16)
                         message = child.get('MESSAGE')
                         if 'syntax error' in message:
