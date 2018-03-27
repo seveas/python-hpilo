@@ -765,16 +765,18 @@ class Ilo(object):
 
         if not self._elements:
             raise ValueError("No commands scheduled")
-        root, inner = self._elements
-        header, message = self._request(root)
-        ret = []
-        if message is not None:
-            if not isinstance(message, list):
-                message = [message]
-            for message, processor in zip(message, self._processors):
-                ret.append(processor.pop(0)(message, *processor))
-        self._processors = []
-        self._elements = None
+        try:
+            root, inner = self._elements
+            header, message = self._request(root)
+            ret = []
+            if message is not None:
+                if not isinstance(message, list):
+                    message = [message]
+                for message, processor in zip(message, self._processors):
+                    ret.append(processor.pop(0)(message, *processor))
+        finally:
+            self._processors = []
+            self._elements = None
         return ret
 
     def abort_dir_test(self):
