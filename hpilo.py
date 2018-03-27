@@ -568,7 +568,7 @@ class Ilo(object):
                         if 'should be updated' in child.text:
                             return None
                         return child.text
-                # RESPONE with status 0 also adds no value
+                # RESPONSE with status 0 also adds no value
                 # Maybe start adding <?xmlilo output-format="xml"?> to requests. TODO: check compatibility
                 elif child.tag == 'RESPONSE' and int(child.get('STATUS'), 16) == 0:
                     if child.get('MESSAGE') != 'No error':
