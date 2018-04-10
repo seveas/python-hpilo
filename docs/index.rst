@@ -53,8 +53,8 @@ Compatibility
 This module is written with compatibility as main priority. Currently supported
 are:
 
-* All RILOE II/iLO versions up to and including iLO 4
-* Python 2.4-2.7 and python 3.2 and newer
+* All RILOE II/iLO versions up to and including iLO 5
+* Python 2.6-2.7 and python 3.5 and newer
 * Any operating system Python runs on
 
 iLOs can be managed both locally using `hponcfg` or remotely using the iLO's
@@ -97,7 +97,7 @@ Example applications
 ====================
 There are several example applications in the `examples/` directory. Note that
 while `hpilo.py` and `hpilo_cli` are compatible with python versions as old as
-2.4, some examples may require newer versions of python and have additional
+2.6, some examples may require newer versions of python and have additional
 dependencies.
 
 .. toctree::

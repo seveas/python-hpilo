@@ -28,4 +28,23 @@ Coding guidelines
   parser/generator tests and, if applicable, a test that manipulates the iLO.
   See the `tests/README` file in the git repository for more details on tests.
 
+Contributors
+------------
+The following people have generously contributed patches to python-hpilo:
+
+* `Alexander Gubin <https://github.com/alxgu>`_
+* `Alexey Vekshin <https://github.com/veksh>`_
+* `Ali Asad Lotia <https://github.com/lotia>`_
+* `Andrew Glen-Young <https://github.com/agy>`_
+* `Christoph Handel <https://github.com/fragfutter>`_
+* `Frederic Brin <https://github.com/ExaneServerTeam>`_
+* `Hans Guthrie <https://github.com/hansdg1>`_
+* `Kevin Sweeney <https://github.com/kevints>`_
+* `Nathan Garabedian <https://github.com/ngara>`_
+* `Peter Fisher <https://github.com/peterfisher>`_
+* `Ronald van Zon <https://github.com/Eagllus>`_
+* `Sten Spans <https://github.com/sspans>`_
+* `Vinson Lee <https://github.com/vinsonlee>`_
+* `Vito Piserchia <https://github.com/vpiserchia>`_
+
 .. _GitHub: https://github.com/seveas/python-hpilo
