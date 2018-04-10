@@ -10,9 +10,7 @@ Dependencies
 
 Always needed:
 
-* `Python`_ 2.4 or newer, up to python 3.4
-* When using python 2.4, you need to install the `cElementTree`_ library
-  separately. Python 2.5 or newer already include this library.
+* `Python`_ 2.6, 2.7, 3.5 or newer
 
 Sometimes needed:
 
@@ -23,7 +21,6 @@ Sometimes needed:
   these requirements can be found in the documentation of those examples.
 
 .. _`python`: http://www.python.org
-.. _`cElementTree`: http://effbot.org/zone/celementtree.htm
 .. _`hp`: http://www.hp.com/go/ilo
 
 
@@ -43,8 +40,21 @@ PPA:
    $ sudo apt-get update
    $ sudo apt-get install python-hpilo
 
-Users of other Ubuntu releases, Debian, Fedora, CentOS or RHEL can use the
-repositories on OpenBuildService, instructions can be found on the `obs site`_
+Users of supported Fedora and RHEL/CentOS releases can ue my COPR repository:
+
+.. code-block:: console
+
+   $ sudo dnf install dnf-plugins-core
+   $ sudo dnf copr enable seveas/python-hpilo
+   $ sudo dnf install python-hpilo
+
+Or for older releases, using yum:
+
+.. code-block:: console
+
+   $ sudo yum install yum-plugin-copr
+   $ sudo yum copr enable seveas/git-master
+   $ sudo yum install python-hpilo
 
 If you can not, or do not want to use these packages (for example, if you use
 windows or osx, or if you want to install into a virtualenv) you can download
@@ -52,5 +62,4 @@ the package from `PyPI`_ and install it manually like any other application by
 unpacking it and running ``python setup.py install``. Or use ``pip`` to install
 it: ``pip install python-hpilo``
 
-.. _`obs site`: http://software.opensuse.org/download.html?project=home%3Aseveas%3Apython&package=python-hpilo
 .. _`PyPI`: http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run
