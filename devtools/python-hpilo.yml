@@ -1,0 +1,251 @@
+---
+resource_types:
+  - name: pypi
+    type: docker-image
+    source:
+      repository: cfplatformeng/concourse-pypi-resource
+
+  - name: dput
+    type: docker-image
+    source:
+      repository: seveas/concourse-dput-resource
+
+  - name: ppa
+    type: docker-image
+    source:
+      repository: seveas/concourse-ppa-resource
+
+  - name: copr
+    type: docker-image
+    source:
+      repository: seveas/concourse-copr-resource
+
+resources:
+  - name: git-master
+    type: git
+    source:
+      uri: https://github.com/seveas/python-hpilo.git
+      branch: master
+
+  - name: git-gh-pages
+    type: git
+    source:
+      uri: https://github.com/seveas/python-hpilo.git
+      branch: gh-pages
+      username: ((github-username))
+      password: ((github-password))
+
+  - name: git-releases
+    type: git
+    source:
+      uri: https://github.com/seveas/python-hpilo.git
+      branch: master
+      tag_filter: '*'
+
+  - name: git-debian
+    type: git
+    source:
+      uri: https://github.com/seveas/python-hpilo.git
+      branch: debian
+
+  - name: git-rpm
+    type: git
+    source:
+      uri: https://github.com/seveas/python-hpilo.git
+      branch: rpm
+
+  - name: pypi
+    type: pypi
+    source:
+      name: python-hpilo
+      username: ((pypi-username))
+      password: ((pypi-password))
+
+  - name: dput
+    type: dput
+    source:
+      archive: ppa:dennis/python
+
+  - name: ppa
+    type: ppa
+    source:
+      ppa: dennis/python
+      package: python-hpilo
+      api_token: ((launchpad-token))
+
+  - name: copr
+    type: copr
+    source:
+      project: seveas/python-hpilo
+      package: python-hpilo
+      api_token: ((copr-token))
+
+jobs:
+  - name: docs
+    plan:
+      - get: git-master
+        trigger: true
+      - get: git-gh-pages
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: seveas/build-python
+              tag: latest
+          inputs:
+            - name: git-master
+            - name: git-gh-pages
+          outputs:
+            - name: git-gh-pages-out
+          run:
+            path: sh
+            args:
+              - -exc
+              - |
+                make -C git-master/docs html
+                git -C git-gh-pages checkout gh-pages
+                rsync -av --delete --filter 'protect .git' git-master/docs/_build/html/ git-gh-pages/
+                touch git-gh-pages/.nojekyll
+                git -C git-gh-pages add -A
+                git -C git-gh-pages commit -m "Automated update from $(git -C git-master rev-parse --short HEAD)"
+                # We must make a copy because the put doesn't see our changes to the input
+                rsync -av --delete git-gh-pages/ git-gh-pages-out/
+          params:
+            GIT_COMMITTER_NAME: Concourse CI
+            GIT_AUTHOR_NAME: Concourse CI
+            GIT_COMMITTER_EMAIL: concourse@localhost.invalid
+            GIT_AUTHOR_EMAIL: concourse@localhost.invalid
+      - put: git-gh-pages
+        params:
+          repository: git-gh-pages-out
+
+  - name: tarball
+    plan:
+      - get: git-releases
+        trigger: true
+      - task: tarball
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: python
+              tag: latest
+          inputs:
+            - name: git-releases
+          outputs:
+            - name: tarball
+          run:
+            path: sh
+            args:
+              - -exc
+              - |
+                cd git-releases
+                python setup.py sdist -d ../tarball
+      - put: pypi
+        params:
+          glob: tarball/python-hpilo*.tar.gz
+
+  - name: ppa
+    plan:
+      - get: pypi
+        trigger: true
+      - get: git-debian
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: seveas/build-python
+              tag: latest
+          inputs:
+            - name: git-debian
+            - name: pypi
+          outputs:
+            - name: sources
+          run:
+            path: sh
+            args:
+              - -exc
+              - |
+                perl -E 'say $ENV{GPG_KEY}' | gpg --import
+                cd pypi
+                version=$(cat version)
+                mv python-hpilo-$version.tar.gz python-hpilo_$version.orig.tar.gz
+                tar zxvf python-hpilo_$version.orig.tar.gz
+                cd python-hpilo-$version
+                mv ../../git-debian/debian .
+                debuild -S -si
+                cd ..
+                mv python-hpilo_$version* ../sources
+          params:
+            GPG_KEY: ((gpg-key))
+      - put: dput
+        params:
+          glob: sources/*.changes
+
+  - name: ppa-porter
+    plan:
+      - get: ppa
+        trigger: true
+      - task: split
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: seveas/concourse-ppa-resource
+              tag: latest
+          inputs:
+            - name: ppa
+          outputs:
+            - name: sources
+          run:
+            path: sh
+            args: 
+              - -exc
+              - |
+                perl -E 'say $ENV{GPG_KEY}' | gpg --import
+                ppa-split ppa ../sources
+          params:
+            GPG_KEY: ((gpg-key))
+            API_TOKEN: ((launchpad-token))
+            DEBFULLNAME: Dennis Kaarsemaker
+            DEBEMAIL: dennis@kaarsemaker.net
+      - put: dput
+        params:
+          archive: ppa:dennis/python
+          glob: sources/*.changes
+          allow_noop: true
+
+  - name: copr
+    plan:
+      - get: pypi
+        trigger: true
+      - get: git-rpm
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: seveas/build-rpm-minimal
+              tag: latest
+          inputs:
+            - name: git-rpm
+            - name: pypi
+          outputs:
+            - name: srpm
+          run:
+            path: sh
+            args:
+              - -exc
+              - |
+                rpmbuild --define '_sourcedir pypi' --define '_srcrpmdir srpm' \
+                         --define '_topdir /tmp' -bs git-rpm/python-hpilo.spec
+      - put: copr
+        params:
+          glob: srpm/python-hpilo*.src.rpm
