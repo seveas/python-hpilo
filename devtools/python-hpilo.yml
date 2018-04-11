@@ -109,7 +109,9 @@ jobs:
                 rsync -av --delete --filter 'protect .git' git-master/docs/_build/html/ git-gh-pages/
                 touch git-gh-pages/.nojekyll
                 git -C git-gh-pages add -A
-                git -C git-gh-pages commit -m "Automated update from $(git -C git-master rev-parse --short HEAD)"
+                if ! git -C git-gh-pages diff --quiet; then
+                    git -C git-gh-pages commit -m "Automated update from $(git -C git-master rev-parse --short HEAD)"
+                fi
                 # We must make a copy because the put doesn't see our changes to the input
                 rsync -av --delete git-gh-pages/ git-gh-pages-out/
           params:
