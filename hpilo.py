@@ -1443,7 +1443,7 @@ class Ilo(object):
             vsp_log_enable=None,
             interactive_console_replay_enable=None, console_capture_enable=None,
             console_capture_boot_buffer_enable=None, console_capture_fault_buffer_enable=None,
-            console_capture_port=17990,
+            console_capture_port=None,
             capture_auto_export_enable=None, capture_auto_export_location=None,
             capture_auto_export_username=None, capture_auto_export_password=None,
 
