@@ -1,3 +1,7 @@
+Version 4.2.1, 2018-04-13
+* mod_global_settings would always try to set a console_capture_port, which is
+  horribly wrong
+
 Version 4.2, 2018-04-10
 ! Backwards compatibility warning
   The output of get_embedded_health changed: the network interfaces are now
