@@ -1,3 +1,9 @@
+python-hpilo (4.2.1-1) bionic; urgency=medium
+
+  * New upstream version 
+
+ -- Dennis Kaarsemaker <dennis@kaarsemaker.net>  Fri, 13 Apr 2018 22:52:18 +0200
+
 python-hpilo (4.2-1) bionic; urgency=medium
 
   * New upstream version 
