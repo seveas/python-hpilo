@@ -219,7 +219,6 @@ jobs:
             DEBEMAIL: dennis@kaarsemaker.net
       - put: dput
         params:
-          archive: ppa:dennis/python
           glob: sources/*.changes
           allow_noop: true
 
