@@ -7,10 +7,14 @@ Version 4.2, 2018-04-10
   The output of get_embedded_health changed: the network interfaces are now
   returned as a list instead of a dict that's keyd on the port name, as port
   names are not unique. This will make iLO interfaces and interfaces on
-  non-primary nic's show up in the output.
+  non-primary NICs show up in the output.
 * call_delayed now handles exceptions (such as those caused by calling
   unsupported functions) better
 * Support for more new methods and attributes
+* Copyright year updates
+* Add contributor lists to docs and COPYING
+* We support iLO 5 now
+* docs/index.html still had outdated minimum version updates
 
 Version 4.1, 2018-01-21
 * Fix the firmware updater
@@ -18,12 +22,12 @@ Version 4.1, 2018-01-21
 Version 4.0, 2017-09-23
 ! Backwards compatibility warning
   4.0 marks the end of our support for Python 2.4 and 2.5. The oldest OS we
-  support is now RHEL 6, and it uses python 2.6.
-* Optinally verify SSL certificates, when using python 2.7.9 or newer
-* Add some more new methods and fields and fix some misspelings in other fields
+  support is now RHEL 6, and it uses Python 2.6.
+* Optionally verify SSL certificates, when using Python 2.7.9 or newer
+* Add some more new methods and fields and fix some misspellings in other fields
 * profile_desc_download now actually works
-* The ssh key uploader now supports RSA SSH keys
-* Our exceptions now work properly under python 3
+* The SSH key uploader now supports RSA SSH keys
+* Our exceptions now work properly under Python 3
 
 Version 3.9, 2016-10-27
 * Several small bugfixes
@@ -31,7 +35,7 @@ Version 3.9, 2016-10-27
 * Python 3 compatibility improved
 
 Version 3.8, 2016-04-26
-* Improved python 3 compatibility
+* Improved Python 3 compatibility
 * More compact XML in delayed mode to make resets and changes more cooperative
 * More workarounds for iLO firmware bugs, this time around badly encoded data
 * Add the force_format command to help recover really broken iLOs
@@ -41,10 +45,10 @@ Version 3.7, 2016-01-30
 * mod_dir_settings and set_host_power_saver now also accept non-numeric values
 
 Version 3.6, 2016-01-29
-* Actually fix mod_snmp_im_settings' cpability of setting ro/trap communities
+* Actually fix mod_snmp_im_settings' capability of setting ro/trap communities
 
 Version 3.5, 2016-01-29
-* Restore python 2.4 compatibility, which broke in 3.0
+* Restore Python 2.4 compatibility, which broke in 3.0
 
 Version 3.4, 2015-12-20
 * Bugfixes in set_ers_direct_connect and get_persistent_boot
@@ -77,12 +81,12 @@ Version 3.0, 2015-10-05
 * Modernize the hpilo_ca example
 * hpilo_cli now understands --version, and hpilo.py has a __version__ attribute
 * All development tools are moved to a subdir
-* SSL certificate errors are now ignored under python 2.7.9+ and 3.5+ as well
+* SSL certificate errors are now ignored under Python 2.7.9+ and 3.5+ as well
 * Add 'download_rib_firmware all all' to create a firmware mirror
 
 Version 2.13, 2015-04-13
 
-* We will now find hponcfg on you $PATH
+* We will now find hponcfg on your $PATH
 * Major documentation overhaul
 * hpilo_ca has been moved to examples/
 * the xmldata can now also be used to query chassis onboard administrators
@@ -104,7 +108,7 @@ Version 2.11, 2015-01-12
 Version 2.10, 2014-12-21
 
 * Fixes to get_embedded_health
-* Restore python 2.4 compatibility
+* Restore Python 2.4 compatibility
 
 Version 2.9, 2014-10-18
 
@@ -124,7 +128,7 @@ Version 2.7, 2014-07-23
 
 Backward incompatibility note: update_rib_firmware accepts a callback that gets
 called with progress updates. The messages this callback gets have been
-simplified an no longer contain LF or ANSI characters, all responsibility for
+simplified and no longer contain LF or ANSI characters, all responsibility for
 correct presentation now lies with the progress callback.
 
 Version 2.6.2, 2014-06-16
@@ -137,7 +141,7 @@ Version 2.6.1, 2014-04-16
 
 Version 2.6, 2014-04-16
 
-* Add an xmldata call, which is not actually using the XML api but parses what
+* Add an xmldata call, which is not actually using the XML API but parses what
   a request to /xmldata?item=all returns.
 * Support for structured arguments in the command-line tool
 * Several bugfixes and new calls and new arguments to existing calls
@@ -157,7 +161,7 @@ Version 2.4.1, 2013-11-06
 
 Version 2.4, 2013-10-27
 
-* Much better ipv6 support
+* Much better IPv6 support
 
 Version 2.3, 2013-10-11
 
@@ -166,7 +170,7 @@ Version 2.3, 2013-10-11
 
 Version 2.2, 2013-09-17
 
-* Clearer errors when calling unsupported funcrions
+* Clearer errors when calling unsupported functions
 * Support for YAML output
 * Support for older SSL versions
 
@@ -174,7 +178,7 @@ Version 2.1, 2013-02-06
 
 * More useful get_embedded_health for iLO3 and iLO4
 * Several bugs fixed
-* Test framwwork fixes
+* Test framework fixes
 
 Version 2.0.1, 2013-01-05
 
@@ -201,13 +205,13 @@ Version 1.4.1, 2012-09-08
 Version 1.4, 2012-09-04
 
 * Improved documentation
-* Be compatible with more python versions
+* Be compatible with more Python versions
 
 Version 1.3, 2012-08-28
 
 * iLO 4 support
-* More python 3 compatibility
-* Now includes autoatic latest firmware downloader
+* More Python 3 compatibility
+* Now includes automatic latest firmware downloader
 * Can now talk to the iLO via hponcfg instead of the network
 
 Version 1.2, 2012-06-07
