@@ -542,9 +542,11 @@ class Ilo(object):
             element = etree.SubElement(login, element, **attrs)
         return root, element
 
-    def _parse_message(self, data, include_inform=False):
-        """Parse iLO responses into Element instances and remove useless messages"""
-        # Bug in some ilo versions causes malformed XML
+    def _attempt_to_fix_broken_xml(self, data):
+        """ Many iLO versions have bugs that causes them to emit malformed XML.
+        This is a collection of workarounds and kludges to try and fix up the
+        data so ElementTree has a chance to parse it correctly"""
+
         if '<RIBCL VERSION="2.22"/>' in data:
             data = data.replace('<RIBCL VERSION="2.22"/>', '<RIBCL VERSION="2.22">')
         if re.search(r'''=+ *[^"'\n=]''', data):
@@ -555,11 +557,19 @@ class Ilo(object):
                     line = '"'.join([x.replace('"', '&quot;') for x in line.split('""')])
                 return line
             data = '\n'.join([fix(line) for line in data.split('\n')])
+        if '" "/>' in data:
+            data = data.replace('" "/>', '&quot; " />')
+        return data
+
+    def _parse_message(self, data, include_inform=False):
+        """Parse iLO responses into Element instances and remove useless messages"""
         data = data.strip()
         if not data:
             return None
-
-        message = etree.fromstring(data)
+        try:
+            message = etree.fromstring(data)
+        except etree.ParseError:
+            message = etree.fromstring(self._attempt_to_fix_broken_xml(data))
         if message.tag == 'RIBCL':
             for child in message:
                 if child.tag == 'INFORM':
