@@ -56,6 +56,11 @@ Or for older releases, using yum:
    $ sudo yum copr enable seveas/python-hpilo
    $ sudo yum install python-hpilo
 
+And for even older releases, where yum-plugin-copr isn't available, you can
+download a .repo file from `COPR`_ to copy to ``/etc/yum.repos.d``.
+
+.. _`COPR`: https://copr.fedorainfracloud.org/coprs/seveas/python-hpilo/
+
 If you can not, or do not want to use these packages (for example, if you use
 windows or osx, or if you want to install into a virtualenv) you can download
 the package from `PyPI`_ and install it manually like any other application by
