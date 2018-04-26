@@ -53,7 +53,7 @@ Or for older releases, using yum:
 .. code-block:: console
 
    $ sudo yum install yum-plugin-copr
-   $ sudo yum copr enable seveas/git-master
+   $ sudo yum copr enable seveas/python-hpilo
    $ sudo yum install python-hpilo
 
 If you can not, or do not want to use these packages (for example, if you use
