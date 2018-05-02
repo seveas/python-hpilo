@@ -133,11 +133,19 @@ def sign_certificates(hosts, openssl, login, password, opts):
                 cn = ilo.get_cert_subject_info()['csr_subject_common_name']
 
         hn, dn = hostname.split('.', 1)
-        if network_settings['dns_name'] != hn or dn and network_settings['domain_name'] != dn:
-           print("Hostname misconfigured on the ilo, fixing")
-           ilo.mod_network_settings(dns_name=hn, domain_name=dn)
-           todo.append(hostname)
-           continue
+    	if network_settings["dhcp_domain_name"]:
+    		# Note: Domain Name is currently set through DHCP, if enabled then domain_name is empty and hpilo_ca can't update. Avoiding loop.
+    		if network_settings['dns_name'] != hn:
+                print("Hostname misconfigured on the ilo - hn:[%s] dn:[%s], fixing") % (network_settings['dns_name'], hn)
+                ilo.mod_network_settings(dns_name=hn, domain_name=dn)
+                todo.append(hostname)
+                continue
+        else:
+            if network_settings['dns_name'] != hn or dn and network_settings['domain_name'] != dn:
+                print("Hostname misconfigured on the ilo - hn:[%s] dn:[%s] vs hn:[%s] dn:[%s], fixing") % (network_settings['dns_name'], network_settings['domain_name'], hn, dn)
+                ilo.mod_network_settings(dns_name=hn, domain_name=dn)
+                todo.append(hostname)
+                continue
 
         print("(2/5) Retrieving certificate signing request")
         if fw_version['management_processor'].lower() == 'ilo2':
