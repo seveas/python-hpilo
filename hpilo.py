@@ -158,6 +158,9 @@ class IloNotConfigured(IloError):
 class IloWarning(Warning):
     pass
 
+class IloXMLWarning(Warning):
+    pass
+
 class IloTestWarning(Warning):
     pass
 
@@ -547,19 +550,32 @@ class Ilo(object):
         This is a collection of workarounds and kludges to try and fix up the
         data so ElementTree has a chance to parse it correctly"""
 
+        warnings.warn("iLO returned malformed XML, attempting to fix. Please contact HP to report a bug", IloXMLWarning)
+
         if '<RIBCL VERSION="2.22"/>' in data:
             data = data.replace('<RIBCL VERSION="2.22"/>', '<RIBCL VERSION="2.22">')
-        if re.search(r'''=+ *[^"'\n=]''', data):
-            data = re.sub(r'''= *([^"'\n]+?) *\n''', r'="\1"', data)
-        if re.search('[a-zA-Z0-9]""/>', data):
-            def fix(line):
-                if re.search('[a-zA-Z0-9]""/>', line):
-                    line = '"'.join([x.replace('"', '&quot;') for x in line.split('""')])
-                return line
-            data = '\n'.join([fix(line) for line in data.split('\n')])
-        if '" "/>' in data:
-            data = data.replace('" "/>', '&quot; " />')
-        return data
+        # Quite a few unescaped quotation mark bugs keep appearing. Let's try
+        # to fix up the XML by replacing the last occurence of a quotation mark
+        # *before* the position of the error.
+        #
+        # Definitely not an optimal algorithm, but this is not a hot path.
+        # Let's favour correctness over hacks.
+        last_position = None
+        position = (0, 0)
+        while position != last_position:
+            last_position = position
+            try:
+                return etree.fromstring(data)
+            except etree.ParseError as e:
+                position = e.position
+                x = position[0]-1
+                y = position[1]
+                lines = data.splitlines()
+                y = lines[x].rfind('"', 0, y)
+                lines[x] = lines[x][:y] + '&quot;' + lines[x][y+1:]
+                data = '\n'.join(lines)
+        # Couldn't fix it :(
+        raise
 
     def _parse_message(self, data, include_inform=False):
         """Parse iLO responses into Element instances and remove useless messages"""
@@ -569,7 +585,7 @@ class Ilo(object):
         try:
             message = etree.fromstring(data)
         except etree.ParseError:
-            message = etree.fromstring(self._attempt_to_fix_broken_xml(data))
+            message = self._attempt_to_fix_broken_xml(data)
         if message.tag == 'RIBCL':
             for child in message:
                 if child.tag == 'INFORM':
