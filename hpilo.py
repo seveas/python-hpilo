@@ -559,6 +559,10 @@ class Ilo(object):
             data = '\n'.join([fix(line) for line in data.split('\n')])
         if '" "/>' in data:
             data = data.replace('" "/>', '&quot; " />')
+        if re.search(r''' ".+" ''', data): # literal space -- would match FIRMWARE_VERSION = "2.55"\n
+            def fix_quotations(match):
+                return match.group().replace('"', '&quot;')
+            data = re.sub(r''' ".+" ''', fix_quotations, data)
         return data
 
     def _parse_message(self, data, include_inform=False):
