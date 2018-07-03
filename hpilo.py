@@ -1420,7 +1420,7 @@ class Ilo(object):
             if vars[var] is not None:
                 elements.append(etree.Element(var.upper(), VALUE=vars.pop(var)))
         for var in vars:
-            if vars[val] is not None:
+            if vars[var] is not None:
                 elements.append(etree.Element('ESKM_' + var.upper(), VALUE=vars[var]))
         return self._control_tag('RIB_INFO', 'MOD_ENCRYPT_SETTINGS', elements=elements)
 
