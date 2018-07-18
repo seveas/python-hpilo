@@ -1482,7 +1482,7 @@ class Ilo(object):
            many settings only work on certain iLO models and firmware versions"""
         vars = dict(locals())
         del vars['self']
-        dont_map = ['authentication_failure_logging']
+        dont_map = ['authentication_failure_logging', 'authentication_failures_before_delay', 'serial_cli_speed']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None and x not in dont_map] + \
                    [etree.Element(x.upper(), VALUE=str(vars[x]))
