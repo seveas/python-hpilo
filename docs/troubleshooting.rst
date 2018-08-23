@@ -55,6 +55,12 @@ for your device and firmware version. If it is, please file a bug report.
 Note that for some calls (most notable mod_global_settings), support for the
 call may be there, but not all arguments are supported.
 
+SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshake failure (_ssl.c:661)
+------------------------------------------------------------------------------
+Your operating system vendor wisely doesn't support older SSL protocols
+anymore, and your iLO firmware is too old. Try using an older version of your
+os, possibly in a vm, chroot or container to ugrade the firmware of your iLO
+
 ElementTree.ParseError
 -----------------------
 Occasionally you might see either of these errors at the end of a traceback::
