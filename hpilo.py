@@ -395,10 +395,14 @@ class Ilo(object):
             raise IloCommunicationError("Unable to resolve %s" % self.hostname)
 
         try:
-            if self.ssl_context:
-                return self.ssl_context.wrap_socket(sock, server_hostname=self.hostname)
-            else:
-                return ssl.wrap_socket(sock, ssl_version=ssl.PROTOCOL_TLS)
+            if not self.ssl_context:
+                self.ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+                # Even more sadly, some iLOs are still using RC4-SHA
+                # which was dropped from the default cipher suite in
+                # Python 2.7.10 and Python 3.4.4. Add it back here :(
+                self.ssl_context.set_ciphers("RC4-SHA:" + ssl._DEFAULT_CIPHERS)
+            return self.ssl_context.wrap_socket(
+                sock, server_hostname=self.hostname)
         except ssl.SSLError as exc:
             raise IloCommunicationError("Cannot establish ssl session with %s:%d: %s" % (self.hostname, self.port, str(exc)))
 
