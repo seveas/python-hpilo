@@ -48,7 +48,7 @@ def download(ilo, path=None, progress = lambda txt: None):
         progress(msg)
         data = _download(conf[ilo]['url'], lambda txt: progress('%s %s' % (msg, txt)))
         if conf[ilo]['url'].endswith('.bin'):
-            with open(os.path.join(path, conf[ilo]['file']), 'w') as fd:
+            with open(os.path.join(path, conf[ilo]['file']), 'wb') as fd:
                 fd.write(data)
         else:
             _parse(data, path, conf[ilo]['file'])
