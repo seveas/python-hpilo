@@ -58,7 +58,7 @@ file is a simple ini file that should look like this
 Using such a file is recommended over using the login/password commandline
 arguments.
 
-Many methods that can be called requier arguments. These arguments must be
+Many methods that can be called require arguments. These arguments must be
 specified as :data:`key=value` pairs on the command-line. These parameters can
 also point to arbitrary configuration variables using the
 :attr:`key='$section.option'` syntax.
