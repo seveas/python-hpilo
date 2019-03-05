@@ -1560,6 +1560,7 @@ class Ilo(object):
             dir_kerberos_enabled=None,dir_kerberos_realm=None,
             dir_kerberos_kdc_address=None,dir_kerberos_kdc_port=None,
             dir_kerberos_keytab=None,
+            dir_generic_ldap_enabled=None,
             dir_grpacct1_name=None,dir_grpacct1_sid=None,
             dir_grpacct1_priv=None,dir_grpacct2_name=None,
             dir_grpacct2_sid=None,dir_grpacct2_priv=None,
