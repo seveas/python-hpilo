@@ -910,7 +910,8 @@ class Ilo(object):
 
     def delete_sso_server(self, index):
         """Delete an SSO server by index"""
-        return self._control_tag('SSO_INFO', 'DELETE_SERVER', index)
+        return self._control_tag('SSO_INFO', 'DELETE_SERVER',
+                                 attrib={'INDEX': str(index)})
 
     def delete_user(self, user_login):
         """Delete the specified user from the ilo"""
