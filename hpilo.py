@@ -1514,7 +1514,7 @@ class Ilo(object):
             dhcpv6_stateful_enable=None, dhcpv6_stateless_enable=None, dhcpv6_sntp_settings=None,
             dhcpv6_domain_name=None, ilo_nic_auto_select=None, ilo_nic_auto_snp_scan=None,
             ilo_nic_auto_delay=None, ilo_nic_fail_over=None, gratuitous_arp=None,
-            ilo_nic_fail_over_delay=None):
+            ilo_nic_fail_over_delay=None, snp_port=None):
         """Configure the network settings for the iLO card. The static route arguments require
            dicts as arguments. The necessary keys in these dicts are dest,
            gateway and mask all in dotted-quad form"""
@@ -1524,8 +1524,12 @@ class Ilo(object):
         # For the ipv4 route elements, {'dest': XXX, 'gateway': XXX}
         # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
         # IPv6 addresses may specify prefixlength as /64 (default 64)
+        dont_map = ['prefixlen', 'ilo_nic_auto_snp_scan', 'ilo_nic_auto_delay', 'ilo_nic_fail_over_delay', 'snp_port']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
-                    for x in vars if vars[x] is not None and 'static_route_' not in x]
+                    for x in vars if vars[x] is not None and 'static_route_' not in x and x not in dont_map] + \
+                   [etree.Element(x.upper(), VALUE=str(vars[x]))
+                    for x in vars if vars[x] is not None and 'static_route_' not in x and x in dont_map]
+
         for key in vars:
             if 'static_route_' not in key or not vars[key]:
                 continue
@@ -1543,6 +1547,10 @@ class Ilo(object):
                     element.attrib.update({'VALUE': addr, 'PREFIXLEN': plen})
                 if 'PREFIXLEN' not in element.attrib:
                     element.attrib['PREFIXLEN'] = '64'
+            if "IPV6_STATIC_ROUTE_" in element.tag:
+                plen = element.attrib['PREFIXLEN']
+                if not isinstance(plen, basestring):
+                    element.attrib['PREFIXLEN'] = str(plen)
         return self._control_tag('RIB_INFO', 'MOD_NETWORK_SETTINGS', elements=elements)
     mod_network_settings.requires_dict = ['static_route_1', 'static_route_2', 'static_route_3',
         'ipv6_static_route_1', 'ipv6_static_route_2', 'ipv6_static_route_3']
