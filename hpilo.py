@@ -1457,7 +1457,8 @@ class Ilo(object):
             rawvsp_port=None, vsp_software_flow_control=None,
             terminal_services_port=None,
             shared_console_enable=None, shared_console_port=None, remote_console_acquire=None,
-            telnet_enable=None, ssl_empty_records_enable=None,
+            telnet_enable=None, ssl_empty_records_enable=None, remote_console_status=None,
+            ribcl_status=None, virtual_media_status=None, webgui_status=None, webserver_status=None,
 
             # Security settings
             min_password=None, enforce_aes=None, authentication_failure_logging=None,
@@ -1469,6 +1470,8 @@ class Ilo(object):
             remote_syslog_enable=None, remote_syslog_server_address=None, remote_syslog_port=None,
             alertmail_enable=None, alertmail_email_address=None,
             alertmail_sender_domain=None, alertmail_smtp_server=None, alertmail_smtp_port=None,
+            alertmail_smtp_auth_enable=None, alertmail_smtp_auth_username=None,
+            alertmail_smtp_secure_enable=None,
 
             # Console capturing
             vsp_log_enable=None,
@@ -1487,7 +1490,46 @@ class Ilo(object):
            many settings only work on certain iLO models and firmware versions"""
         vars = dict(locals())
         del vars['self']
-        dont_map = ['authentication_failure_logging', 'authentication_failures_before_delay', 'serial_cli_speed']
+
+        # even though a get_global_settings returns the actual speed we have to use
+        # numerical values between 0 (unchanged) and 6 to represent speed
+        serial_cli_speed_options = {
+            '9600':   1,
+            '19200':  2,
+            '38400':  3,
+            '57600':  4,
+            '115200': 5,
+        }
+
+        # same with serial_cli_status
+        serial_cli_status_options = {
+            'Disabled':                        1,
+            'Enabled-No Authentication':       2,
+            'Enabled-Authentication Required': 3,
+        }
+
+        # and authentication_failure_logging
+        authentication_failure_logging_options = {
+            'Disabled':                  0,
+            'Enabled-every failure':     1,
+            'Enabled-every 2nd failure': 2,
+            'Enabled-every 3rd failure': 3,
+            'Enabled-every 5th failure': 5,
+        }
+
+        vars_mappings = {
+            "serial_cli_speed": serial_cli_speed_options,
+            "serial_cli_status": serial_cli_status_options,
+            "authentication_failure_logging": authentication_failure_logging_options
+        }
+
+        for var_name, var_mappings in vars_mappings.items():
+            if vars.get(var_name, None) is not None:
+                var_value = str(vars.get(var_name))
+                vars[var_name] = str(var_mappings.get(var_value,var_value))
+
+        dont_map = ['authentication_failure_logging', 'authentication_failures_before_delay', 'serial_cli_speed',
+                    'min_password', 'session_timeout', "serial_cli_status"]
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None and x not in dont_map] + \
                    [etree.Element(x.upper(), VALUE=str(vars[x]))
