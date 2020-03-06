@@ -1524,7 +1524,7 @@ class Ilo(object):
         # For the ipv4 route elements, {'dest': XXX, 'gateway': XXX}
         # ipv6 routes are ipv6_dest, prefixlen, ipv6_gateway
         # IPv6 addresses may specify prefixlength as /64 (default 64)
-        dont_map = ['prefixlen', 'ilo_nic_auto_snp_scan', 'ilo_nic_auto_delay', 'ilo_nic_fail_over_delay', 'snp_port']
+        dont_map = ['prefixlen', 'ilo_nic_auto_snp_scan', 'ilo_nic_auto_delay', 'ilo_nic_fail_over_delay', 'snp_port', 'vlan_id']
         elements = [etree.Element(x.upper(), VALUE=str({True: 'Yes', False: 'No'}.get(vars[x], vars[x])))
                     for x in vars if vars[x] is not None and 'static_route_' not in x and x not in dont_map] + \
                    [etree.Element(x.upper(), VALUE=str(vars[x]))
