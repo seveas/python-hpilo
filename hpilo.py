@@ -558,6 +558,11 @@ class Ilo(object):
 
         if '<RIBCL VERSION="2.22"/>' in data:
             data = data.replace('<RIBCL VERSION="2.22"/>', '<RIBCL VERSION="2.22">')
+
+        # Remove binary 01 in xml output. This bug was seen on a faulty PSU.
+        if '\x01' in data:
+            data = data.replace('\x01', '')
+        
         # Quite a few unescaped quotation mark bugs keep appearing. Let's try
         # to fix up the XML by replacing the last occurence of a quotation mark
         # *before* the position of the error.
