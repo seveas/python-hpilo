@@ -1,4 +1,4 @@
-# Downloader / extracter for latest iLO2 / iLO3 / iLO4 firmware
+# Downloader / extracter for latest iLO / iLO2 / iLO3 / iLO4 / iLO5 firmware
 #
 # (c) 2011-2018 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
@@ -43,6 +43,35 @@ def download(ilo, path=None, progress = lambda txt: None):
     if not path:
         path = os.getcwd()
     conf = config()
+	
+    #This block enables mass downloading of "all" firmware versions
+    #matching the behaviour provided in the cli:
+    #"all" downloads the latest firmware for each ilo type (per firmware.conf)
+    #"ilo2 all" downloads all firmwares available for ilo2
+    #"all all" downloads every firmware file in firmware.conf
+    if "all" in ilo:
+        #firstly, handle an 'all' for the ilo type
+        if ilo.startswith("all"):
+            majorversions = list(set([x.split(" ")[0] for x in conf.keys()]))
+        else:
+            majorversions = [ilo.split(" ")[0]]
+        #then handle an 'all' for firmware versione
+        if ilo == "all": #just the latest for each type
+            targetversions = majorversions
+        else:
+            targetversions = []
+            for majorversion in majorversions:
+                #include a space in the 'startswith' or the original ilo (no 1) matches everything.
+                minorversions = [x for x in conf.keys() if (x.startswith(majorversion+" ") or x == majorversion)]
+                targetversions = targetversions +minorversions
+
+        #then loop over the targeted versions        
+        overallsuccess = False
+        for targetversion in targetversions:
+            responsecode = download(targetversion, path, progress)
+            overallsuccess = overallsuccess or responsecode
+        return overallsuccess
+
     if not os.path.exists(os.path.join(path, conf[ilo]['file'])):
         msg  = "Downloading %s firmware version %s" % (ilo.split()[0], conf[ilo]['version'])
         progress(msg)
