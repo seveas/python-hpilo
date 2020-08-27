@@ -7,6 +7,7 @@ import tarfile
 import io
 import os
 import sys
+from zipfile import ZipFile
 PY3 = sys.version_info[0] >= 3
 
 if PY3:
@@ -50,6 +51,9 @@ def download(ilo, path=None, progress = lambda txt: None):
         if conf[ilo]['url'].endswith('.bin'):
             with open(os.path.join(path, conf[ilo]['file']), 'wb') as fd:
                 fd.write(data)
+        elif conf[ilo]['url'].endswith('.fwpkg'):
+            with ZipFile(io.BytesIO(data)) as zipObj:
+                zipObj.extract(conf[ilo]['file'], path)
         else:
             _parse(data, path, conf[ilo]['file'])
         return True
