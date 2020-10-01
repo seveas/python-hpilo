@@ -11,7 +11,7 @@ existing procedures or simply want to manage iLOs using a command-line
 interface, you're stuck manually creating XML files and using a perl hack HP
 ships called locfg.pl.
 
-Enter python-hpilo!
+Enter python-hpilo!(using cmd)
 
 Using the same XML interface as HP's own management tools, here is a python
 library and command-line tool that make it a lot easier to do all the above. No
