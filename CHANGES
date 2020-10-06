@@ -1,3 +1,9 @@
+Version 4.4, 2020-10-06
+
+* Support HPE fwpkg firmware packaging
+* Bugfixes in delete_sso_server and get_generic_ldap_enabled
+* Fix in the firmware mirror script
+
 Version 4.3, 2018-08-23
 
 * Backwards compatibility with code that uses the ssl_version parameter

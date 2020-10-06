@@ -1,7 +1,7 @@
-# (c) 2011-2018 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+# (c) 2011-2020 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "4.3"
+__version__ = "4.4"
 
 import codecs
 import io
