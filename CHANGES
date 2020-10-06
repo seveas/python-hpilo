@@ -1,4 +1,5 @@
 Version 4.4, 2020-10-06
+Version 4.4.1, 2020-10-06
 
 * Support HPE fwpkg firmware packaging
 * Bugfixes in delete_sso_server and get_generic_ldap_enabled
