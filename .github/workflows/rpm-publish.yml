@@ -1,0 +1,35 @@
+name: Upload rpm
+
+on:
+  # Run when we have a new release
+  release:
+    types: [created]
+  # Pushes to the copr branch let us tweak the spec file
+  push:
+    branches:
+      - copr
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        dnf -y install copr-cli python-pip rpmdevtools
+        pip install setuptools wheel
+    - name: Build srpm
+      run: |
+        python3 setup.py sdist
+        rpmdev-setuptree
+        cp dist/*.tar.gz ~/rpmbuild/SOURCES
+        rpmbuild -bs devtools/python-hpilo.spec
+    - name: Upload to copr
+      env:
+        COPR_TOKEN: ${{ secrets.COPR_TOKEN }}
+      run: |
+        mkdir -p "$HOME/.config"
+        echo "$COPR_TOKEN" > "$HOME/.config/copr"
+        copr build --nowait seveas/python-hpilo ~/rpmbuild/SRPMS/*.src.rpm
