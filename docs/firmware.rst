@@ -2,8 +2,14 @@ Dealing with iLO firmware updates
 =================================
 
 One of the key features of python_hpilo is that it makes iLO firmware updates
-painless. It can download the firmware for you, or you can feed it the .bin or
-.scexe files HP ships.
+painless. It can download the firmware for you, or you can feed it the .bin,
+.scexe or .fwpkg files HP ships.
+
+Note that the newest versions of the firmware, as of August 2020, are shipped
+in a new format and you will need to use python-hpilo 4.4 or newer to extract
+and use them. If you cannot upgrade, you can manually extract the .bin file
+from the .fwpkg file (just open it with anything that can open zip files) and
+pass the .bin file to python-hpilo.
 
 From the CLI
 ------------

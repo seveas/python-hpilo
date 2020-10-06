@@ -38,6 +38,9 @@ so it's always a good idea to start with a firmware update::
 
   hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=latest
 
+If this fails to extract the firmware, try upgrading python-hpilo as newer
+firmware versions are shipped in a different, incompatible format.
+
 Syntax error: Line #0
 ---------------------
 Occasionally you might see this error at the end of a traceback::
