@@ -684,7 +684,7 @@ class Ilo(object):
             retval[key.lower()] = self._coerce(val)
         if list(element):
             fields = []
-            for child in element.getchildren():
+            for child in element:
                 if child.tag == 'FIELD':
                     fields.append(self._element_to_dict(child))
             if fields:
