@@ -1605,7 +1605,7 @@ class Ilo(object):
             if key.endswith('_priv'):
                 if isinstance(val, basestring):
                     val = val.replace('oemhp_', '').replace('_priv', '').split(',')
-                if isinstance(val, list):
+                if isinstance(val, (list, tuple, set)):
                     val = ','.join([str(privmap.get(x,x)) for x in val])
                 if not isinstance(val, basestring):
                     val = str(privmap.get(val,val))
