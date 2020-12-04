@@ -400,7 +400,7 @@ class Ilo(object):
                 # Even more sadly, some iLOs are still using RC4-SHA
                 # which was dropped from the default cipher suite in
                 # Python 2.7.10 and Python 3.4.4. Add it back here :(
-                self.ssl_context.set_ciphers("RC4-SHA:" + ssl._DEFAULT_CIPHERS)
+                self.ssl_context.set_ciphers(ssl._DEFAULT_CIPHERS + ":RC4-SHA")
             return self.ssl_context.wrap_socket(
                 sock, server_hostname=self.hostname)
         except ssl.SSLError as exc:
