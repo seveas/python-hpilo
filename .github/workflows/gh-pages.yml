@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - seveas-test
 
 jobs:
   deploy:
@@ -20,7 +19,7 @@ jobs:
 
       - name: Ship firmware.conf
         run:
-          'id && ls -la docs/_build/html && sudo cp firmware.conf docs/_build/html'
+          sudo cp firmware.conf docs/_build/html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3

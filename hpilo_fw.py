@@ -26,7 +26,7 @@ def config(mirror=None):
         if mirror:
             conf = _download(mirror + 'firmware.conf')
         else:
-            conf = _download('https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf')
+            conf = _download('https://seveas.github.io/python-hpilo/firmware.conf')
         conf = conf.decode('ascii')
         parser = ConfigParser.ConfigParser()
         parser.readfp(io.StringIO(conf))

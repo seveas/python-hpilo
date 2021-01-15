@@ -34,7 +34,7 @@ that too::
     hpilo_cli download_rib_firmware ilo4 all   # Download all firmware versions for iLO 4
     hpilo_cli download_rib_firmware all all    # Download all firmware versions for all iLO types
 
-.. _`firmware.conf`: https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf
+.. _`firmware.conf`: https://seveas.github.io/python-hpilo/firmware.conf
 
 Using the API
 -------------
@@ -95,7 +95,7 @@ auto-update via cron) such a mirror with a simple shellscript::
     #!/bin/sh
 
     cd /var/www/html/ilo-firmware
-    wget -q https://raw.githubusercontent.com/seveas/python-hpilo/master/firmware.conf
+    wget -q https://seveas.github.io/python-hpilo/firmware.conf
     hpilo_cli -c /dev/null download_rib_firmware all all
 
 This will download and extract the necessary files to
