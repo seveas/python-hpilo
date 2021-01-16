@@ -27,44 +27,19 @@ Sometimes needed:
 Installing the latest release
 -----------------------------
 
-When using Ubuntu, Debian, Fedora, CentOS or RHEL, it is advisable to use the
-deb or rpm packages I create for every release, so you get automatic updates
-whenever a new release is issued.
+The easiest way is to install with pip::
 
-Users of Ubuntu releases that Canonical still supports can use my launchpad
-PPA:
+``pip3 install python-hpilo``
 
-.. code-block:: console
+You can also download the package from `PyPI`_ and install it manually like any
+other application by unpacking it and running ``python setup.py install``.
 
-   $ sudo add-apt-repository ppa:dennis/python
-   $ sudo apt-get update
-   $ sudo apt-get install python-hpilo
+.. _`PyPI`: http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run
 
-Users of supported Fedora and RHEL/CentOS releases can ue my COPR repository:
+Users of supported Fedora and RHEL/CentOS releases can also use my COPR repository:
 
 .. code-block:: console
 
    $ sudo dnf install dnf-plugins-core
    $ sudo dnf copr enable seveas/python-hpilo
    $ sudo dnf install python-hpilo
-
-Or for older releases, using yum:
-
-.. code-block:: console
-
-   $ sudo yum install yum-plugin-copr
-   $ sudo yum copr enable seveas/python-hpilo
-   $ sudo yum install python-hpilo
-
-And for even older releases, where yum-plugin-copr isn't available, you can
-download a .repo file from `COPR`_ to copy to ``/etc/yum.repos.d``.
-
-.. _`COPR`: https://copr.fedorainfracloud.org/coprs/seveas/python-hpilo/
-
-If you can not, or do not want to use these packages (for example, if you use
-windows or osx, or if you want to install into a virtualenv) you can download
-the package from `PyPI`_ and install it manually like any other application by
-unpacking it and running ``python setup.py install``. Or use ``pip`` to install
-it: ``pip install python-hpilo``
-
-.. _`PyPI`: http://pypi.python.org/packages/source/p/python-hpilo/, extract it and run
