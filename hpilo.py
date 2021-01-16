@@ -1660,7 +1660,10 @@ class Ilo(object):
             if key.endswith('_priv'):
                 if isinstance(val, basestring):
                     val = val.replace('oemhp_', '').replace('_priv', '').split(',')
-                val = ','.join([str(privmap.get(x,x)) for x in val])
+                if isinstance(val, (list, tuple, set)):
+                    val = ','.join([str(privmap.get(x,x)) for x in val])
+                if not isinstance(val, basestring):
+                    val = str(privmap.get(val,val))
             else:
                 val = str({True: 'Yes', False: 'No'}.get(val, val))
             elements.append(etree.Element(key.upper(), VALUE=val))
