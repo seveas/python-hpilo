@@ -27,9 +27,11 @@ Sometimes needed:
 Installing the latest release
 -----------------------------
 
-The easiest way is to install with pip::
+The easiest way is to install with pip:
 
-``pip3 install python-hpilo``
+.. code-block:: console
+
+   $ pip3 install python-hpilo
 
 You can also download the package from `PyPI`_ and install it manually like any
 other application by unpacking it and running ``python setup.py install``.
