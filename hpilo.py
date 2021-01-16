@@ -1660,6 +1660,8 @@ class Ilo(object):
             if key.endswith('_priv'):
                 if isinstance(val, basestring):
                     val = val.replace('oemhp_', '').replace('_priv', '').split(',')
+                if not hasattr(val, '__iter__'):
+                    val = [val]
                 val = ','.join([str(privmap.get(x,x)) for x in val])
             else:
                 val = str({True: 'Yes', False: 'No'}.get(val, val))
