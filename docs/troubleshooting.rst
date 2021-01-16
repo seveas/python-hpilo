@@ -91,6 +91,15 @@ first update to 1.28 and then update to a later version::
   hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=1.28
   hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=latest
 
+Failure to update iLO5 firmware
+-------------------------------
+The early firmware versions of iLO3 had quite a few issues. To update from
+anything older than 1.40 to 1.50 or newer, you need to update in two steps:
+first update to 1.40 and then update to a later version::
+
+  hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=1.40
+  hpilo_cli example-server.int.kaarsemaker.net update_rib_firmware version=latest
+
 `hpilo.IloError: Error reading configuration`
 ---------------------------------------------
 This error might occur in delayed mode when one of the calls causes a reset of
