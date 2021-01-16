@@ -52,7 +52,7 @@ machine you run this code on, not the managed server.
 
 Author and license
 ------------------
-This software is (c) 2011-2020 Dennis Kaarsemaker <dennis@kaarsemaker.net>
+This software is (c) 2011-2021 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

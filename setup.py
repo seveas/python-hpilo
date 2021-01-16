@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name = "python-hpilo",
-      version = "4.4.2",
+      version = "4.4.3",
       author = "Dennis Kaarsemaker",
       author_email = "dennis@kaarsemaker.net",
       url = "http://github.com/seveas/python-hpilo",
