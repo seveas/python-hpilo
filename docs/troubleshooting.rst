@@ -47,7 +47,7 @@ Occasionally you might see this error at the end of a traceback::
 
   hpilo.IloError: Error communicating with iLO: Syntax error: Line #0: syntax error near "" in the line: ""
 
-This generaly means that you are trying to call a method that is not supported
+This generally means that you are trying to call a method that is not supported
 for your device or the firmware version you use. Get this information with::
 
   hpilo_cli example-server.int.kaarsemaker.net get_fw_version
@@ -62,7 +62,7 @@ SSL: SSLV3_ALERT_HANDSHAKE_FAILURE] sslv3 alert handshake failure (_ssl.c:661)
 ------------------------------------------------------------------------------
 Your operating system vendor wisely doesn't support older SSL protocols
 anymore, and your iLO firmware is too old. Try using an older version of your
-os, possibly in a vm, chroot or container to ugrade the firmware of your iLO
+os, possibly in a vm, chroot or container to upgrade the firmware of your iLO
 
 ElementTree.ParseError
 -----------------------
@@ -103,9 +103,9 @@ first update to 1.40 and then update to a later version::
 `hpilo.IloError: Error reading configuration`
 ---------------------------------------------
 This error might occur in delayed mode when one of the calls causes a reset of
-the iLO, such as changing network settings or reseting to factory defaults. All
+the iLO, such as changing network settings or resetting to factory defaults. All
 delayed calls called by the same `call_delayed` after this reset may then cause
-this error as the iLO is reseting. For example, when calling `hpilo_cli
+this error as the iLO is resetting. For example, when calling `hpilo_cli
 localhost factory_defaults + activate_license key=12345`, the
 `activate_license` call may fail with this error. If you hit this issue and you
 use calls that can cause a reset, make sure you either use them outside a

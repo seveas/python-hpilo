@@ -564,7 +564,7 @@ class Ilo(object):
             data = data.replace('\x01', '')
         
         # Quite a few unescaped quotation mark bugs keep appearing. Let's try
-        # to fix up the XML by replacing the last occurence of a quotation mark
+        # to fix up the XML by replacing the last occurrence of a quotation mark
         # *before* the position of the error.
         #
         # Definitely not an optimal algorithm, but this is not a hot path.
@@ -1176,7 +1176,7 @@ class Ilo(object):
         return self._info_tag('RIB_INFO', 'GET_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name}, process=process)
 
     def get_federation_multicast(self):
-        """Get the iLO federation mulicast settings"""
+        """Get the iLO federation multicast settings"""
         return self._info_tag('RIB_INFO', 'GET_FEDERATION_MULTICAST')
 
     def get_fips_status(self):
@@ -1723,7 +1723,7 @@ class Ilo(object):
         return self._control_tag('SSO_INFO', 'MOD_SSO_SETTINGS', elements=elements)
 
     def mod_twofactor_settings(self, auth_twofactor_enable=None, cert_revocation_check=None, cert_owner_san=None, cert_owner_subject=None):
-        """Modify the twofactor authenticatino settings"""
+        """Modify the twofactor authentication settings"""
         elements = []
         if auth_twofactor_enable is not None:
             elements.append(etree.Element('AUTH_TWOFACTOR_ENABLE', VALUE=['No', 'Yes'][bool(auth_twofactor_enable)]))
@@ -1956,7 +1956,7 @@ class Ilo(object):
 
     def set_server_auto_pwr(self, setting):
         """Set the automatic power on delay setting. Valid settings are False,
-           True (for minumum delay), 15, 30, 45 60 (for that amount of delay)
+           True (for minimum delay), 15, 30, 45 60 (for that amount of delay)
            or random (for a random delay of up to 60 seconds.)"""
         setting = str({True: 'Yes', False: 'No'}.get(setting, setting))
         return self._control_tag('SERVER_INFO', 'SERVER_AUTO_PWR', attrib={'VALUE': setting})
