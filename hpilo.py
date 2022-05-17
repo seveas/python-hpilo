@@ -2107,7 +2107,9 @@ class Ilo(object):
                 data = fd.read()
         else:
             url = 'https://%s:%s/xmldata?item=%s' % (self.hostname, self.port, item)
-            if hasattr(ssl, 'create_default_context'):
+            if self.ssl_context:
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}), urllib2.HTTPSHandler(context=self.ssl_context))
+            elif hasattr(ssl, 'create_default_context'):
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
                 ctx.verify_mode = ssl.CERT_NONE
