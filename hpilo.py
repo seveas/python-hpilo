@@ -105,7 +105,7 @@ def iloxml_replace(error):
             b = ord(b)
         if b < 128:
             break
-        ret += u"?"
+        ret += "?"
     warnings.warn(
         "Invalid ascii data found: %s, replaced with %s"
         % (repr(error.object[error.start : pos]), ret),

@@ -42,8 +42,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"python-hpilo"
-copyright = u"2011-2020, Dennis Kaarsemaker"
+project = "python-hpilo"
+copyright = "2011-2020, Dennis Kaarsemaker"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +183,8 @@ latex_documents = [
     (
         "index",
         "python-hpilo.tex",
-        u"python-hpilo Documentation",
-        u"Dennis Kaarsemaker",
+        "python-hpilo Documentation",
+        "Dennis Kaarsemaker",
         "manual",
     ),
 ]
@@ -218,5 +218,5 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "python-hpilo", u"python-hpilo Documentation", [u"Dennis Kaarsemaker"], 1)
+    ("index", "python-hpilo", "python-hpilo Documentation", ["Dennis Kaarsemaker"], 1)
 ]
