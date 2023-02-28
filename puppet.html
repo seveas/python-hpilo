@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Managing iLO’s with puppet &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Common issues" href="troubleshooting.html" />
+    <link rel="prev" title="Automated firmware updates" href="autofirmware.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Managing iLO’s with puppet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#caching">Caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-puppet">Configuring puppet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#facts">Facts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-users">Managing users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-ilo-firmware">Managing iLO firmware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-settings">Managing settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-licenses">Installing licenses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-example">Complete example</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Managing iLO’s with puppet</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="managing-ilo-s-with-puppet">
+<h1>Managing iLO’s with puppet<a class="headerlink" href="#managing-ilo-s-with-puppet" title="Permalink to this headline">¶</a></h1>
+<p>Instead of writing your own code to manage iLO interfaces with python-hpilo,
+you can also use a puppet module. While it doesn’t support all the
+functionality of hpilo.py or hpilo_cli, it does support the more common
+functions (and more can be added, just file a bug!)</p>
+<p>It uses the same network device management framework as the existing tools to
+manage cisco devices or F5 loadbalancers, so you don’t need to install anything
+special on each server and no custom iLO code is required.</p>
+<p>To install the module, simply copy the <cite>modules/ilo</cite> directory into your puppet
+tree and follow the instructions below to create recipes.</p>
+<div class="section" id="caching">
+<h2>Caching<a class="headerlink" href="#caching" title="Permalink to this headline">¶</a></h2>
+<p>This module heavily caches iLO output, most for more than a day. The cache is
+invalidated if settings etc. are changed by this module, but if you make
+changes manually, you will need to remove the cached information yourself. The
+cache lives in the per-device directories in <cite>/var/lib/puppet/devices</cite>.</p>
+<p>Because of this caching, applying the catalog takes only a few seconds instead
+of several minutes if there are no changes.</p>
+</div>
+<div class="section" id="configuring-puppet">
+<h2>Configuring puppet<a class="headerlink" href="#configuring-puppet" title="Permalink to this headline">¶</a></h2>
+<p>Please configure <cite>hpilo_cli</cite> itself first, including username and password. The
+puppet <cite>ilo</cite> module works by using this tool. Once it works for you, you can
+configure puppet.</p>
+<p>To use <cite>puppet device</cite> to manage iLO’s, the iLO devices must be added to
+<cite>/etc/puppet/device.conf</cite> on the server you want to use for managing them.</p>
+<p>The ilo module can be used in two ways: to manage an iLO remotely via HTTP and
+to manage an iLO locally via hpilo. With the former you can manage many iLOs
+from a single server, with the latter you can manage iLOs that are not (yet)
+reachable via the network.</p>
+<p>To manage the local iLO, you can put something this in <cite>device.conf</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ilo</span>
+<span class="n">url</span> <span class="n">ilo</span><span class="p">:</span><span class="o">//</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+</div>
+<p>Note that the scheme is <cite>ilo://</cite>, this makes the ilo module use <cite>hpilo_cli</cite> in
+local mode. You must still use the ilo’s FQDN though, as each node needs a
+unique name in puppet.</p>
+<p>I personally prefer the network method and configuring DHCP properly so all
+iLOs are reachable via the network. For this, <cite>device.conf</cite> looks like the
+following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ilo</span>
+<span class="n">url</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span>
+
+<span class="p">[</span><span class="n">server</span><span class="o">-</span><span class="mf">002.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ilo</span>
+<span class="n">url</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">server</span><span class="o">-</span><span class="mf">002.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span>
+
+<span class="p">[</span><span class="n">server</span><span class="o">-</span><span class="mf">003.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ilo</span>
+<span class="n">url</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">server</span><span class="o">-</span><span class="mf">003.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+</div>
+<p>In fact, it’s generated by the iLO module. The management server has this
+snippet in its recipe:</p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="na">s_mgmt</span> <span class="p">{</span>
+    <span class="k">class</span><span class="p">{</span><span class="s">&#39;ilo::proxy&#39;</span><span class="p">:</span>
+        <span class="na">devices</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s">&quot;http://server-001.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+            <span class="s">&quot;http://server-002.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+            <span class="s">&quot;http://server-003.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Of course you can generate this however you want.</p>
+</div>
+<div class="section" id="facts">
+<h2>Facts<a class="headerlink" href="#facts" title="Permalink to this headline">¶</a></h2>
+<p>Several facts are available for use in your recipes.</p>
+<ul class="simple">
+<li><p><cite>$devicetype</cite> is set to <cite>ilo</cite></p></li>
+<li><p><cite>$users</cite> contains a list of all users</p></li>
+<li><p><cite>$firmware_version</cite>, <cite>$firmware_date</cite>, <cite>$management_processor</cite>, and
+<cite>$license_type</cite> are set to what <cite>get_fw_version</cite> provides</p></li>
+<li><p><cite>$oa_encl</cite>, <cite>$oa_rack</cite>, <cite>$oa_ipaddress</cite>, <cite>$oa_location</cite>, <cite>$oa_macaddress</cite>,
+<cite>$oa_uidstatus</cite> and <cite>$oa_system_health</cite> are set to what <cite>get_oa_info</cite>
+provides. These are only available on blade servers.</p></li>
+</ul>
+</div>
+<div class="section" id="managing-users">
+<h2>Managing users<a class="headerlink" href="#managing-users" title="Permalink to this headline">¶</a></h2>
+<p>You can use this module to create, modify and delete users. Unfortunately the
+normal <cite>user</cite> type cannot be used, so there’s a special <cite>ilo_user</cite> type.</p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="na">ilo_user</span> <span class="p">{</span>
+    <span class="s">&quot;Administrator&quot;</span><span class="p">:</span>
+        <span class="na">admin_priv</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">;</span>
+    <span class="s">&quot;jack&quot;</span><span class="p">:</span>
+        <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">absent</span><span class="p">;</span>
+    <span class="s">&quot;dkaarsemaker&quot;</span><span class="p">:</span>
+        <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+        <span class="na">display_name</span> <span class="o">=&gt;</span> <span class="s">&#39;Dennis Kaarsemaker&#39;</span><span class="p">,</span>
+        <span class="na">password_atcreate</span> <span class="o">=&gt;</span> <span class="s">&#39;P4ssw0rd&#39;</span><span class="p">,</span>
+        <span class="na">reset_server_priv</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">;</span>
+    <span class="s">&quot;linda&quot;</span><span class="p">:</span>
+        <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+        <span class="na">password</span> <span class="o">=&gt;</span> <span class="s">&#39;hunter2&#39;</span>
+        <span class="na">display_name</span> <span class="o">=&gt;</span> <span class="s">&#39;Linda&#39;</span><span class="p">,</span>
+        <span class="na">admin_priv</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+        <span class="na">config_ilo_priv</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">,</span>
+        <span class="na">reset_server_priv</span> <span class="o">=&gt;</span> <span class="k">true</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>These example users show the features of this type:</p>
+<ul class="simple">
+<li><p>You can create (<cite>ensure =&gt; present</cite>) or delete (<cite>ensure =&gt; absent</cite>) users.</p></li>
+<li><p>You can manage their permissions (<cite>admin_priv</cite>, <cite>config_ilo_priv</cite>,
+<cite>remote_cons_priv</cite>, <cite>reset_server_priv</cite> and <cite>virtual_media_priv</cite>)</p></li>
+<li><p>You can manage display names and passwords. Note that for users you want this
+module to create, these are mandatory attributes.</p></li>
+</ul>
+<p>Because user passwords cannot be queried, this module has to check the password
+every time by doing an http request. This can take a while and goes against the
+aggressive caching. To prevent these constant checks, you can use the
+<cite>password_atcreate</cite> parameter instead of the <cite>password</cite> parameter. This is only
+used when creating the user and is not checked subsequently. Should you want to
+change the user’s password you can temporarily also add a <cite>password</cite> parameter
+until all devices have been updated.</p>
+</div>
+<div class="section" id="managing-ilo-firmware">
+<h2>Managing iLO firmware<a class="headerlink" href="#managing-ilo-firmware" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>ilo_firmware</cite> type can be used to manage firmware on your iLOs.</p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="na">ilo_firmware</span> <span class="p">{</span> <span class="nv">$management_processor:</span>
+    <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="s">&quot;latest&quot;</span><span class="p">,</span>
+    <span class="na">http_proxy</span> <span class="o">=&gt;</span> <span class="s">&quot;http://webproxy:3128&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The name of the resource must be the same as the iLO type, you can use a fact
+to make sure it is. <cite>ensure</cite> accepts any version number or the string <cite>latest</cite>,
+which will always upgrade to the latest version.</p>
+<p><cite>http_proxy</cite> is optional and can be used to specify a proxy via which to
+download the firmware config and firmware.</p>
+</div>
+<div class="section" id="managing-settings">
+<h2>Managing settings<a class="headerlink" href="#managing-settings" title="Permalink to this headline">¶</a></h2>
+<p>This module also includes an <cite>ilo_settings</cite> type. This is a relatively thin
+wrapper around functions like <cite>mod_global_settings</cite> to configure any of the
+following settings: global (<cite>mod_global_settings</cite>), network
+(<cite>mod_network_settings</cite>), snmp (<cite>mod_snmp_im_settings</cite>) and directory
+authentication (<cite>mod_dir_config</cite>). As with the above types, an example should
+make it clear.</p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="na">ilo_settings</span> <span class="p">{</span>
+    <span class="s">&quot;global&quot;</span><span class="p">:</span>
+        <span class="na">settings</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="s">&quot;remote_console_port&quot;</span> <span class="o">=&gt;</span> <span class="mi">23</span><span class="p">,</span>
+            <span class="s">&quot;enforce_aes&quot;</span>         <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+            <span class="s">&quot;f8_login_required&quot;</span>   <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+        <span class="p">};</span>
+    <span class="s">&quot;network&quot;</span><span class="p">:</span>
+        <span class="na">settings</span> <span class="o">=&gt;</span> <span class="p">{</span>
+            <span class="s">&quot;prim_dns_server&quot;</span>     <span class="o">=&gt;</span> <span class="s">&quot;10.42.1.31&quot;</span><span class="p">,</span>
+            <span class="s">&quot;sec_dns_server&quot;</span>      <span class="o">=&gt;</span> <span class="s">&quot;10.42.1.32&quot;</span><span class="p">,</span>
+        <span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>As you can see, the individual settings are not all parameters, instead there’s
+only one settings parameter. Any setting that is not managed by puppet is
+completely left alone by this module, there are no defaults.</p>
+</div>
+<div class="section" id="installing-licenses">
+<h2>Installing licenses<a class="headerlink" href="#installing-licenses" title="Permalink to this headline">¶</a></h2>
+<p>The last functionality (for now) is the <cite>ilo_license</cite> type, which you can use
+to install licenses.</p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="na">ilo_license</span> <span class="p">{</span> <span class="s">&quot;iLO 3 Advanced&quot;</span><span class="p">:</span>
+    <span class="na">key</span> <span class="o">=&gt;</span> <span class="s">&quot;12345-67890-ABCDE-FGHIJ-KLMNO&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that the spelling of the license name is important. If it’s not exactly
+the same as what <cite>get_all_licenses</cite> shows, puppet will try to activate the
+license again and again.</p>
+</div>
+<div class="section" id="complete-example">
+<h2>Complete example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<p>And here’s a complete example to put all the above together.</p>
+<p><cite>/etc/puppet/device.conf</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ilo</span>
+<span class="n">url</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">server</span><span class="o">-</span><span class="mf">001.</span><span class="n">ilo</span><span class="o">.</span><span class="n">kaarsemaker</span><span class="o">.</span><span class="n">net</span>
+</pre></div>
+</div>
+<p><cite>/etc/puppet/manifests/nodes.pp</cite></p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="k">node</span> <span class="s">&#39;management-server.kaarsemaker.net&#39;</span> <span class="p">{</span>
+    <span class="k">include</span> <span class="na">s_mgmt</span>
+<span class="p">}</span>
+
+<span class="k">node</span> <span class="s">&#39;server-001.ilo.kaarsemaker.net&#39;</span> <span class="p">{</span>
+    <span class="k">include</span> <span class="na">s_ilo</span>
+<span class="p">}</span>
+
+<span class="k">node</span> <span class="s">&#39;server-002.ilo.kaarsemaker.net&#39;</span> <span class="p">{</span>
+    <span class="k">include</span> <span class="na">s_ilo</span>
+<span class="p">}</span>
+
+<span class="k">node</span> <span class="s">&#39;server-003.ilo.kaarsemaker.net&#39;</span> <span class="p">{</span>
+    <span class="k">include</span> <span class="na">s_ilo</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><cite>/etc/puppet/modules/s_mgmt/manifests/init.pp</cite></p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="na">s_mgmt</span> <span class="p">{</span>
+    <span class="k">class</span><span class="p">{</span><span class="s">&#39;ilo::proxy&#39;</span><span class="p">:</span>
+        <span class="na">devices</span> <span class="o">=&gt;</span> <span class="p">[</span>
+            <span class="s">&quot;http://server-001.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+            <span class="s">&quot;http://server-002.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+            <span class="s">&quot;http://server-003.ilo.kaarsemaker.net&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><cite>/etc/puppet/modules/s_ilo/manifests/init.pp</cite></p>
+<div class="highlight-puppet notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="na">s_ilo</span> <span class="p">{</span><span class="c"></span>
+
+<span class="c">    # Always upgrade firmware</span>
+    <span class="na">ilo_firmware</span> <span class="p">{</span> <span class="nv">$management_processor:</span>
+        <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="s">&quot;latest&quot;</span><span class="p">,</span>
+        <span class="na">http_proxy</span> <span class="o">=&gt;</span> <span class="s">&quot;http://webproxy:3128&quot;</span>
+    <span class="p">}</span><span class="c"></span>
+
+<span class="c">    # We only have iLO 3&#39;s in this setup, so one license will do</span>
+    <span class="na">ilo_license</span> <span class="p">{</span> <span class="s">&quot;iLO 3 Advanced&quot;</span><span class="p">:</span>
+        <span class="na">key</span> <span class="o">=&gt;</span> <span class="s">&quot;12345-67890-ABCDE-FGHIJ-KLMNO&quot;</span>
+    <span class="p">}</span>
+
+    <span class="na">ilo_settings</span> <span class="p">{</span>
+        <span class="s">&quot;global&quot;</span><span class="p">:</span>
+            <span class="na">settings</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="s">&quot;remote_console_port&quot;</span> <span class="o">=&gt;</span> <span class="mi">23</span><span class="p">,</span>
+                <span class="s">&quot;enforce_aes&quot;</span>         <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+                <span class="s">&quot;f8_login_required&quot;</span>   <span class="o">=&gt;</span> <span class="k">true</span><span class="p">,</span>
+            <span class="p">};</span>
+        <span class="s">&quot;network&quot;</span><span class="p">:</span>
+            <span class="na">settings</span> <span class="o">=&gt;</span> <span class="p">{</span>
+                <span class="s">&quot;prim_dns_server&quot;</span>     <span class="o">=&gt;</span> <span class="s">&quot;10.42.1.31&quot;</span><span class="p">,</span>
+                <span class="s">&quot;sec_dns_server&quot;</span>      <span class="o">=&gt;</span> <span class="s">&quot;10.42.1.32&quot;</span><span class="p">,</span>
+            <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="na">ilo_user</span> <span class="p">{</span>
+        <span class="s">&quot;Administrator&quot;</span><span class="p">:</span><span class="c"></span>
+<span class="c">            # Temporary until changed everywhere</span>
+            <span class="na">password</span> <span class="o">=&gt;</span> <span class="s">&#39;P4ssw0rd&#39;</span><span class="p">,</span>
+        <span class="s">&quot;dennis&quot;</span><span class="p">:</span>
+            <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">present</span><span class="p">,</span>
+            <span class="na">display_name</span> <span class="o">=&gt;</span> <span class="s">&#39;Dennis Kaarsemaker&#39;</span><span class="p">,</span>
+            <span class="na">password_atcreate</span> <span class="o">=&gt;</span> <span class="s">&#39;MyPass!&#39;</span><span class="p">,</span>
+            <span class="na">reset_server_priv</span> <span class="o">=&gt;</span> <span class="k">false</span><span class="p">;</span><span class="c"></span>
+<span class="c">        # Remove leavers</span>
+        <span class="p">[</span><span class="s">&quot;jack&quot;</span><span class="p">,</span> <span class="s">&quot;bob&quot;</span><span class="p">]:</span>
+            <span class="na">ensure</span> <span class="o">=&gt;</span> <span class="k">absent</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="autofirmware.html" class="btn btn-neutral float-left" title="Automated firmware updates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Common issues" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

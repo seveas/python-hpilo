@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iLO automation from python or shell &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing python-hpilo" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">iLO automation from python or shell</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ilo-automation-from-python-or-shell">
+<h1>iLO automation from python or shell<a class="headerlink" href="#ilo-automation-from-python-or-shell" title="Permalink to this headline">¶</a></h1>
+<p>HP servers come with a powerful out of band management interface called
+Integrated Lights out, or iLO. It has an extensive web interface and
+commercially available tools for centrally managing iLO devices and their
+servers.</p>
+<p>But if you want to build your own tooling, integrate iLO management to your
+existing procedures or simply want to manage iLOs using a command-line
+interface, you’re stuck manually creating XML files and using a perl hack HP
+ships called <cite>locfg.pl</cite>.</p>
+<p>Enter python-hpilo!</p>
+<p>Using the same XML interface as HP’s own management tools, here is a python
+library and command-line tool that make it a lot easier to do all the above. No
+manual XML writing, just call functions from either python or your
+shell(script).</p>
+</div>
+<div class="section" id="quick-usage-examples">
+<h1>Quick usage examples<a class="headerlink" href="#quick-usage-examples" title="Permalink to this headline">¶</a></h1>
+<p>Full usage documentation can be found following the links below, but here are
+some examples to wet your appetite:</p>
+<p>Getting the chassis IP of a blade server, from python:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span> <span class="o">=</span> <span class="n">hpilo</span><span class="o">.</span><span class="n">Ilo</span><span class="p">(</span><span class="s1">&#39;example-server.int.kaarsemaker.net&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chassis</span> <span class="o">=</span> <span class="n">ilo</span><span class="o">.</span><span class="n">get_oa_info</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">chassis</span><span class="p">[</span><span class="s1">&#39;ipaddress&#39;</span><span class="p">]</span>
+<span class="go">10.42.128.101</span>
+</pre></div>
+</div>
+<p>Entering a license key and creating a user, from the shell:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> hpilo_cli example-server.int.kaarsemaker.net activate_license <span class="nv">key</span><span class="o">=</span><span class="nv">$mykey</span>
+<span class="gp">$</span> hpilo_cli example-server.int.kaarsemaker.net add_user <span class="nv">user_login</span><span class="o">=</span>dennis <span class="se">\</span>
+            <span class="nv">password</span><span class="o">=</span>hunter2 <span class="nv">admin_priv</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>The available functions you can call are all documented in the pages linked
+below, but for detailed descriptions of all functions and especially their
+arguments, please refer to the <a class="reference external" href="http://www.hp.com/support/ilo4_cli_gde_en">ilo scripting guide</a> as well.</p>
+<p>This package also ships examples of more complete applications in the <cite>examples</cite>
+directory. This include an automated CA for managing SSL certificates, tooling
+to centralize iLO information in elastic search and an automated firmware
+updater. All of which are used in production by the author or other
+contributors.</p>
+</div>
+<div class="section" id="compatibility">
+<h1>Compatibility<a class="headerlink" href="#compatibility" title="Permalink to this headline">¶</a></h1>
+<p>This module is written with compatibility as main priority. Currently supported
+are:</p>
+<ul class="simple">
+<li><p>All RILOE II/iLO versions up to and including iLO 5</p></li>
+<li><p>Python 2.6-2.7 and python 3.5 and newer</p></li>
+<li><p>Any operating system Python runs on</p></li>
+</ul>
+<p>iLOs can be managed both locally using <cite>hponcfg</cite> or remotely using the iLO’s
+built-in webserver. In the latter case, the requirements above concern the
+machine you run this code on, not the managed server.</p>
+</div>
+<div class="section" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="available-functionality">
+<h1>Available functionality<a class="headerlink" href="#available-functionality" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="example-applications">
+<h1>Example applications<a class="headerlink" href="#example-applications" title="Permalink to this headline">¶</a></h1>
+<p>There are several example applications in the <cite>examples/</cite> directory. Note that
+while <cite>hpilo.py</cite> and <cite>hpilo_cli</cite> are compatible with python versions as old as
+2.6, some examples may require newer versions of python and have additional
+dependencies.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="development-information">
+<h1>Development information<a class="headerlink" href="#development-information" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="author-and-license">
+<h1>Author and license<a class="headerlink" href="#author-and-license" title="Permalink to this headline">¶</a></h1>
+<p>This software is (c) 2011-2021 Dennis Kaarsemaker &lt;<a class="reference external" href="mailto:dennis&#37;&#52;&#48;kaarsemaker&#46;net">dennis<span>&#64;</span>kaarsemaker<span>&#46;</span>net</a>&gt;</p>
+<p>This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.</p>
+<p>HP, Integrated Lights out and iLO are trademarks of HP, with whom the author of
+this software is not affiliated in any way.</p>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-right" title="Installing python-hpilo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

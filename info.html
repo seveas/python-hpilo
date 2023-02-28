@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>General server and iLO information &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Network settings" href="networksettings.html" />
+    <link rel="prev" title="Access from the shell" href="shell.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">General server and iLO information</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="general-server-and-ilo-information">
+<h1>General server and iLO information<a class="headerlink" href="#general-server-and-ilo-information" title="Permalink to this headline">¶</a></h1>
+<p>Many iLO methods allow you to retrieve information about the iLO and the server
+it is built into and to manipulate basic configuration settings. This document
+describes all the ones that do not fit under a more specific subject, such as
+authentication or power.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.factory_defaults">
+<code class="sig-name descname">factory_defaults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.factory_defaults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the iLO to factory default settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.force_format">
+<code class="sig-name descname">force_format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.force_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forcefully format the iLO’s internal NAND flash. Only use this when
+the iLO is having severe problems and its self-test fails</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_product_name">
+<code class="sig-name descname">get_product_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_product_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the model name of the server, use get_fw_version to get the iLO model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_product_name</span><span class="p">()</span>
+<span class="go">ProLiant BL460c Gen8</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_fw_version">
+<code class="sig-name descname">get_fw_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_fw_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the iLO type and firmware version, use get_product_name to get the server model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_fw_version</span><span class="p">()</span>
+<span class="go">{&#39;firmware_date&#39;: &#39;Jan 15 2015&#39;,</span>
+<span class="go"> &#39;firmware_version&#39;: &#39;2.10&#39;,</span>
+<span class="go"> &#39;license_type&#39;: &#39;iLO 4 Advanced&#39;,</span>
+<span class="go"> &#39;management_processor&#39;: &#39;iLO4&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_host_data">
+<code class="sig-name descname">get_host_data</code><span class="sig-paren">(</span><em class="sig-param">decoded_only=True</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_host_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get SMBIOS records that describe the host. By default only the ones
+where human readable information is available are returned. To get
+all records pass <code class="xref py py-attr docutils literal notranslate"><span class="pre">decoded_only=False</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_host_data</span><span class="p">()</span>
+<span class="go">[{&#39;Date&#39;: &#39;08/02/2014&#39;,</span>
+<span class="go">  &#39;Family&#39;: &#39;I31&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ABgAAAECAPADf4DayX0AAAAAAwf//wEzSFAASTMxADA4LzAyLzIwMTQAAA==&#39;,</span>
+<span class="go">  &#39;type&#39;: 0},</span>
+<span class="go"> {&#39;Product Name&#39;: &#39;ProLiant BL460c Gen8&#39;,</span>
+<span class="go">  &#39;Serial Number&#39;: &#39;CZ3415448C      &#39;,</span>
+<span class="go">  &#39;UUID&#39;: &#39;641016CZ3415448C&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ARsAAQQFAAE2NDEwMTZDWjM0MTU0NDhDBgIDQ1ozNDE1NDQ4QyAgICAgIAA2NDEwMTYtQjIxICAgICAgAFByb0xpYW50AEhQAFByb0xpYW50IEJMNDYwYyBHZW44ACAgICAgICAgICAgICAASFAAUHJvTGlhbnQgV1M0NjBjIEdlbjggV1MgQmxhZGUAAA==&#39;,</span>
+<span class="go">  &#39;cUUID&#39;: &#39;30313436-3631-5A43-3334-313534343843&#39;,</span>
+<span class="go">  &#39;type&#39;: 1},</span>
+<span class="go"> {&#39;Execution Technology&#39;: &#39;6 of 6 cores; 12 threads&#39;,</span>
+<span class="go">  &#39;Label&#39;: &#39;Proc 1&#39;,</span>
+<span class="go">  &#39;Memory Technology&#39;: &#39;64-bit Capable&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;2500 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;BCoABAEDswLXBgIA//vrvwOOZADAEsQJQSYQByAHMAcAAAAGBgwEALMAUHJvYyAxAEludGVsACBJbnRlbChSKSBYZW9uKFIpIENQVSBFNS0yNjQwIDAgQCAyLjUwR0h6ICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 4},</span>
+<span class="go"> {&#39;Execution Technology&#39;: &#39;6 of 6 cores; 12 threads&#39;,</span>
+<span class="go">  &#39;Label&#39;: &#39;Proc 2&#39;,</span>
+<span class="go">  &#39;Memory Technology&#39;: &#39;64-bit Capable&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;2500 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;BCoBBAEDswLXBgIA//vrvwOOZADAEsQJRCYWByYHNgcAAAAGBgwEALMAUHJvYyAyAEludGVsACBJbnRlbChSKSBYZW9uKFIpIENQVSBFNS0yNjQwIDAgQCAyLjUwR0h6ICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 4},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  1 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgAEQAQ/v9IAEAAAEAJAAEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDEgRElNTSAgMSAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  2 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgBEQAQ/v9IAEAAAAAJAQEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDEgRElNTSAgMiAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  3 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgCEQAQ/v9IAEAAAEAJAgEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDEgRElNTSAgMyAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  4 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgDEQAQ/v9IAEAAAAAJAwEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDEgRElNTSAgNCAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  5 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgEEQAQ/v9IAEAAAAAJBAEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDEgRElNTSAgNSAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  6 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgFEQAQ/v9IAEAAAAAJBQEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDEgRElNTSAgNiAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  7 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgGEQAQ/v9IAEAAAAAJBgEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDEgRElNTSAgNyAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  1 DIMM  8 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgHEQAQ/v9IAEAAAEAJBwEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDEgRElNTSAgOCAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  1 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgIEQEQ/v9IAEAAAEAJCAEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDIgRElNTSAgMSAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  2 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgJEQEQ/v9IAEAAAAAJCQEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDIgRElNTSAgMiAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  3 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgKEQEQ/v9IAEAAAEAJCgEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDIgRElNTSAgMyAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  4 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgLEQEQ/v9IAEAAAAAJCwEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDIgRElNTSAgNCAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  5 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgMEQEQ/v9IAEAAAAAJDAEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDIgRElNTSAgNSAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  6 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgNEQEQ/v9IAEAAAAAJDQEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDIgRElNTSAgNiAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  7 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;not installed&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgOEQEQ/v9IAEAAAAAJDgEAGIAAAAACAAADAAAAAAAAAAAAAAAAAFBST0MgIDIgRElNTSAgNyAAVU5LTk9XTgBOT1QgQVZBSUxBQkxFICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;Label&#39;: &#39;PROC  2 DIMM  8 &#39;,</span>
+<span class="go">  &#39;Size&#39;: &#39;16384 MB&#39;,</span>
+<span class="go">  &#39;Speed&#39;: &#39;1600 MHz&#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;ESgPEQEQ/v9IAEAAAEAJDwEAGIAgQAYCAAADAgAAAAA1BdwF3AXcBVBST0MgIDIgRElNTSAgOCAASFAgICAgIAA2NzI2MTItMDgxICAgICAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;type&#39;: 17},</span>
+<span class="go"> {&#39;b64_data&#39;: &#39;0RQA0QAE/BW0Cp1YAQT8FbQKnVwAAA==&#39;,</span>
+<span class="go">  &#39;fields&#39;: [{&#39;name&#39;: &#39;Port&#39;, &#39;value&#39;: 1},</span>
+<span class="go">             {&#39;name&#39;: &#39;MAC&#39;, &#39;value&#39;: &#39;FC-15-B4-0A-9D-58&#39;},</span>
+<span class="go">             {&#39;name&#39;: &#39;Port&#39;, &#39;value&#39;: 2},</span>
+<span class="go">             {&#39;name&#39;: &#39;MAC&#39;, &#39;value&#39;: &#39;FC-15-B4-0A-9D-5C&#39;},</span>
+<span class="go">             {&#39;name&#39;: &#39;Port&#39;, &#39;value&#39;: &#39;iLO&#39;},</span>
+<span class="go">             {&#39;name&#39;: &#39;MAC&#39;, &#39;value&#39;: &#39;9C-B6-54-8E-4B-7C&#39;}],</span>
+<span class="go">  &#39;type&#39;: 209},</span>
+<span class="go"> {&#39;Serial Number&#39;: &#39;CZ3415448C      &#39;,</span>
+<span class="go">  &#39;b64_data&#39;: &#39;4hUA4jY0MTAxNkNaMzQxNTQ0OEMBQ1ozNDE1NDQ4QyAgICAgIAAA&#39;,</span>
+<span class="go">  &#39;cUUID&#39;: &#39;30313436-3631-5A43-3334-313534343843&#39;,</span>
+<span class="go">  &#39;type&#39;: 226}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_global_settings">
+<code class="sig-name descname">get_global_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_global_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get global iLO settings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_global_settings</span><span class="p">()</span>
+<span class="go">{&#39;alertmail_email_address&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;alertmail_enable&#39;: False,</span>
+<span class="go"> &#39;alertmail_sender_domain&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;alertmail_smtp_port&#39;: 25,</span>
+<span class="go"> &#39;alertmail_smtp_server&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;authentication_failure_logging&#39;: &#39;Enabled-every 3rd failure&#39;,</span>
+<span class="go"> &#39;enforce_aes&#39;: False,</span>
+<span class="go"> &#39;f8_login_required&#39;: False,</span>
+<span class="go"> &#39;f8_prompt_enabled&#39;: True,</span>
+<span class="go"> &#39;http_port&#39;: 80,</span>
+<span class="go"> &#39;https_port&#39;: 443,</span>
+<span class="go"> &#39;ipmi_dcmi_over_lan_enabled&#39;: True,</span>
+<span class="go"> &#39;lock_configuration&#39;: False,</span>
+<span class="go"> &#39;min_password&#39;: 8,</span>
+<span class="go"> &#39;propagate_time_to_host&#39;: True,</span>
+<span class="go"> &#39;rbsu_post_ip&#39;: True,</span>
+<span class="go"> &#39;remote_console_port&#39;: 23,</span>
+<span class="go"> &#39;remote_syslog_enable&#39;: True,</span>
+<span class="go"> &#39;remote_syslog_port&#39;: 514,</span>
+<span class="go"> &#39;remote_syslog_server_address&#39;: &#39;10.42.128.3&#39;,</span>
+<span class="go"> &#39;serial_cli_speed&#39;: 9600,</span>
+<span class="go"> &#39;serial_cli_status&#39;: &#39;Enabled-Authentication Required&#39;,</span>
+<span class="go"> &#39;session_timeout&#39;: 30,</span>
+<span class="go"> &#39;snmp_access_enabled&#39;: True,</span>
+<span class="go"> &#39;snmp_port&#39;: 161,</span>
+<span class="go"> &#39;snmp_trap_port&#39;: 162,</span>
+<span class="go"> &#39;ssh_port&#39;: 22,</span>
+<span class="go"> &#39;ssh_status&#39;: True,</span>
+<span class="go"> &#39;virtual_media_port&#39;: 17988,</span>
+<span class="go"> &#39;vsp_log_enable&#39;: False}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.mod_global_settings">
+<code class="sig-name descname">mod_global_settings</code><span class="sig-paren">(</span><em class="sig-param">ilo_funct_enabled=None</em>, <em class="sig-param">rbsu_post_ip=None</em>, <em class="sig-param">f8_prompt_enabled=None</em>, <em class="sig-param">f8_login_required=None</em>, <em class="sig-param">lock_configuration=None</em>, <em class="sig-param">serial_cli_status=None</em>, <em class="sig-param">serial_cli_speed=None</em>, <em class="sig-param">http_port=None</em>, <em class="sig-param">https_port=None</em>, <em class="sig-param">ssh_port=None</em>, <em class="sig-param">ssh_status=None</em>, <em class="sig-param">ipmi_dcmi_over_lan_enabled=None</em>, <em class="sig-param">ipmi_dcmi_over_lan_port=None</em>, <em class="sig-param">remote_console_port_status=None</em>, <em class="sig-param">remote_console_port=None</em>, <em class="sig-param">remote_console_encryption=None</em>, <em class="sig-param">rawvsp_port=None</em>, <em class="sig-param">vsp_software_flow_control=None</em>, <em class="sig-param">terminal_services_port=None</em>, <em class="sig-param">shared_console_enable=None</em>, <em class="sig-param">shared_console_port=None</em>, <em class="sig-param">remote_console_acquire=None</em>, <em class="sig-param">telnet_enable=None</em>, <em class="sig-param">ssl_empty_records_enable=None</em>, <em class="sig-param">remote_console_status=None</em>, <em class="sig-param">ribcl_status=None</em>, <em class="sig-param">virtual_media_status=None</em>, <em class="sig-param">webgui_status=None</em>, <em class="sig-param">webserver_status=None</em>, <em class="sig-param">min_password=None</em>, <em class="sig-param">enforce_aes=None</em>, <em class="sig-param">authentication_failure_logging=None</em>, <em class="sig-param">authentication_failure_delay_secs=None</em>, <em class="sig-param">authentication_failures_before_delay=None</em>, <em class="sig-param">ssl_v3_enable=None</em>, <em class="sig-param">session_timeout=None</em>, <em class="sig-param">snmp_access_enabled=None</em>, <em class="sig-param">snmp_port=None</em>, <em class="sig-param">snmp_trap_port=None</em>, <em class="sig-param">remote_syslog_enable=None</em>, <em class="sig-param">remote_syslog_server_address=None</em>, <em class="sig-param">remote_syslog_port=None</em>, <em class="sig-param">alertmail_enable=None</em>, <em class="sig-param">alertmail_email_address=None</em>, <em class="sig-param">alertmail_sender_domain=None</em>, <em class="sig-param">alertmail_smtp_server=None</em>, <em class="sig-param">alertmail_smtp_port=None</em>, <em class="sig-param">alertmail_smtp_auth_enable=None</em>, <em class="sig-param">alertmail_smtp_auth_username=None</em>, <em class="sig-param">alertmail_smtp_secure_enable=None</em>, <em class="sig-param">vsp_log_enable=None</em>, <em class="sig-param">interactive_console_replay_enable=None</em>, <em class="sig-param">console_capture_enable=None</em>, <em class="sig-param">console_capture_boot_buffer_enable=None</em>, <em class="sig-param">console_capture_fault_buffer_enable=None</em>, <em class="sig-param">console_capture_port=None</em>, <em class="sig-param">capture_auto_export_enable=None</em>, <em class="sig-param">capture_auto_export_location=None</em>, <em class="sig-param">capture_auto_export_username=None</em>, <em class="sig-param">capture_auto_export_password=None</em>, <em class="sig-param">remote_keyboard_model=None</em>, <em class="sig-param">virtual_kbmouse_connection=None</em>, <em class="sig-param">vmedia_disable=None</em>, <em class="sig-param">virtual_media_port=None</em>, <em class="sig-param">key_up_key_down_enable=None</em>, <em class="sig-param">high_performance_mouse=None</em>, <em class="sig-param">brownout_recovery=None</em>, <em class="sig-param">enhanced_cli_prompt_enable=None</em>, <em class="sig-param">tcp_keep_alive_enable=None</em>, <em class="sig-param">propagate_time_to_host=None</em>, <em class="sig-param">passthrough_config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.mod_global_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify iLO global settings, only values that are specified will be changed. Note that
+many settings only work on certain iLO models and firmware versions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_server_name">
+<code class="sig-name descname">get_server_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_server_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the name of the server this iLO is managing</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_server_name</span><span class="p">()</span>
+<span class="go">example-server.int.kaarsemaker.net</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_server_name">
+<code class="sig-name descname">set_server_name</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_server_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_server_fqdn">
+<code class="sig-name descname">get_server_fqdn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_server_fqdn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the fqdn of the server this iLO is managing</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_server_fqdn</span><span class="p">()</span>
+<span class="go">example-server.int.kaarsemaker.net</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_server_fqdn">
+<code class="sig-name descname">set_server_fqdn</code><span class="sig-paren">(</span><em class="sig-param">fqdn</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_server_fqdn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the fqdn of the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_smh_fqdn">
+<code class="sig-name descname">get_smh_fqdn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_smh_fqdn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the fqdn of the HP System Management Homepage</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_smh_fqdn</span><span class="p">()</span>
+<span class="go">example-server.int.kaarsemaker.net</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_oa_info">
+<code class="sig-name descname">get_oa_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_oa_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about the Onboard Administrator of the enclosing chassis</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_oa_info</span><span class="p">()</span>
+<span class="go">{&#39;encl&#39;: &#39;chassis-25&#39;,</span>
+<span class="go"> &#39;ipaddress&#39;: &#39;10.42.128.101&#39;,</span>
+<span class="go"> &#39;location&#39;: 1,</span>
+<span class="go"> &#39;macaddress&#39;: &#39;68:b5:99:bb:dc:85&#39;,</span>
+<span class="go"> &#39;rack&#39;: &#39;chassis-25&#39;,</span>
+<span class="go"> &#39;system_health&#39;: 0,</span>
+<span class="go"> &#39;uidstatus&#39;: &#39;Off&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_enclosure_ip_settings">
+<code class="sig-name descname">get_enclosure_ip_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_enclosure_ip_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the enclosure bay static IP settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_asset_tag">
+<code class="sig-name descname">get_asset_tag</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_asset_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the server asset tag</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_asset_tag</span><span class="p">()</span>
+<span class="go">/home/dennis/code/python-hpilo/hpilo.py:459: IloWarning: No Asset Tag Information.</span>
+<span class="go">  warnings.warn(child.get(&#39;MESSAGE&#39;), IloWarning)</span>
+<span class="go">{&#39;asset_tag&#39;: None}</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_asset_tag</span><span class="p">()</span>
+<span class="go">{&#39;asset_tag&#39;: &#39;NL00001&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_asset_tag">
+<code class="sig-name descname">set_asset_tag</code><span class="sig-paren">(</span><em class="sig-param">asset_tag</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_asset_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the server asset tag</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_uid_status">
+<code class="sig-name descname">get_uid_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_uid_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the status of the UID light</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_uid_status</span><span class="p">()</span>
+<span class="go">OFF</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.uid_control">
+<code class="sig-name descname">uid_control</code><span class="sig-paren">(</span><em class="sig-param">uid=False</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.uid_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn the UID light on (“Yes”) or off (“No”)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_all_languages">
+<code class="sig-name descname">get_all_languages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_all_languages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of installed languages - broken because iLO returns invalid XML</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_all_languages</span><span class="p">()</span>
+<span class="go">{&#39;language_selection&#39;: {&#39;lang_id&#39;: &#39;en&#39;, &#39;language&#39;: &#39;English&#39;}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_language">
+<code class="sig-name descname">get_language</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the default language set</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
+<span class="go">{&#39;lang_id&#39;: &#39;en&#39;, &#39;language&#39;: &#39;English&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_language">
+<code class="sig-name descname">set_language</code><span class="sig-paren">(</span><em class="sig-param">lang_id</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_language" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the default language. Only EN, JA and ZH are supported</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_rack_settings">
+<code class="sig-name descname">get_rack_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_rack_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the rack settings for an iLO</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_rack_settings</span><span class="p">()</span>
+<span class="go">{&#39;bay&#39;: 9,</span>
+<span class="go"> &#39;enclosure_name&#39;: &#39;CHASSIS-225&#39;,</span>
+<span class="go"> &#39;enclosure_sn&#39;: &#39;CZ1234ABCD&#39;,</span>
+<span class="go"> &#39;enclosure_type&#39;: &#39;BladeSystem c7000 Enclosure G2&#39;,</span>
+<span class="go"> &#39;enclosure_uuid&#39;: &#39;09CZ1234ABCD&#39;,</span>
+<span class="go"> &#39;rack_name&#39;: &#39;CHASSIS-225&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_spatial">
+<code class="sig-name descname">get_spatial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_spatial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get location information</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_spatial</span><span class="p">()</span>
+<span class="go">{&#39;bay&#39;: 4,</span>
+<span class="go"> &#39;cuuid&#39;: &#39;30313436-3631-5A43-3334-313534343843&#39;,</span>
+<span class="go"> &#39;discovery_data&#39;: &#39;Unknown data&#39;,</span>
+<span class="go"> &#39;discovery_rack&#39;: &#39;Not Supported&#39;,</span>
+<span class="go"> &#39;enclosure_cuuid&#39;: &#39;42473930-3038-3430-4850-523000000000&#39;,</span>
+<span class="go"> &#39;enclosure_sn&#39;: &#39;GB8004HPR0&#39;,</span>
+<span class="go"> &#39;platform&#39;: &#39;BL&#39;,</span>
+<span class="go"> &#39;rack_description&#39;: 0,</span>
+<span class="go"> &#39;rack_id&#39;: 0,</span>
+<span class="go"> &#39;rack_id_pn&#39;: 0,</span>
+<span class="go"> &#39;rack_uheight&#39;: 0,</span>
+<span class="go"> &#39;tag_version&#39;: 0,</span>
+<span class="go"> &#39;uheight&#39;: 0,</span>
+<span class="go"> &#39;ulocation&#39;: 0,</span>
+<span class="go"> &#39;uoffset&#39;: 0,</span>
+<span class="go"> &#39;uposition&#39;: 0}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_topology">
+<code class="sig-name descname">get_topology</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_topology" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get rack topology information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_diagport_settings">
+<code class="sig-name descname">get_diagport_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_diagport_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the blade diagport settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_sdcard_status">
+<code class="sig-name descname">get_sdcard_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_sdcard_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get whether an SD card is connected to the server</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_sdcard_status</span><span class="p">()</span>
+<span class="go">{&#39;sdcard_status&#39;: &#39;NOT PRESENT&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="shell.html" class="btn btn-neutral float-left" title="Access from the shell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="networksettings.html" class="btn btn-neutral float-right" title="Network settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unauthenticated iLO and Chassis OA data &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="iLO event log" href="log.html" />
+    <link rel="prev" title="Dealing with iLO firmware updates" href="firmware.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Unauthenticated iLO and Chassis OA data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="unauthenticated-ilo-and-chassis-oa-data">
+<h1>Unauthenticated iLO and Chassis OA data<a class="headerlink" href="#unauthenticated-ilo-and-chassis-oa-data" title="Permalink to this headline">¶</a></h1>
+<p>Unless you have disabled it, both server/blade iLO’s and chassis onboard
+administrators, expose a lot of basic information on an unauthenticated https
+url. While not technically part of the iLO API, this is still a useful function
+to have, and is the only way to programmatically get data from an onboard
+Administrator.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.xmldata">
+<code class="sig-name descname">xmldata</code><span class="sig-paren">(</span><em class="sig-param">item='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.xmldata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get basic discovery data which all iLO versions expose over
+unauthenticated https. The default item to query is ‘all’. Despite
+its name, it does not return all information. To get license
+information, use ‘cpqkey’ as argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">xmldata</span><span class="p">()</span>
+<span class="go">{&#39;bladesystem&#39;: {&#39;bay&#39;: 4,</span>
+<span class="go">                 &#39;manager&#39;: {&#39;encl&#39;: &#39;OA-002655FF2F7B&#39;,</span>
+<span class="go">                             &#39;mgmtipaddr&#39;: &#39;10.42.128.101&#39;,</span>
+<span class="go">                             &#39;rack&#39;: &#39;UnnamedRack&#39;,</span>
+<span class="go">                             &#39;st&#39;: 2,</span>
+<span class="go">                             &#39;type&#39;: &#39;Onboard Administrator&#39;}},</span>
+<span class="go"> &#39;health&#39;: {&#39;status&#39;: 2},</span>
+<span class="go"> &#39;hsi&#39;: {&#39;cuuid&#39;: &#39;30313436-3631-5A43-3334-313534343843&#39;,</span>
+<span class="go">         &#39;nics&#39;: [{&#39;description&#39;: &#39;iLO 4&#39;,</span>
+<span class="go">                   &#39;ipaddr&#39;: &#39;10.42.128.100&#39;,</span>
+<span class="go">                   &#39;location&#39;: &#39;Embedded&#39;,</span>
+<span class="go">                   &#39;macaddr&#39;: &#39;9c:b6:54:8e:4b:7c&#39;,</span>
+<span class="go">                   &#39;port&#39;: 1,</span>
+<span class="go">                   &#39;status&#39;: &#39;OK&#39;},</span>
+<span class="go">                  {&#39;description&#39;: &#39;N/A&#39;,</span>
+<span class="go">                   &#39;ipaddr&#39;: &#39;N/A&#39;,</span>
+<span class="go">                   &#39;location&#39;: &#39;Embedded&#39;,</span>
+<span class="go">                   &#39;macaddr&#39;: &#39;fc:15:b4:0a:9d:58&#39;,</span>
+<span class="go">                   &#39;port&#39;: 1,</span>
+<span class="go">                   &#39;status&#39;: &#39;Unknown&#39;},</span>
+<span class="go">                  {&#39;description&#39;: &#39;N/A&#39;,</span>
+<span class="go">                   &#39;ipaddr&#39;: &#39;N/A&#39;,</span>
+<span class="go">                   &#39;location&#39;: &#39;Embedded&#39;,</span>
+<span class="go">                   &#39;macaddr&#39;: &#39;fc:15:b4:0a:9d:5c&#39;,</span>
+<span class="go">                   &#39;port&#39;: 2,</span>
+<span class="go">                   &#39;status&#39;: &#39;Unknown&#39;}],</span>
+<span class="go">         &#39;productid&#39;: &#39; 641016-B21      &#39;,</span>
+<span class="go">         &#39;sbsn&#39;: &#39;CZ3415448C      &#39;,</span>
+<span class="go">         &#39;sp&#39;: 1,</span>
+<span class="go">         &#39;spn&#39;: &#39;ProLiant BL460c Gen8&#39;,</span>
+<span class="go">         &#39;uuid&#39;: &#39;641016CZ3415448C&#39;,</span>
+<span class="go">         &#39;virtual&#39;: {&#39;state&#39;: &#39;Inactive&#39;,</span>
+<span class="go">                     &#39;vid&#39;: {&#39;bsn&#39;: None, &#39;cuuid&#39;: None}}},</span>
+<span class="go"> &#39;mp&#39;: {&#39;bblk&#39;: &#39;03/05/2013&#39;,</span>
+<span class="go">        &#39;ealert&#39;: 1,</span>
+<span class="go">        &#39;ers&#39;: 0,</span>
+<span class="go">        &#39;fwri&#39;: &#39;2.10&#39;,</span>
+<span class="go">        &#39;hwri&#39;: &#39;ASIC: 16&#39;,</span>
+<span class="go">        &#39;ipm&#39;: 1,</span>
+<span class="go">        &#39;pn&#39;: &#39;Integrated Lights-Out 4 (iLO 4)&#39;,</span>
+<span class="go">        &#39;pwrm&#39;: &#39;3.3&#39;,</span>
+<span class="go">        &#39;sn&#39;: &#39;ILOCZ3415448C      &#39;,</span>
+<span class="go">        &#39;sso&#39;: 0,</span>
+<span class="go">        &#39;st&#39;: 1,</span>
+<span class="go">        &#39;uuid&#39;: &#39;ILO641016CZ3415448C&#39;},</span>
+<span class="go"> &#39;spatial&#39;: {&#39;bay&#39;: 4,</span>
+<span class="go">             &#39;cuuid&#39;: &#39;30313436-3631-5A43-3334-313534343843&#39;,</span>
+<span class="go">             &#39;discovery_data&#39;: &#39;Unknown data&#39;,</span>
+<span class="go">             &#39;discovery_rack&#39;: &#39;Not Supported&#39;,</span>
+<span class="go">             &#39;enclosure_cuuid&#39;: &#39;42473930-3038-3430-4850-523000000000&#39;,</span>
+<span class="go">             &#39;rack_description&#39;: 0,</span>
+<span class="go">             &#39;rack_id&#39;: 0,</span>
+<span class="go">             &#39;rack_id_pn&#39;: 0,</span>
+<span class="go">             &#39;rack_uheight&#39;: 0,</span>
+<span class="go">             &#39;tag_version&#39;: 0,</span>
+<span class="go">             &#39;uheight&#39;: 0,</span>
+<span class="go">             &#39;ulocation&#39;: 0,</span>
+<span class="go">             &#39;uoffset&#39;: 0,</span>
+<span class="go">             &#39;uposition&#39;: 0}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="firmware.html" class="btn btn-neutral float-left" title="Dealing with iLO firmware updates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="log.html" class="btn btn-neutral float-right" title="iLO event log" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security and SSL settings &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Server health" href="health.html" />
+    <link rel="prev" title="Authentication settings" href="authentication.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Security and SSL settings</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="security-and-ssl-settings">
+<h1>Security and SSL settings<a class="headerlink" href="#security-and-ssl-settings" title="Permalink to this headline">¶</a></h1>
+<p>With these functions, you can ensure your iLO’s security settings are as secure
+as you want them, including using proper SSL certificates for communication.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.cert_fqdn">
+<code class="sig-name descname">cert_fqdn</code><span class="sig-paren">(</span><em class="sig-param">use_fqdn</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.cert_fqdn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure whether to use the fqdn or the short hostname for certificate requests</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_cert_subject_info">
+<code class="sig-name descname">get_cert_subject_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_cert_subject_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get ssl certificate subject information</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_cert_subject_info</span><span class="p">()</span>
+<span class="go">{&#39;csr_subject_common_name&#39;: &#39;example-server.int.kaarsemaker.net&#39;,</span>
+<span class="go"> &#39;csr_subject_country&#39;: &#39;US&#39;,</span>
+<span class="go"> &#39;csr_subject_location&#39;: &#39;Houston&#39;,</span>
+<span class="go"> &#39;csr_subject_org_name&#39;: &#39;Hewlett-Packard Development Company&#39;,</span>
+<span class="go"> &#39;csr_subject_orgunit_name&#39;: &#39;ISS&#39;,</span>
+<span class="go"> &#39;csr_subject_state&#39;: &#39;Texas&#39;,</span>
+<span class="go"> &#39;csr_use_cert_2048pkey&#39;: &#39;NO&#39;,</span>
+<span class="go"> &#39;csr_use_cert_custom_subject&#39;: &#39;NO&#39;,</span>
+<span class="go"> &#39;csr_use_cert_fqdn&#39;: &#39;YES&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.certificate_signing_request">
+<code class="sig-name descname">certificate_signing_request</code><span class="sig-paren">(</span><em class="sig-param">country=None</em>, <em class="sig-param">state=None</em>, <em class="sig-param">locality=None</em>, <em class="sig-param">organization=None</em>, <em class="sig-param">organizational_unit=None</em>, <em class="sig-param">common_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.certificate_signing_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a certificate signing request from the iLO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.import_certificate">
+<code class="sig-name descname">import_certificate</code><span class="sig-paren">(</span><em class="sig-param">certificate</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.import_certificate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import a signed SSL certificate</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.computer_lock_config">
+<code class="sig-name descname">computer_lock_config</code><span class="sig-paren">(</span><em class="sig-param">computer_lock=None</em>, <em class="sig-param">computer_lock_key=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.computer_lock_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the computer lock settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.fips_enable">
+<code class="sig-name descname">fips_enable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.fips_enable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable FIPS standard to enforce AES/3DES encryption, can only be
+reset with a call to factory_defaults. Resets Administrator password
+and license key</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_encrypt_settings">
+<code class="sig-name descname">get_encrypt_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_encrypt_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the iLO encryption settings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_encrypt_settings</span><span class="p">()</span>
+<span class="go">/home/dennis/code/python-hpilo/hpilo.py:533: IloWarning: ESKM servers are not configured.</span>
+<span class="go">  warnings.warn(child.get(&#39;MESSAGE&#39;), IloWarning)</span>
+<span class="go">{&#39;enable_redundancy&#39;: True,</span>
+<span class="go"> &#39;eskm_cert_name&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;eskm_primary_server_address&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;eskm_primary_server_port&#39;: 0,</span>
+<span class="go"> &#39;eskm_secondary_server_address&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;eskm_secondary_server_port&#39;: 0}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.mod_encrypt_settings">
+<code class="sig-name descname">mod_encrypt_settings</code><span class="sig-paren">(</span><em class="sig-param">user_login</em>, <em class="sig-param">password</em>, <em class="sig-param">ilo_group_name</em>, <em class="sig-param">cert_name</em>, <em class="sig-param">enable_redundancy</em>, <em class="sig-param">primary_server_address</em>, <em class="sig-param">primary_server_port</em>, <em class="sig-param">secondary_server_address=None</em>, <em class="sig-param">secondary_server_port=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.mod_encrypt_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure encryption settings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_fips_status">
+<code class="sig-name descname">get_fips_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_fips_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is the FIPS-mandated AES/3DESencryption enforcement in place</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_fips_status</span><span class="p">()</span>
+<span class="go">{&#39;fips_mode&#39;: &#39;Enabled&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_security_msg">
+<code class="sig-name descname">get_security_msg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_security_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the security message that is displayed on the login screen</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_security_msg</span><span class="p">()</span>
+<span class="go">{&#39;security_msg&#39;: &#39;Enabled&#39;,</span>
+<span class="go"> &#39;security_msg_text&#39;: &#39;Time is an illusion. Lunchtime doubly so&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_security_msg">
+<code class="sig-name descname">set_security_msg</code><span class="sig-paren">(</span><em class="sig-param">security_msg</em>, <em class="sig-param">security_msg_text=''</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_security_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables/disables the security message on the iLO login screen and sets its value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_tpm_status">
+<code class="sig-name descname">get_tpm_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_tpm_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the status of the Trusted Platform Module</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_tpm_status</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">my_ilo</span><span class="o">.</span><span class="n">get_tpm_status</span><span class="p">())</span>
+<span class="go">{&#39;tpm_enabled&#39;: &#39;No&#39;, &#39;tpm_present&#39;: &#39;No&#39;, &#39;tpm_supported&#39;: &#39;Yes&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="authentication.html" class="btn btn-neutral float-left" title="Authentication settings" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="health.html" class="btn btn-neutral float-right" title="Server health" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

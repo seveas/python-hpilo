@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Power manipulation &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Boot settings and rebooting" href="boot.html" />
+    <link rel="prev" title="Server health" href="health.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Power manipulation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="power-manipulation">
+<h1>Power manipulation<a class="headerlink" href="#power-manipulation" title="Permalink to this headline">¶</a></h1>
+<p>The power settings and usage of to the server can be inspected using these
+methods. It is also possible to power the server on and off via the iLO, and to
+<a class="reference internal" href="boot.html"><span class="doc">boot documentation</span></a>.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.press_pwr_btn">
+<code class="sig-name descname">press_pwr_btn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.press_pwr_btn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Press the power button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.hold_pwr_btn">
+<code class="sig-name descname">hold_pwr_btn</code><span class="sig-paren">(</span><em class="sig-param">toggle=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.hold_pwr_btn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Press and hold the power button</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_host_power_status">
+<code class="sig-name descname">get_host_power_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_host_power_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the server is powered on or not</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_host_power_status</span><span class="p">()</span>
+<span class="go">ON</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_host_power_reg_info">
+<code class="sig-name descname">get_host_power_reg_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_host_power_reg_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get power regulator information</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_host_power">
+<code class="sig-name descname">set_host_power</code><span class="sig-paren">(</span><em class="sig-param">host_power=True</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_host_power" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn host power on or off</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_server_auto_pwr">
+<code class="sig-name descname">get_server_auto_pwr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_server_auto_pwr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the automatic power on delay setting</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_server_auto_pwr</span><span class="p">()</span>
+<span class="go">ON</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_server_auto_pwr">
+<code class="sig-name descname">set_server_auto_pwr</code><span class="sig-paren">(</span><em class="sig-param">setting</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_server_auto_pwr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the automatic power on delay setting. Valid settings are False,
+True (for minimum delay), 15, 30, 45 60 (for that amount of delay)
+or random (for a random delay of up to 60 seconds.)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_critical_temp_remain_off">
+<code class="sig-name descname">get_critical_temp_remain_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_critical_temp_remain_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get whether the server will remain powered off after a critical temperature shutdown</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_critical_temp_remain_off</span><span class="p">()</span>
+<span class="go">{&#39;critical_temp_remain_off&#39;: &#39;No&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_critical_temp_remain_off">
+<code class="sig-name descname">set_critical_temp_remain_off</code><span class="sig-paren">(</span><em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_critical_temp_remain_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set whether the server will remain off after a critical temperature shutdown</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_power_readings">
+<code class="sig-name descname">get_power_readings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_power_readings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current, min, max and average power readings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_power_readings</span><span class="p">()</span>
+<span class="go">{&#39;average_power_reading&#39;: (65, &#39;Watts&#39;),</span>
+<span class="go"> &#39;maximum_power_reading&#39;: (101, &#39;Watts&#39;),</span>
+<span class="go"> &#39;minimum_power_reading&#39;: (65, &#39;Watts&#39;),</span>
+<span class="go"> &#39;present_power_reading&#39;: (67, &#39;Watts&#39;)}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_server_power_on_time">
+<code class="sig-name descname">get_server_power_on_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_server_power_on_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many minutes ago has the server been powered on</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_server_power_on_time</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">my_ilo</span><span class="o">.</span><span class="n">get_server_power_on_time</span><span class="p">())</span>
+<span class="go">185813</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.clear_server_power_on_time">
+<code class="sig-name descname">clear_server_power_on_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.clear_server_power_on_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the server power on time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_host_power_saver_status">
+<code class="sig-name descname">get_host_power_saver_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_host_power_saver_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the configuration of the ProLiant power regulator</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_host_power_saver_status</span><span class="p">()</span>
+<span class="go">{&#39;host_power_saver&#39;: &#39;AUTO&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_host_power_saver">
+<code class="sig-name descname">set_host_power_saver</code><span class="sig-paren">(</span><em class="sig-param">host_power_saver</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_host_power_saver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the configuration of the ProLiant power regulator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_power_cap">
+<code class="sig-name descname">get_power_cap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_power_cap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the power cap setting</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_power_cap</span><span class="p">()</span>
+<span class="go">OFF</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_power_cap">
+<code class="sig-name descname">set_power_cap</code><span class="sig-paren">(</span><em class="sig-param">power_cap</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_power_cap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the power cap feature to a specific value</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_host_pwr_micro_ver">
+<code class="sig-name descname">get_host_pwr_micro_ver</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_host_pwr_micro_ver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the version of the power micro firmware</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_host_pwr_micro_ver</span><span class="p">()</span>
+<span class="go">3.3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_pwreg">
+<code class="sig-name descname">get_pwreg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_pwreg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the power and power alert threshold settings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_pwreg</span><span class="p">()</span>
+<span class="go">{&#39;efficiency_mode&#39;: 3,</span>
+<span class="go"> &#39;get_host_power&#39;: {&#39;host_power&#39;: &#39;ON&#39;},</span>
+<span class="go"> &#39;pcap&#39;: {&#39;mode&#39;: &#39;OFF&#39;},</span>
+<span class="go"> &#39;pwralert&#39;: {&#39;duration&#39;: 0, &#39;threshold&#39;: 0, &#39;type&#39;: &#39;DISABLED&#39;}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_pwreg">
+<code class="sig-name descname">set_pwreg</code><span class="sig-paren">(</span><em class="sig-param">type</em>, <em class="sig-param">threshold=None</em>, <em class="sig-param">duration=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_pwreg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the power alert threshold</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="health.html" class="btn btn-neutral float-left" title="Server health" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="boot.html" class="btn btn-neutral float-right" title="Boot settings and rebooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

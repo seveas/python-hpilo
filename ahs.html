@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Active Health System and Insight Remote Support &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deployment profiles" href="profile.html" />
+    <link rel="prev" title="Federation groups" href="federation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Active Health System and Insight Remote Support</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="active-health-system-and-insight-remote-support">
+<h1>Active Health System and Insight Remote Support<a class="headerlink" href="#active-health-system-and-insight-remote-support" title="Permalink to this headline">¶</a></h1>
+<p>The Active Health System and Insight Remote Support functions let you collect
+information about your server environment in a central place. These functions
+let you inspect and manipulate the AHS and ERS configuration and submit data.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.get_ahs_status">
+<code class="sig-name descname">get_ahs_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_ahs_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get active health system logging status</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_ahs_status</span><span class="p">()</span>
+<span class="go">{&#39;ahs_hardware_status&#39;: &#39;ENABLED&#39;,</span>
+<span class="go"> &#39;ahs_status&#39;: &#39;ENABLED&#39;,</span>
+<span class="go"> &#39;temp_ahs_disabled&#39;: &#39;NO&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_ahs_status">
+<code class="sig-name descname">set_ahs_status</code><span class="sig-paren">(</span><em class="sig-param">status</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_ahs_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable or disable AHS logging</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.ahs_clear_data">
+<code class="sig-name descname">ahs_clear_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.ahs_clear_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears Active Health System information log</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_ers_settings">
+<code class="sig-name descname">get_ers_settings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_ers_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ERS Insight Remote Support settings</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_ers_settings</span><span class="p">()</span>
+<span class="go">{&#39;ers_agent&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;ers_collection_frequency&#39;: &#39;P30D&#39;,</span>
+<span class="go"> &#39;ers_connect_model&#39;: 0,</span>
+<span class="go"> &#39;ers_destination_port&#39;: 0,</span>
+<span class="go"> &#39;ers_destination_url&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;ers_last_transmission_date&#39;: &#39;-&#39;,</span>
+<span class="go"> &#39;ers_last_transmission_errno&#39;: &#39;No error&#39;,</span>
+<span class="go"> &#39;ers_last_transmission_type&#39;: 0,</span>
+<span class="go"> &#39;ers_state&#39;: 0,</span>
+<span class="go"> &#39;ers_web_proxy_port&#39;: 0,</span>
+<span class="go"> &#39;ers_web_proxy_url&#39;: &#39;&#39;,</span>
+<span class="go"> &#39;ers_web_proxy_username&#39;: &#39;&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_ers_irs_connect">
+<code class="sig-name descname">set_ers_irs_connect</code><span class="sig-paren">(</span><em class="sig-param">ers_destination_url</em>, <em class="sig-param">ers_destination_port</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_ers_irs_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to an Insight Remote Support server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_ers_direct_connect">
+<code class="sig-name descname">set_ers_direct_connect</code><span class="sig-paren">(</span><em class="sig-param">user_id</em>, <em class="sig-param">password</em>, <em class="sig-param">proxy_url=None</em>, <em class="sig-param">proxy_port=None</em>, <em class="sig-param">proxy_username=None</em>, <em class="sig-param">proxy_password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_ers_direct_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register your iLO with HP Insigt Online using Direct Connect. Note
+that you must also call dc_registration_complete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.dc_registration_complete">
+<code class="sig-name descname">dc_registration_complete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.dc_registration_complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Complete the ERS registration of your device after calling
+set_ers_direct_connect</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.set_ers_web_proxy">
+<code class="sig-name descname">set_ers_web_proxy</code><span class="sig-paren">(</span><em class="sig-param">proxy_url</em>, <em class="sig-param">proxy_port</em>, <em class="sig-param">proxy_username=None</em>, <em class="sig-param">proxy_password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.set_ers_web_proxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register your iLO with HP Insigt Online using Direct Connect. Note
+that you must also call dc_registration_complete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.ers_ahs_submit">
+<code class="sig-name descname">ers_ahs_submit</code><span class="sig-paren">(</span><em class="sig-param">message_id</em>, <em class="sig-param">bb_days</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.ers_ahs_submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submity AHS data to the insight remote support server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.trigger_l2_collection">
+<code class="sig-name descname">trigger_l2_collection</code><span class="sig-paren">(</span><em class="sig-param">message_id</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.trigger_l2_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate an L2 data collection submission to the Insight Remote Support server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.trigger_test_event">
+<code class="sig-name descname">trigger_test_event</code><span class="sig-paren">(</span><em class="sig-param">message_id</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.trigger_test_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger a test service event submission to the Insight Remote Support server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.disable_ers">
+<code class="sig-name descname">disable_ers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.disable_ers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disable Insight Remote Support functionality and unregister the server</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.trigger_bb_data">
+<code class="sig-name descname">trigger_bb_data</code><span class="sig-paren">(</span><em class="sig-param">message_id</em>, <em class="sig-param">days</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.trigger_bb_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initiate AHS data submission to IRS. The submitted data will include
+the specified message ID and number of days of data</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="federation.html" class="btn btn-neutral float-left" title="Federation groups" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="profile.html" class="btn btn-neutral float-right" title="Deployment profiles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

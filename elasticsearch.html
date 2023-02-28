@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iLO information search &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Automated firmware updates" href="autofirmware.html" />
+    <link rel="prev" title="Managing SSL certificates" href="ca.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">iLO information search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#storing-information">Storing information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#retrieving-information">Retrieving information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kibana-dashboard">Kibana dashboard</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">iLO information search</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ilo-information-search">
+<h1>iLO information search<a class="headerlink" href="#ilo-information-search" title="Permalink to this headline">¶</a></h1>
+<p>When managing large amounts of iLOs, it’s often useful to be able to quickly
+search through iLO configuration data without having to query them all. The
+approach chosen in this example is to store all available information in
+elasticsearch.</p>
+<div class="section" id="storing-information">
+<h2>Storing information<a class="headerlink" href="#storing-information" title="Permalink to this headline">¶</a></h2>
+<p>While the application can query the iLO itself, it does need to be told the
+names (or IP addresses, but names are recommended) of your iLO interfaces. To
+do this, you will need to create a <cite>servers.py</cite> file that will tell the
+application what it wants. An example <cite>servers.py</cite> is shipped with the
+application that simply returns a static list of hostnames, but you could do
+anything here. The author uses a variant that queries an asset database to get
+the iLO names for example.</p>
+<p>Once you have created <cite>servers.py</cite> to match your environment, you can run
+<strong class="command">hpilo_es_import</strong>. It will connect to elasticsearch on localhost and
+create an index named <cite>hpilo</cite>. If elasticsearch does not live on localhost, you
+can tell the application this in <code class="file docutils literal notranslate"><span class="pre">~/.ilo.conf</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">elasticsearch</span><span class="p">]</span>
+<span class="n">host</span> <span class="o">=</span> <span class="n">elasticsearch</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+<p>The importer will then contact all your iLOs and call the <cite>get_fw_version</cite>,
+<cite>get_host_data</cite>, <cite>get_global_settings</cite>, <cite>get_network_settings</cite>,
+<cite>get_all_user_info</cite>, <cite>get_oa_info</cite> and <cite>xmldata</cite> methods to get a bunch of
+information from the iLO. All this is then stored in elasticsearch.</p>
+<p>Once you have this working, all that remains is to set up a cronjob to
+regularly run the importer to refresh the data.</p>
+</div>
+<div class="section" id="retrieving-information">
+<h2>Retrieving information<a class="headerlink" href="#retrieving-information" title="Permalink to this headline">¶</a></h2>
+<p>Of course data is useless if you cannot retrieve it. Since there is nothing
+special about the iLO data, you can fetch it from elasticsearch like you fetch
+any data from there. The example includes an application that dumps all data,
+but the most useful code here you will need to write yourself, or you can use a
+visualization tool like kibana to look at the data.</p>
+</div>
+<div class="section" id="kibana-dashboard">
+<h2>Kibana dashboard<a class="headerlink" href="#kibana-dashboard" title="Permalink to this headline">¶</a></h2>
+<p>Kibana is a really powerful dashboard solution for elasticsearch. You can use
+it to get a quick overview of your iLO versions, settings and health data. You
+can find an example dashboard in the directory of this example application that
+you can import in your Kibana 4 instance.</p>
+<img alt="_images/kibana.png" src="_images/kibana.png" />
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="ca.html" class="btn btn-neutral float-left" title="Managing SSL certificates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="autofirmware.html" class="btn btn-neutral float-right" title="Automated firmware updates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

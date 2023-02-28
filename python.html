@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Access from Python &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Access from the shell" href="shell.html" />
+    <link rel="prev" title="Installing python-hpilo" href="install.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="log.html">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Access from Python</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="module-hpilo">
+<span id="access-from-python"></span><h1>Access from Python<a class="headerlink" href="#module-hpilo" title="Permalink to this headline">¶</a></h1>
+<p>The <a class="reference internal" href="#module-hpilo" title="hpilo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hpilo</span></code></a> module contains all you need to communicate with iLO
+devices, encapsulated in the <a class="reference internal" href="#hpilo.Ilo" title="hpilo.Ilo"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ilo</span></code></a> class and its methods. There are a
+few auxiliarry items in this module too.</p>
+<dl class="class">
+<dt id="hpilo.Ilo">
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code><span class="sig-paren">(</span><em class="sig-param">hostname</em>, <em class="sig-param">login=None</em>, <em class="sig-param">password=None</em>, <em class="sig-param">timeout=60</em>, <em class="sig-param">port=443</em>, <em class="sig-param">protocol=None</em>, <em class="sig-param">delayed=False</em>, <em class="sig-param">ssl_verify=False</em>, <em class="sig-param">ssl_context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents an iLO management interface on a specific host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hostname</strong> – Hostname or IP address of the iLO interface</p></li>
+<li><p><strong>login</strong> – Loginname to use for authentication, not used for <code class="xref py py-data docutils literal notranslate"><span class="pre">LOCAL</span></code> connections</p></li>
+<li><p><strong>password</strong> – Password to use for authentication, not used for <code class="xref py py-data docutils literal notranslate"><span class="pre">LOCAL</span></code> connections</p></li>
+<li><p><strong>timeout</strong> – Timeout for creating connections or receiving data</p></li>
+<li><p><strong>port</strong> – TCP port to use for HTTPS connections</p></li>
+<li><p><strong>protocol</strong> – The protocol to use. Either <code class="xref py py-data docutils literal notranslate"><span class="pre">hpilo.RAW</span></code> for remote
+iLO2 or older, <code class="xref py py-data docutils literal notranslate"><span class="pre">hpilo.HTTP</span></code> for remote ilo3 and
+newer or <code class="xref py py-data docutils literal notranslate"><span class="pre">hpilo.LOCAL</span></code> for using
+<strong class="program">hponcfg</strong> and the local kernel driver. If you do
+not specify this parameter, it will be autodetected.</p></li>
+<li><p><strong>delayed</strong> – By default, this library will immediately contact the iLO
+for any method call you make and return a result. To save
+roundtrip time costs, set this to <code class="xref py py-data docutils literal notranslate"><span class="pre">False</span></code> and call
+the <a class="reference internal" href="#hpilo.Ilo.call_delayed" title="hpilo.Ilo.call_delayed"><code class="xref py py-meth docutils literal notranslate"><span class="pre">call_delayed()</span></code></a> method manually.</p></li>
+<li><p><strong>ssl_verify</strong> – By default, this library does not verify ssl
+certificates, because the iLO comes with a self-signed
+certificate by default and sadly not many people fix this.
+But if you do fix this, you can actually force verification
+of the certificates.</p></li>
+<li><p><strong>ssl_context</strong> – If you need custom ssl or verification parameters, such
+as a custom CA certificate, you can pass a custom ssl
+context object with all the settings you need.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="hpilo.Ilo.call_delayed">
+<code class="sig-name descname">call_delayed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.call_delayed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls all the delayed methods that have accumulated. This is best
+illustrated with an example. Observe the difference between:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span> <span class="o">=</span> <span class="n">hpilo</span><span class="o">.</span><span class="n">Ilo</span><span class="p">(</span><span class="s1">&#39;example-server.int.kaarsemaker.net&#39;</span><span class="p">,</span> <span class="s1">&#39;Administrator&#39;</span><span class="p">,</span> <span class="s1">&#39;PassW0rd&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">ilo</span><span class="o">.</span><span class="n">get_fw_version</span><span class="p">())</span>
+<span class="go">{&#39;firmware_date&#39;: &#39;Aug 26 2011&#39;,</span>
+<span class="go"> &#39;firmware_version&#39;: &#39;1.26&#39;,</span>
+<span class="go"> &#39;license_type&#39;: &#39;iLO 3 Advanced&#39;,</span>
+<span class="go"> &#39;management_processor&#39;: &#39;iLO3&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">ilo</span><span class="o">.</span><span class="n">get_uid_status</span><span class="p">())</span>
+<span class="go">&#39;OFF&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span> <span class="o">=</span> <span class="n">hpilo</span><span class="o">.</span><span class="n">Ilo</span><span class="p">(</span><span class="s1">&#39;example-server.int.kaarsemaker.net&#39;</span><span class="p">,</span> <span class="s1">&#39;Administrator&#39;</span><span class="p">,</span> <span class="s1">&#39;PassW0rd&#39;</span><span class="p">,</span> <span class="n">ssl_version</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">PROTOCOL_TLSv1_2</span><span class="p">)</span>
+<span class="go">{&#39;firmware_date&#39;: &#39;Dec 02 2015&#39;,</span>
+<span class="go"> &#39;firmware_version&#39;: &#39;2.40&#39;,</span>
+<span class="go"> &#39;license_type&#39;: &#39;iLO Standard&#39;,</span>
+<span class="go"> &#39;management_processor&#39;: &#39;iLO4&#39;}</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span> <span class="o">=</span> <span class="n">hpilo</span><span class="o">.</span><span class="n">Ilo</span><span class="p">(</span><span class="s1">&#39;example-server.int.kaarsemaker.net&#39;</span><span class="p">,</span> <span class="s1">&#39;Administrator&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="s1">&#39;PassW0rd&#39;</span><span class="p">,</span> <span class="n">delayed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">ilo</span><span class="o">.</span><span class="n">get_fw_version</span><span class="p">())</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">ilo</span><span class="o">.</span><span class="n">get_uid_status</span><span class="p">())</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">ilo</span><span class="o">.</span><span class="n">call_delayed</span><span class="p">())</span>
+<span class="go">[{&#39;firmware_date&#39;: &#39;Aug 26 2011&#39;,</span>
+<span class="go">  &#39;firmware_version&#39;: &#39;1.26&#39;,</span>
+<span class="go">  &#39;license_type&#39;: &#39;iLO 3 Advanced&#39;,</span>
+<span class="go">  &#39;management_processor&#39;: &#39;iLO3&#39;},</span>
+<span class="go"> &#39;OFF&#39;]</span>
+</pre></div>
+</div>
+<p>The second example only contacts the iLO twice, avoiding the overhead of
+one HTTP connection. As this overhead is quite significant, it makes
+sense to do this when you need to make more than one API call.</p>
+<p>When using the delayed mode, please be aware that methods that trigger a
+reset may cause subsequent methods to not be called or cause errors to be
+returned for these methods.</p>
+</dd></dl>
+
+<p>All other methods of this class are API calls that mimic the methods
+available via XML. These are documented separately in further pages here and
+in the <a class="reference external" href="http://www.hp.com/support/ilo4_cli_gde_en">ilo scripting guide</a> published by HP.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="hpilo.IloWarning">
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">IloWarning</code><a class="headerlink" href="#hpilo.IloWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>A warning that is raised when the iLO returns warning messages in its XML output</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="hpilo.IloError">
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">IloError</code><a class="headerlink" href="#hpilo.IloError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An exception that is raised when the iLO or python-hpilo indicates an error
+has occured while processing your API call. For example when calling a
+method not supported by an iLO, when using invalid parameters or when the
+iLO returns unexpected data.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="hpilo.IloCommunicationError">
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">IloCommunicationError</code><a class="headerlink" href="#hpilo.IloCommunicationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass of IloError that specifically indicates errors writing data to or
+reading data from the iLO.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="hpilo.IloLoginFailed">
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">IloLoginFailed</code><a class="headerlink" href="#hpilo.IloLoginFailed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subclass of IloError that indicates that you used the wrong username or
+password.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install.html" class="btn btn-neutral float-left" title="Installing python-hpilo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="shell.html" class="btn btn-neutral float-right" title="Access from the shell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

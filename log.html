@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iLO event log &mdash; python-hpilo 4.4.3 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Federation groups" href="federation.html" />
+    <link rel="prev" title="Unauthenticated iLO and Chassis OA data" href="xmldata.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-hpilo
+              <img src="_static/python-hpilo.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                4.4.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing python-hpilo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Access from Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shell.html">Access from the shell</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="info.html">General server and iLO information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networksettings.html">Network settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">iLO licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security and SSL settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="health.html">Server health</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power.html">Power manipulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">Boot settings and rebooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="media.html">Virtual media</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input.html">Keyboard and mouse settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snmp.html">SNMP settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware.html">Dealing with iLO firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xmldata.html">Unauthenticated iLO and Chassis OA data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">iLO event log</a></li>
+<li class="toctree-l1"><a class="reference internal" href="federation.html">Federation groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ahs.html">Active Health System and Insight Remote Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profile.html">Deployment profiles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ca.html">Managing SSL certificates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="elasticsearch.html">iLO information search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autofirmware.html">Automated firmware updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="puppet.html">Managing iLO’s with puppet</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Common issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-hpilo</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">iLO event log</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="ilo-event-log">
+<h1>iLO event log<a class="headerlink" href="#ilo-event-log" title="Permalink to this headline">¶</a></h1>
+<p>The iLO keeps two separate logs: for iLO events and for server events. While
+iLO 4 can also log to a central syslog server, for others you will need to
+query this log yourself, using the functions below.</p>
+<dl class="class">
+<dt>
+<em class="property">class </em><code class="sig-prename descclassname">hpilo.</code><code class="sig-name descname">Ilo</code></dt>
+<dd><dl class="method">
+<dt id="hpilo.Ilo.get_ilo_event_log">
+<code class="sig-name descname">get_ilo_event_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_ilo_event_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the full iLO event log</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_ilo_event_log</span><span class="p">()</span>
+<span class="go">[{&#39;class&#39;: &#39;iLO 3&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Event log cleared.&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;01/30/2011 16:33&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;01/30/2011 16:33&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Informational&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;iLO 3&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Server reset.&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;01/30/2011 16:34&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;01/30/2011 16:34&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Caution&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;iLO 3&#39;,</span>
+<span class="go">  &#39;count&#39;: 4,</span>
+<span class="go">  &#39;description&#39;: &#39;Server power restored.&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;01/30/2011 16:34&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;01/30/2011 16:42&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Informational&#39;},</span>
+<span class="go">  (Other log entries skipped)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.clear_ilo_event_log">
+<code class="sig-name descname">clear_ilo_event_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.clear_ilo_event_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the iLO event log</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.get_server_event_log">
+<code class="sig-name descname">get_server_event_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.get_server_event_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the IML log of the server</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ilo</span><span class="o">.</span><span class="n">get_server_event_log</span><span class="p">()</span>
+<span class="go">[{&#39;class&#39;: &#39;Maintenance&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Maintenance note: IML cleared through hpasmcli&#39;,</span>
+<span class="go">  &#39;event_class&#39;: &#39;0x0021&#39;,</span>
+<span class="go">  &#39;event_code&#39;: &#39;0x0002&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;04/10/2014 12:26&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;04/10/2014 12:26&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Informational&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;Rack Infrastructure&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Chassis Enclosure Serial Number SGH035M712 requires minimum firmware revision 03.50. It is currently 03.32.&#39;,</span>
+<span class="go">  &#39;event_class&#39;: &#39;0x0022&#39;,</span>
+<span class="go">  &#39;event_code&#39;: &#39;0x0019&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;[NOT SET] &#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;[NOT SET] &#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Caution&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;POST Message&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;POST Error: 1785-Slot X Drive Array Not Configured&#39;,</span>
+<span class="go">  &#39;event_class&#39;: &#39;0x000a&#39;,</span>
+<span class="go">  &#39;event_code&#39;: &#39;0x0001&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;12/20/2013 00:03&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;12/20/2013 00:03&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Caution&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;System Revision&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Firmware flashed (ProLiant System BIOS - I31 08/02/2014)&#39;,</span>
+<span class="go">  &#39;event_class&#39;: &#39;0x0020&#39;,</span>
+<span class="go">  &#39;event_code&#39;: &#39;0x0002&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;03/05/2015 09:38&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;03/05/2015 09:38&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Informational&#39;},</span>
+<span class="go"> {&#39;class&#39;: &#39;System Revision&#39;,</span>
+<span class="go">  &#39;count&#39;: 1,</span>
+<span class="go">  &#39;description&#39;: &#39;Firmware flashed (iLO 4 2.10)&#39;,</span>
+<span class="go">  &#39;event_class&#39;: &#39;0x0020&#39;,</span>
+<span class="go">  &#39;event_code&#39;: &#39;0x0002&#39;,</span>
+<span class="go">  &#39;initial_update&#39;: &#39;04/08/2015 16:55&#39;,</span>
+<span class="go">  &#39;last_update&#39;: &#39;04/08/2015 16:55&#39;,</span>
+<span class="go">  &#39;severity&#39;: &#39;Informational&#39;}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="hpilo.Ilo.clear_server_event_log">
+<code class="sig-name descname">clear_server_event_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#hpilo.Ilo.clear_server_event_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the server event log</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="xmldata.html" class="btn btn-neutral float-left" title="Unauthenticated iLO and Chassis OA data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="federation.html" class="btn btn-neutral float-right" title="Federation groups" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011-2020, Dennis Kaarsemaker.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
