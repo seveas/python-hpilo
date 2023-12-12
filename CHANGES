@@ -1,3 +1,7 @@
+Version 4.4.4, 2023-12-12
+
+* Fixes configparser `readfp()` depreciation
+
 Version 4.4.3, 2021-01-16
 
 * Fixes compatibility with OpenSSL v1.1.0+
