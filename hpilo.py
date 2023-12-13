@@ -1,7 +1,7 @@
 # (c) 2011-2021 Dennis Kaarsemaker <dennis@kaarsemaker.net>
 # see COPYING for license details
 
-__version__ = "4.4.3"
+__version__ = "4.4.4"
 
 import codecs
 import io
@@ -562,7 +562,7 @@ class Ilo(object):
         # Remove binary 01 in xml output. This bug was seen on a faulty PSU.
         if '\x01' in data:
             data = data.replace('\x01', '')
-        
+
         # Quite a few unescaped quotation mark bugs keep appearing. Let's try
         # to fix up the XML by replacing the last occurrence of a quotation mark
         # *before* the position of the error.
