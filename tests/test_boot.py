@@ -3,6 +3,7 @@
 from utils import *
 import random
 
+
 class BootTests(IloTestCase):
     def test_persistent_boot(self, ilo):
         old = ilo.get_persistent_boot()
@@ -26,5 +27,6 @@ class BootTests(IloTestCase):
         finally:
             ilo.set_one_time_boot(old)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
