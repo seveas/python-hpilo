@@ -201,7 +201,7 @@ class Ilo(object):
         self.hponcfg = "/sbin/hponcfg"
         hponcfg = 'hponcfg'
         if platform.system() == 'Windows':
-            self.hponcfg = 'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
+            self.hponcfg = r'C:\Program Files\HP Lights-Out Configuration Utility\cpqlocfg.exe'
             hponcfg = 'cpqlocfg.exe'
         for path in os.environ.get('PATH','').split(os.pathsep):
             maybe = os.path.join(path, hponcfg)
@@ -333,7 +333,7 @@ class Ilo(object):
             body = re.search('<body>(.*)</body>', data, flags=re.DOTALL).group(1)
             body = re.sub('<[^>]*>', '', body).strip()
             body = re.sub('Return to last page', '', body).strip()
-            body = re.sub('\s+', ' ', body).strip()
+            body = re.sub(r'\s+', ' ', body).strip()
             raise IloError(body)
         self.cookie = re.search('Set-Cookie: *(.*)', data).group(1)
         self._debug(2, "Cookie: %s" % self.cookie)
@@ -429,7 +429,7 @@ class Ilo(object):
         if self.protocol != ILO_LOCAL:
             sock.write(self.XML_HEADER)
         if b'$EMBED' in xml:
-            pre, name, post = re.compile(b'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
+            pre, name, post = re.compile(rb'(.*)\$EMBED:(.*)\$(.*)', re.DOTALL).match(xml).groups()
             sock.write(pre)
             sent = 0
             fwlen = os.path.getsize(name)
