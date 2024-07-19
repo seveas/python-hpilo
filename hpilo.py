@@ -904,11 +904,6 @@ class Ilo(object):
             elements.append(etree.Element('COMPUTER_LOCK_KEY', VALUE=computer_lock_key))
         return self._control_tag('RIB_INFO', 'COMPUTER_LOCK_CONFIG', elements=elements)
 
-    def dc_registration_complete(self):
-        """Complete the ERS registration of your device after calling
-           set_ers_direct_connect"""
-        return self._control_tag('RIB_INFO', 'DC_REGISTRATION_COMPLETE')
-
     def delete_federation_group(self, group_name):
         """Delete the specified federation group membership"""
         return self._control_tag('RIB_INFO', 'DELETE_FEDERATION_GROUP', attrib={'GROUP_NAME': group_name})
@@ -1843,19 +1838,6 @@ class Ilo(object):
         status = {True: 'Yes', False: 'No'}[value]
         return self._control_tag('SERVER_INFO', 'SET_CRITICAL_TEMP_REMAIN_OFF', attrib={'VALUE': value})
 
-    def set_ers_direct_connect(self, user_id, password, proxy_url=None,
-            proxy_port=None, proxy_username=None, proxy_password=None):
-        """Register your iLO with HP Insigt Online using Direct Connect. Note
-           that you must also call dc_registration_complete"""
-        elements = [
-            etree.Element('ERS_HPP_USER_ID', attrib={'VALUE': str(user_id)}),
-            etree.Element('ERS_HPP_PASSWORD', attrib={'VALUE': str(password)}),
-        ]
-        for key, value in locals().items():
-            if key.startswith('proxy_') and value is not None:
-                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': str(value)}))
-        return self._control_tag('RIB_INFO', 'SET_ERS_DIRECT_CONNECT', elements=elements)
-
     def set_ers_irs_connect(self, ers_destination_url, ers_destination_port):
         """Connect to an Insight Remote Support server"""
         elements = [
@@ -1863,16 +1845,6 @@ class Ilo(object):
             etree.Element('ERS_DESTINATION_PORT', attrib={'VALUE': str(ers_destination_port)}),
         ]
         return self._control_tag('RIB_INFO', 'SET_ERS_IRS_CONNECT', elements=elements)
-
-    def set_ers_web_proxy(self, proxy_url, proxy_port, proxy_username=None,
-            proxy_password=None):
-        """Register your iLO with HP Insigt Online using Direct Connect. Note
-           that you must also call dc_registration_complete"""
-        elements = []
-        for key, value in locals().items():
-            if key.startswith('proxy_') and value is not None:
-                elements.append(etree.Element('ERS_WEB_' + key, attrib={'VALUE': str(value)}))
-        return self._control_tag('RIB_INFO', 'SET_ERS_WEB_PROXY', elements=elements)
 
     def set_federation_multicast(self, multicast_federation_enabled=True, multicast_discovery_enabled=True,
                                  multicast_announcement_interval=600, ipv6_multicast_scope="Site", multicast_ttl=5):

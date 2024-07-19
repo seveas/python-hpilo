@@ -16,9 +16,6 @@ let you inspect and manipulate the AHS and ERS configuration and submit data.
    .. automethod:: get_ers_settings
    .. ilo_output:: get_ers_settings
    .. automethod:: set_ers_irs_connect
-   .. automethod:: set_ers_direct_connect
-   .. automethod:: dc_registration_complete
-   .. automethod:: set_ers_web_proxy
    .. automethod:: ers_ahs_submit
    .. automethod:: trigger_l2_collection
    .. automethod:: trigger_test_event
