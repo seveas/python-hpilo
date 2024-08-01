@@ -1691,9 +1691,10 @@ class Ilo(object):
         for key in vars:
             if 'trapcommunity' in key and vars[key]:
                 val = vars[key]
+                val_inter = {}
                 for key_ in val.keys():
-                    val[key_.upper()] = str(val.pop(key_))
-                elements.append(etree.Element(key.upper(), **val))
+                    val_inter[key_.upper()] = str(val[key_])
+                elements.append(etree.Element(key.upper(), **val_inter))
             elif 'snmp_user_profile' in key and vars[key]:
                 elt = etree.Element(key[:-2].upper(), {'INDEX': key[-1]})
                 for key, val in vars[key].items():
