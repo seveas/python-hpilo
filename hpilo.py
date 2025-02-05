@@ -1262,6 +1262,10 @@ class Ilo(object):
         def process(data):
             if 'device' in data['boot_type']:
                 data['boot_type'] = data['boot_type']['device']
+
+            # iLO 6 has brought with it more breaking changes
+            if isinstance(data['boot_type'], tuple):
+                return data['boot_type']
             return data['boot_type'].lower()
         return self._info_tag('SERVER_INFO', 'GET_ONE_TIME_BOOT', ('ONE_TIME_BOOT', 'GET_ONE_TIME_BOOT'), process=process)
 
