@@ -266,7 +266,7 @@ def hpilo_help(option, opt_str, value, parser, exitcode=0):
             doc = re.sub(r':[a-z]+:`(.*?)`', r'\1', doc)
             if 'API note' in doc:
                 doc = doc[:doc.find('API note')].strip()
-            doc = re.sub('\s+', ' ', doc)
+            doc = re.sub(r'\s+', ' ', doc)
             print(textwrap.fill(doc, 80))
         else:
             print("No such method: %s" % value)
