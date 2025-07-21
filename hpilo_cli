@@ -251,12 +251,12 @@ def hpilo_help(option, opt_str, value, parser, exitcode=0):
     else:
         if value in ilo_methods:
             import re, textwrap
-            func = getattr(hpilo.Ilo, value).im_func
-            code = func.func_code
+            func = getattr(hpilo.Ilo, value) if PY3 else getattr(hpilo.Ilo, value).im_func
+            code = func.__code__ if PY3 else func.func_code
             args = ''
             if code.co_argcount > 1:
                 args = code.co_varnames[:code.co_argcount]
-                defaults = func.func_defaults or []
+                defaults = func.__defaults__ if PY3 else func.func_defaults or []
                 args = ["%s=%s" % (x, x.upper()) for x in args[:len(args)-len(defaults)]] + \
                        ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults) if x != 'progress']
                 args = ' ' + ' '.join(args[1:])
