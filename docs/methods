@@ -8,7 +8,6 @@ clear_ilo_event_log
 clear_server_event_log
 clear_server_power_on_time
 computer_lock_config
-dc_registration_complete
 delete_federation_group
 delete_user
 disable_ers
@@ -95,9 +94,7 @@ reset_rib
 reset_server
 set_ahs_status
 set_asset_tag
-set_ers_direct_connect
 set_ers_irs_connect
-set_ers_web_proxy
 set_federation_multicast
 set_language
 set_host_power
