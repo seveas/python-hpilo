@@ -251,12 +251,12 @@ def hpilo_help(option, opt_str, value, parser, exitcode=0):
     else:
         if value in ilo_methods:
             import re, textwrap
-            func = getattr(hpilo.Ilo, value).im_func
-            code = func.func_code
+            func = getattr(hpilo.Ilo, value) if PY3 else getattr(hpilo.Ilo, value).im_func
+            code = func.__code__ if PY3 else func.func_code
             args = ''
             if code.co_argcount > 1:
                 args = code.co_varnames[:code.co_argcount]
-                defaults = func.func_defaults or []
+                defaults = func.__defaults__ if PY3 else func.func_defaults or []
                 args = ["%s=%s" % (x, x.upper()) for x in args[:len(args)-len(defaults)]] + \
                        ["[%s=%s]" % (x,str(y)) for x, y in zip(args[len(args)-len(defaults):], defaults) if x != 'progress']
                 args = ' ' + ' '.join(args[1:])
@@ -266,7 +266,7 @@ def hpilo_help(option, opt_str, value, parser, exitcode=0):
             doc = re.sub(r':[a-z]+:`(.*?)`', r'\1', doc)
             if 'API note' in doc:
                 doc = doc[:doc.find('API note')].strip()
-            doc = re.sub('\s+', ' ', doc)
+            doc = re.sub(r'\s+', ' ', doc)
             print(textwrap.fill(doc, 80))
         else:
             print("No such method: %s" % value)
