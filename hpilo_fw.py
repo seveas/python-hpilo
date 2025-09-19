@@ -29,7 +29,7 @@ def config(mirror=None):
             conf = _download('https://seveas.github.io/python-hpilo/firmware.conf')
         conf = conf.decode('ascii')
         parser = ConfigParser.ConfigParser()
-        parser.readfp(io.StringIO(conf))
+        parser.read_file(io.StringIO(conf))
         _config = {}
         for section in parser.sections():
             _config[section] = {}
